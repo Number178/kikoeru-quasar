@@ -1,7 +1,7 @@
 <template>
   <div>
     <router-link :to="`/work/${metadata.id}`">
-      <CoverSFW :workid="metadata.id" :nsfw="metadata.nsfw" />
+      <CoverSFW :workid="metadata.id" :nsfw="false" />
     </router-link>
 
     <div class="q-pa-sm">
