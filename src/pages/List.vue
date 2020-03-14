@@ -1,0 +1,75 @@
+<template>
+  <div>
+    <div class="text-h5 text-weight-regular q-ma-md">
+      All {{restrict}}s
+    </div>
+
+    <div class="row justify-center q-pb-xl q-pt-none">
+      <div class="col-11">
+        <q-input dense rounded outlined v-model="keyword" :placeholder="`Search for a ${restrict}...`" class="q-mb-md">
+          <template v-slot:append>
+            <q-icon v-if="keyword === ''" name="search" />
+            <q-icon v-else name="clear" class="cursor-pointer" @click="keyword = ''" />
+          </template>
+        </q-input>
+
+        <div class="row justify-center q-gutter-sm">
+          <div class="col-auto" v-for="(item, index) in (keyword ? filteredItems : items)" :key="index">
+            <q-btn no-caps unelevated rounded color="primary" :label="item.name" :to="`/${restrict}/${item.id}`" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'List',
+
+  props: {
+    restrict: {
+      type: String
+    }
+  },
+
+  data () {
+    return {
+      items: [],
+      keyword: ''
+    }
+  },
+
+  created () {
+    this.requestList()
+  },
+
+  computed: {
+    url () {
+      return `/api/${this.restrict}s/`
+    },
+
+    filteredItems () {
+      return this.items.filter(item => item.name.toLowerCase().indexOf(this.keyword.toLowerCase()) !== -1)
+    }
+  },
+
+  watch: {
+    url () {
+      this.requestList()
+    }
+  },
+
+  methods: {
+    requestList () { 
+      this.$axios.get(this.url)
+        .then((response) => {
+          this.items = response.data.concat()
+        })
+        .catch((error) => {
+          throw new Error(`Failed to request ${this.url}: ${error}`)
+        })
+    },
+  }
+}
+</script>

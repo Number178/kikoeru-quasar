@@ -1,0 +1,31 @@
+{
+  "name": "kikoeru-quasar",
+  "version": "0.1.0",
+  "description": "A self-hosted web media player for listening to your DLsite voice works.",
+  "productName": "Kikoeru",
+  "cordovaId": "org.cordova.quasar.kikoeru",
+  "capacitorId": "",
+  "author": "Watanuki-Kimihiro",
+  "private": true,
+  "scripts": {
+    "test": "echo \"No test specified\" && exit 0"
+  },
+  "dependencies": {
+    "@quasar/extras": "^1.0.0",
+    "axios": "^0.18.1",
+    "quasar": "^1.0.0",
+    "vue-slider-component": "^3.1.1",
+    "vuedraggable": "^2.23.2"
+  },
+  "devDependencies": {
+    "@quasar/app": "^1.0.0"
+  },
+  "engines": {
+    "node": ">= 10.18.1",
+    "npm": ">= 6.13.4",
+    "yarn": ">= 1.21.1"
+  },
+  "browserslist": [
+    "last 1 version, not dead, ie >= 11"
+  ]
+}

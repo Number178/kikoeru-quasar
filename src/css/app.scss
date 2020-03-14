@@ -1,0 +1,8 @@
+// app global css in SCSS form
+
+a {
+  &:link { text-decoration:none; } // 未访问链接
+  &:visited { text-decoration:none; } // 已访问链接
+  &:hover { text-decoration:underline; } // 鼠标移动到链接上
+  &:active { text-decoration:underline; } // 鼠标点击时
+}
