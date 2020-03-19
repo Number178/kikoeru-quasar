@@ -45,7 +45,7 @@ export default {
   methods: {
     requestMetadata () {
       if (this.workid) {
-        this.$axios.get(`/api/work/${this.workid}`)
+        this.axios.get(`/api/work/${this.workid}`)
           .then((response) => {
             this.metadata = response.data
           })

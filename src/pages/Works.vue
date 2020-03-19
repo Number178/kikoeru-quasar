@@ -91,7 +91,7 @@ export default {
     },
 
     requestWorksQueue () { 
-      return this.$axios.get(`${this.url}/${this.oldestId}`)
+      return this.axios.get(`${this.url}/${this.oldestId}`)
         .then((response) => {
           const works = response.data
           if (!works.length) {
@@ -110,7 +110,7 @@ export default {
     refreshPageTitle () {
       if (this.$route.params.id) {
         const url = `/api/get-name/${this.restrict}/${this.$route.params.id}`
-        this.$axios.get(url)
+        this.axios.get(url)
           .then((response) => {
             const name = response.data
             let pageTitle

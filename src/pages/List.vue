@@ -62,7 +62,7 @@ export default {
 
   methods: {
     requestList () { 
-      this.$axios.get(this.url)
+      this.axios.get(this.url)
         .then((response) => {
           this.items = response.data.concat()
         })

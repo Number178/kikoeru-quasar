@@ -34,8 +34,8 @@ export default {
 
   methods: {
     requestData () {
-      const metadataPromise = this.$axios.get(`/api/work/${this.workid}`)
-      const tracksPromise = this.$axios.get(`/api/tracks/${this.workid}`)
+      const metadataPromise = this.axios.get(`/api/work/${this.workid}`)
+      const tracksPromise = this.axios.get(`/api/tracks/${this.workid}`)
 
       Promise.all([metadataPromise, tracksPromise])
         .then(response => {
