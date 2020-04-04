@@ -15,7 +15,7 @@
 
         <div class="row justify-center q-gutter-sm">
           <div class="col-auto" v-for="(item, index) in (keyword ? filteredItems : items)" :key="index">
-            <q-btn no-caps unelevated rounded color="primary" :label="item.name" :to="`/${restrict}/${item.id}`" />
+            <q-btn no-caps unelevated rounded color="primary" :label="`${item.name} (${item.count})`" :to="`/${restrict}/${item.id}`" />
           </div>
         </div>
       </div>
@@ -67,9 +67,19 @@ export default {
           this.items = response.data.concat()
         })
         .catch((error) => {
-          throw new Error(`Failed to request ${this.url}: ${error}`)
+          this.showErrNotif(`Failed to request ${this.url}: ${error}`)
         })
     },
+
+    showErrNotif (message) {
+      this.$q.notify({
+        message,
+        position: 'bottom-right',
+        icon: 'bug_report',
+        color: 'red',
+        multiLine: true
+      })
+    }
   }
 }
 </script>

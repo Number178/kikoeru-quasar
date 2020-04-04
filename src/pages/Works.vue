@@ -1,10 +1,24 @@
 <template>
   <div>
     <div class="text-h5 text-weight-regular q-ma-md">
-      {{pageTitle}}
+      {{pageTitle}}<span v-show="pagination.totalCount"> ({{pagination.totalCount}})</span>
     </div>
+    
+    <div class="row justify-center q-col-gutter-y-lg q-pb-xl q-pt-none">
+      <!-- 排序选择框 -->
+      <div class="col-11">
+        <q-select
+          dense
+          rounded
+          outlined
+          v-model="oderOption"
+          :options="options"
+          label="排序"
+          style="max-width: 250px"
+          class="col-11"
+        />
+      </div>
 
-    <div class="row justify-center q-pb-xl q-pt-none">
       <div class="col-11">
         <q-infinite-scroll @load="onLoad" :offset="250" :disable="stopLoad">
          <div class="row justify-center q-col-gutter-x-md q-col-gutter-y-lg">
@@ -44,8 +58,61 @@ export default {
     return {
       stopLoad: false,
       works: [],
-      oldestId: 999999,
-      pageTitle: ""
+      pageTitle: '',
+      page: 1,
+      pagination: {},
+      oderOption: {
+        label: '按照发售日期新到老的顺序',
+        order: 'release',
+        sort: 'desc'
+      },
+      options: [
+        {
+          label: '按照发售日期新到老的顺序',
+          order: 'release',
+          sort: 'desc'
+        },
+        {
+          label: '按照发售日期老到新的顺序',
+          order: 'release',
+          sort: 'asc'
+        },
+        {
+          label: '按照售出数量多到少的顺序',
+          order: 'dl_count',
+          sort: 'desc'
+        },
+        {
+          label: '按照价格便宜到贵的顺序',
+          order: 'price',
+          sort: 'asc'
+        },
+        {
+          label: '按照价格贵到便宜的顺序',
+          order: 'price',
+          sort: 'desc'
+        },
+        {
+          label: '按照评价高到低的顺序',
+          order: 'rate_average_2dp',
+          sort: 'desc'
+        },
+        {
+          label: '按照评论多到少的顺序',
+          order: 'review_count',
+          sort: 'desc'
+        },
+        {
+          label: '按照RJ号大到小的顺序',
+          order: 'id',
+          sort: 'desc'
+        },
+        {
+          label: '按照RJ号小到大的顺序',
+          order: 'id',
+          sort: 'asc'
+        },
+      ]
     }
   },
 
@@ -67,43 +134,40 @@ export default {
 
   watch: {
     url () {
-      this.stopLoad = true
-      this.oldestId = 999999
-      
-      this.refreshPageTitle()
-      this.requestWorksQueue()
-        .then((works) => {
-          this.works = works.concat()
-          this.stopLoad = false
-        })
+      this.reset()
+    },
+
+    oderOption () {
+      this.reset()
     }
   },
 
   methods: {
     onLoad (index, done) {
       this.requestWorksQueue()
-        .then((works) => {
-          if (works.length) {
-            this.works = this.works.concat(works)
-            done()
-          }
-        })
+        .then(() => done())
     },
 
-    requestWorksQueue () { 
-      return this.axios.get(`${this.url}/${this.oldestId}`)
-        .then((response) => {
-          const works = response.data
-          if (!works.length) {
-            this.stopLoad = true
-          } else {
-            this.oldestId = works[works.length-1].id
-          }
+    requestWorksQueue () {
+      const params = {
+        order: this.oderOption.order,
+        sort: this.oderOption.sort,
+        page: this.pagination.currentPage + 1 || 1
+      }
 
-          return works
+      return this.axios.get(this.url, {params})
+        .then((response) => {
+          const works = response.data.works
+          this.works = (params.page === 1) ? works.concat() : this.works.concat(works)
+          this.pagination = response.data.pagination
+
+          if (this.works.length >= this.pagination.totalCount) {
+            this.stopLoad = true
+          }
         })
         .catch((error) => {
-          throw new Error(`Failed to request ${this.url}: ${error}`)
+          this.showErrNotif(`Failed to request ${this.url}: ${error}`)
+          this.stopLoad = true
         })
     },
 
@@ -131,14 +195,34 @@ export default {
             this.pageTitle = pageTitle
           })
           .catch((error) => {
-            throw new Error(`Failed to request ${url}: ${error}`)
+            this.showErrNotif(`Failed to request ${url}: ${error}`)
           })
       } else if (this.$route.params.keyword) {
         this.pageTitle = `Search by ${this.$route.params.keyword}`
       } else {
         this.pageTitle = 'All works'
       } 
-    }
+    },
+
+    reset () {
+      this.stopLoad = true
+      this.refreshPageTitle()
+      this.pagination = {}
+      this.requestWorksQueue()
+        .then(() => {
+          this.stopLoad = false
+        })
+    },
+
+    showErrNotif (message) {
+      this.$q.notify({
+        message,
+        position: 'bottom-right',
+        icon: 'bug_report',
+        color: 'red',
+        multiLine: true
+      })
+    } 
   }
 }
 </script>

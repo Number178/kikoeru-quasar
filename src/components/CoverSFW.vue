@@ -13,6 +13,10 @@
           {{`RJ${rjcode}`}}
         </q-chip>
       </div>
+
+      <div :v-if="release" class="absolute-bottom-right" style="padding: 5px;">
+        {{release}}
+      </div>
     </q-img>
   </router-link>   
 </template>
@@ -30,6 +34,10 @@ export default {
     nsfw: {
       type: Boolean,
       default: true
+    },
+
+    release: {
+      required: true
     }
   },
 
