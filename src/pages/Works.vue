@@ -155,7 +155,7 @@ export default {
         page: this.pagination.currentPage + 1 || 1
       }
 
-      return this.axios.get(this.url, {params})
+      return this.$axios.get(this.url, {params})
         .then((response) => {
           const works = response.data.works
           this.works = (params.page === 1) ? works.concat() : this.works.concat(works)
@@ -174,7 +174,7 @@ export default {
     refreshPageTitle () {
       if (this.$route.params.id) {
         const url = `/api/get-name/${this.restrict}/${this.$route.params.id}`
-        this.axios.get(url)
+        this.$axios.get(url)
           .then((response) => {
             const name = response.data
             let pageTitle
