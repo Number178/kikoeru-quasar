@@ -84,19 +84,7 @@
                 :lazy="true"
                 :contained="true"
                 class=" "
-              >
-                <vue-slider
-                  disabled
-                  v-model="buffered"
-                  :min="0"
-                  :max="100"
-                  :interval="0.1"
-                  :contained="true"
-                  :tooltip="'none'"
-                  :dotStyle="{ display: 'none' }"
-                  class="absolute-center"
-                />
-              </vue-slider>
+              />
             </div>
 
             <div class="col-auto">
@@ -123,13 +111,13 @@ export default {
   },
 
   created () {
-    if (!this.currentlyPlayingHash) {
+    if (!this.currentPlayingHash) {
       this.$router.push('/')
     }
   },
 
   watch: {
-    'currentlyPlayingHash': function (newHash, oldHash) {
+    'currentPlayingHash': function (newHash, oldHash) {
       if (!newHash) {
         this.$router.push('/')
       }
@@ -138,7 +126,7 @@ export default {
 
   computed: {
     coverUrl () {
-      const hash = this.currentlyPlayingHash
+      const hash = this.currentPlayingHash
       return hash ? `/api/cover/${hash.substring(0, hash.indexOf('/'))}` : ""
     },
 
@@ -154,10 +142,6 @@ export default {
       set (val) {
         this.$store.commit('AudioPlayer/SEEK', val)
       }
-    },
-
-    buffered () {
-      return this.$store.state.AudioPlayer.buffered
     },
 
     volume: {
@@ -205,7 +189,7 @@ export default {
     },
 
     ...mapGetters({
-      currentlyPlayingHash: 'AudioPlayer/currentlyPlayingHash'
+      currentPlayingHash: 'AudioPlayer/currentPlayingHash'
     })
   },
 

@@ -1,28 +1,17 @@
 <template>
-  <div v-show="currentlyPlayingHash">
-    <div class="row items-center q-gutter-sm q-px-sm">
-      <div class="col-auto ">
-        <router-link :to="'/player'">
-          <q-avatar square size="55px">
-            <q-img :src="coverUrl" :ratio="4/3"/>
-          </q-avatar>
-        </router-link>
-      </div>
+  <q-slide-transition>
+    <div v-show="currentPlayingHash" class="row items-center q-gutter-sm q-px-sm"> 
+      <router-link :to="'/player'" class="col-auto">
+        <q-avatar square size="55px">
+          <q-img :src="coverUrl" :ratio="4/3"/>
+        </q-avatar>
+      </router-link>
   
-      <div class="col">
-        {{currentlyPlayingTitle}}
-      </div>
+      <span class="col">{{currentPlayingTitle}}</span>
 
-      <div class="col-auto">
-        <q-btn
-          flat
-          round
-          :icon="playingIcon"
-          @click="togglePlaying()"
-        />
-      </div>
+      <q-btn flat round :icon="playingIcon" @click="togglePlaying()" class="col-auto" />
     </div>
-  </div>
+  </q-slide-transition>
 </template>
 
 <script>
@@ -33,7 +22,7 @@ export default {
 
   computed: {
     coverUrl () {
-      const hash = this.currentlyPlayingHash
+      const hash = this.currentPlayingHash
       return hash
         ? `/api/cover/${hash.substring(0, hash.indexOf('/'))}`
         : ""
@@ -48,8 +37,8 @@ export default {
     },
 
     ...mapGetters({
-      currentlyPlayingHash: 'AudioPlayer/currentlyPlayingHash',
-      currentlyPlayingTitle: 'AudioPlayer/currentlyPlayingTitle'
+      currentPlayingHash: 'AudioPlayer/currentPlayingHash',
+      currentPlayingTitle: 'AudioPlayer/currentPlayingTitle'
     })
   },
 

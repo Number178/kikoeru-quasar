@@ -1,11 +1,11 @@
 const getters = {
-  currentlyPlayingHash: (state) => {
+  currentPlayingHash: (state) => {
     return state.queue[state.queueIndex]
     ? state.queue[state.queueIndex].hash
     : null
   },
 
-  currentlyPlayingTitle: (state) => {
+  currentPlayingTitle: (state) => {
     return state.queue[state.queueIndex]
     ? state.queue[state.queueIndex].title
     : null

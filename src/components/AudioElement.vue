@@ -1,16 +1,14 @@
 <template> 
-  <div>
-    <audio
-      ref="audio"
-      :volume="volume"
-      @canplay="onCanplay()"
-      @timeupdate="onTimeupdate()"
-      @ended="onEnded()"
-      @progress="onProgress()"
-    >
-      <source :src="source" /> 
+  <vue-plyr ref="plyr"
+    :emit="['canplay', 'timeupdate', 'ended']"
+    @canplay="onCanplay()"
+    @timeupdate="onTimeupdate()"
+    @ended="onEnded()"
+  >
+    <audio crossorigin="anonymous" >
+      <source v-if="source" :src="source" />
     </audio>
-  </div>
+  </vue-plyr>
 </template>
 
 <script>
@@ -18,6 +16,10 @@ export default {
   name: 'AudioElement',
 
   computed: {
+    player () {
+      return this.$refs.plyr.player
+    },
+
     source () {
       return this.queue.length ? `/api/stream/${this.queue[this.queueIndex].hash}` : ""
     },
@@ -52,38 +54,32 @@ export default {
   },
 
   watch: {
-    playing (newFlag, oldFlag) {  
-      if (this.$refs.audio.duration) {
+    playing (flag) {  
+      if (this.player.duration) {
         // 缓冲至可播放状态
-        if (newFlag) {
-          // 播放
-          this.$refs.audio.play()
-        } else {
-          // 暂停
-          this.$refs.audio.pause()
-        }
+        flag ? this.player.play() : this.player.pause()
       }     
     },
 
-    source (newSrc, oldSrc) {
-      if (newSrc) {   
+    source (url) {
+      if (url) {   
         // 加载新音频/视频文件
-        this.$refs.audio.load()
+        this.player.media.load()
       }
     },
 
-    seek (newSeek, oldSeek) {
+    seek (val) {
       // 屏蔽非法数值
-      if (newSeek > 100 || newSeek < 0) {
+      if (val > 100 || val < 0) {
         return
       }
       
-      if (this.$refs.audio.duration) {
-        if (newSeek === 100) {
+      if (this.player.duration) {
+        if (val === 100) {
           this.onEnded()
         } else {
           // 跳转到指定位置
-          this.$refs.audio.currentTime = newSeek * 0.01 * this.$refs.audio.duration
+          this.player.currentTime = val * 0.01 * this.player.duration
         }
       }
       
@@ -91,53 +87,36 @@ export default {
       this.$store.commit('AudioPlayer/SEEK', -1)
     },
 
-    muted (newFlag, oldFlag) {
+    muted (flag) {
       // 切换静音状态
-      this.$refs.audio.muted = newFlag
+      this.player.muted = flag
     },
 
-    volume (newVal, oldVal) {
+    volume (val) {
       // 屏蔽非法数值
-      if (newVal < 0 || newVal > 1) {
+      if (val < 0 || val > 1) {
         return
       }
       
       // 调节音量
-      this.$refs.audio.volume = newVal
+      this.player.volume = val
     }
   },
 
   methods: {
     onCanplay () {
       // 缓冲至可播放状态时触发 (只有缓冲至可播放状态, 才能获取媒体文件的播放时长)
-      this.$store.commit('AudioPlayer/SET_DURATION', this.$refs.audio.duration)
+      this.$store.commit('AudioPlayer/SET_DURATION', this.player.duration)
 
       // 播放
-      if (this.playing && this.$refs.audio.currentTime !== this.$refs.audio.duration) {
-        this.$refs.audio.play()
+      if (this.playing && this.player.currentTime !== this.player.duration) {
+        this.player.play()
       } 
-    },
-
-    onProgress () {
-      // 当浏览器正在下载音频/视频时触发
-      const length = this.$refs.audio.buffered.length
-      
-      // 更新缓冲进度
-      if (this.$refs.audio.duration) {
-        for (let i=0; i<length; i++) {
-          // 寻找包含当前时间点的片段
-          if (this.$refs.audio.buffered.start(length-1-i) < this.$refs.audio.currentTime) {
-            const buffered = this.$refs.audio.buffered.end(length-1-i) / this.$refs.audio.duration * 100
-            this.$store.commit('AudioPlayer/SET_BUFFERED', buffered)
-            break
-          }
-        } 
-      }
     },
 
     onTimeupdate () {
       // 当目前的播放位置已更改时触发
-      const progress = this.$refs.audio.currentTime / this.$refs.audio.duration * 100
+      const progress = this.player.currentTime / this.player.duration * 100
 
       // 更新播放进度
       if (progress) {
@@ -158,7 +137,7 @@ export default {
           break
         case "repeat once":
           // 单曲循环
-          this.$refs.audio.currentTime = 0
+          this.player.currentTime = 0
           this.$store.commit('AudioPlayer/PLAY')
           break
         case "shuffle":
@@ -166,7 +145,7 @@ export default {
           const index = Math.floor(Math.random()*this.queue.length)
           this.$store.commit('AudioPlayer/SET_TRACK', index)
           if (index === this.queueIndex) {
-            this.$refs.audio.currentTime = 0
+            this.player.currentTime = 0
           }
           break
         default:
@@ -178,6 +157,11 @@ export default {
           }
       }
     }
+  },
+
+  mounted () {
+    // 初始化音量
+    this.$store.commit('AudioPlayer/SET_VOLUME', this.player.volume)
   }
 }
 </script>

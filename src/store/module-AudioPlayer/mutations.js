@@ -18,7 +18,6 @@ const mutations = {
     state.playing = true
     state.queueIndex = index
     state.progress = 0
-    state.buffered = 0
   },
   NEXT_TRACK: (state) => {
     if (state.queueIndex < state.queue.length - 1) {
@@ -26,7 +25,6 @@ const mutations = {
       state.playing = true
       state.queueIndex += 1
       state.progress = 0
-      state.buffered = 0
     }
   },
   PREVIOUS_TRACK: (state) => {
@@ -35,7 +33,6 @@ const mutations = {
       state.playing = true
       state.queueIndex -= 1
       state.progress = 0
-      state.buffered = 0
     }
   },
 
@@ -55,7 +52,6 @@ const mutations = {
     
     if (payload.resetProgress) {
       state.progress = 0
-      state.buffered = 0
     }
 
     if (payload.resetPlaying) {
@@ -91,7 +87,7 @@ const mutations = {
     state.currentTime = second
   },
 
-  // Add a file after the currently playing item in the queue.
+  // Add a file after the current playing item in the queue.
   PLAY_NEXT: (state, file) => {
     state.queue.splice(state.queueIndex + 1, 0, file);
   },
@@ -129,10 +125,6 @@ const mutations = {
       return
     }
     state.volume = val
-  },
-
-  SET_BUFFERED: (state, buffered) => {
-    state.buffered = buffered
   }
 }
 
