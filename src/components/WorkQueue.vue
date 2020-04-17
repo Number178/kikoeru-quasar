@@ -1,68 +1,64 @@
 <template>
-  <div>
-    <q-list bordered separator class="q-ma-sm">
-      <q-item class="shadow-4">
-        <!-- 占位 -->
-        <q-item-section avatar />
+  <q-list bordered separator class="q-ma-sm">
+    <q-item class="shadow-4">
+      <!-- 占位 -->
+      <q-item-section avatar />
 
-        <q-item-section>
-          File Name
-        </q-item-section>
-     
-        <q-item-section avatar v-if="editable">
-          <q-icon v-ripple @click="emptyQueue()" name="delete" class="cursor-pointer" />
-        </q-item-section>
-      </q-item>
+      <q-item-section>
+        File Name
+      </q-item-section>
+    
+      <q-item-section avatar v-if="editable">
+        <q-icon v-ripple @click="emptyQueue()" name="delete" class="cursor-pointer" />
+      </q-item-section>
+    </q-item>
 
-      <draggable v-model="queueCopy" handle=".handle" @change="val => onMoved(val.moved)">
-        <q-slide-item
-          @left="details => onLeft(details, index)"
-          v-for="(file, index) in queueCopy"
-          :key="index"
-          left-color="red"
-          class="shadow-4"
+    <draggable v-model="queueCopy" handle=".handle" @change="val => onMoved(val.moved)">
+      <q-slide-item
+        @left="details => onLeft(details, index)"
+        v-for="(file, index) in queueCopy"
+        :key="index"
+        left-color="red"
+        class="shadow-4"
+      >
+        <template v-slot:left v-if="editable">
+          <q-icon name="delete" />
+        </template>
+
+        <q-item
+          :active="itemActive(index)"
+          active-class="text-white bg-teal"
         >
-          <template v-slot:left v-if="editable">
-            <q-icon name="delete" />
-          </template>
+          <q-item-section avatar>
+            <q-btn round color="primary" :icon="playIcon(index)" @click="onClickPlayButton(index)" class="shadow-4" />
+          </q-item-section>
 
-          <q-item
-            :active="itemActive(index)"
-            active-class="text-white bg-teal"
-          >
-            <q-item-section avatar>
-              <q-btn round color="primary" :icon="playIcon(index)" @click="onClickPlayButton(index)" class="shadow-4" />
-            </q-item-section>
+          <q-item-section>
+            <q-item-label>{{file.title}}</q-item-label>
+            <q-item-label caption class="ellipsis">{{file.subtitle}}</q-item-label>
+          </q-item-section>
 
-            <q-item-section>
-              <div> {{file.title}} </div>
-              <div class="text-grey"> {{file.subtitle}} </div>
-            </q-item-section>
+          <q-item-section avatar class="handle">
+            <q-icon v-if="editable" name="reorder" />
 
-            <q-item-section avatar class="handle" v-if="editable">
-              <q-icon name="reorder" />
-            </q-item-section>
+            <q-btn v-else flat icon="more_vert">
+              <q-menu auto-close transition-show="jump-down" transition-hide="jump-up">
+                <q-list separator>
+                  <q-item clickable @click="addToQueue(queueCopy[index])">
+                    <q-item-section>添加到播放列表</q-item-section>
+                  </q-item>
 
-            <q-item-section avatar v-if="!editable">
-              <q-btn flat icon="more_vert">
-                <q-menu auto-close transition-show="jump-down" transition-hide="jump-up">
-                  <q-list separator style="min-width: 150px">
-                    <q-item clickable @click="addToQueue(queueCopy[index])">
-                      <q-item-section>Add to queue</q-item-section>
-                    </q-item>
-
-                    <q-item clickable @click="playNext(queueCopy[index])">
-                      <q-item-section>Play next</q-item-section>
-                    </q-item>
-                  </q-list>
-                </q-menu>
-              </q-btn>
-            </q-item-section>
-          </q-item>
-        </q-slide-item>      
-      </draggable>
-    </q-list>
-  </div>
+                  <q-item clickable @click="playNext(queueCopy[index])">
+                    <q-item-section>下一曲播放</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </q-btn>
+          </q-item-section>
+        </q-item>
+      </q-slide-item>      
+    </draggable>
+  </q-list>
 </template>
 
 <script>
@@ -122,7 +118,7 @@ export default {
     },
 
     ...mapGetters({
-      currentlyPlayingHash: 'AudioPlayer/currentlyPlayingHash'
+      currentPlayingHash: 'AudioPlayer/currentPlayingHash'
     })
   },
 
@@ -130,7 +126,7 @@ export default {
     ifItemIsSelected (index) {
       return this.editable
         ? this.queueIndex === index
-        : this.currentlyPlayingHash === this.queueCopy[index].hash
+        : this.currentPlayingHash === this.queueCopy[index].hash
     },
 
     onClickPlayButton (index) {
