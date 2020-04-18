@@ -219,8 +219,7 @@ export default {
         message,
         position: 'bottom-right',
         icon: 'bug_report',
-        color: 'red',
-        multiLine: true
+        color: 'red'
       })
     } 
   }
