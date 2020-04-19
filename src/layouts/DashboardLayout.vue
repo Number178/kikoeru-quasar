@@ -81,23 +81,12 @@ export default {
           path: '/'
         }
       ]
-      
     }
   },
 
-  created () {
-    
-  },
-
-  sockets: {// 通过vue实例对象sockets实现组件中的事件监听
-    connect: function () {// socket的connect事件
-      console.log('socket connected from Page')
-    },
-    STREAM_STATUS(data) {// 后端按主题名推送的消息数据
-        console.log('Page：' + data)
-    },
-    success: function (data) {
-      this.showSuccNotif('成功登录管理后台')
+  sockets: {
+    success (payload) {
+      this.showSuccNotif(payload.message)
     },
     error (err) {
       this.showWarnNotif(err.message || err)
@@ -121,11 +110,6 @@ export default {
         icon: 'warning',
       })
     }
-  },
-
-  mounted() {
-    console.log('page mounted')
-    // this.$socket.emit('message', '233333333333333')
   },
 
   created () {
