@@ -34,8 +34,8 @@
       </q-form>
     </q-card>
 
-    <q-form @submit="onSubmit" v-show="config.rootFolders && config.rootFolders.length">
-      <q-card class="q-ma-md">
+    <q-form @submit="onSubmit">
+      <q-card class="q-ma-md" v-show="config.rootFolders.length">
         <q-toolbar>
           <q-toolbar-title>文件夹列表</q-toolbar-title>
         </q-toolbar>
@@ -56,6 +56,14 @@
             </q-item-section>
           </q-item>
         </q-list>
+      </q-card>
+
+      <q-card class="q-ma-md">
+        <q-toolbar>
+          <q-toolbar-title>封面文件夹路径</q-toolbar-title>
+        </q-toolbar>
+
+        <q-input outlined dense required v-model="config.coverFolderDir" class="q-pa-sm" />
       </q-card>
 
       <div class="q-ma-lg row justify-end">
