@@ -113,6 +113,12 @@ export default {
   },
 
   created () {
+    if (!this.$socket.io.opts.query.auth_token) {
+      // 从 LocalStorage 中读取 token
+      const token = this.$q.localStorage.getItem('jwt-token') || ''
+      this.$socket.io.opts.query.auth_token = token
+    }
+
     if (!this.$socket.connected) {
       this.$socket.open()
     }
