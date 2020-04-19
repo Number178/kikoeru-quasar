@@ -2,19 +2,12 @@ import Vue from 'vue'
 import axios from 'axios'
 import { LocalStorage } from 'quasar'
 
-// 为每次请求带上 token
-axios.interceptors.request.use(
-  config => {
-    const token = LocalStorage.getItem('jwt-token')  
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
+axios.defaults.headers['Content-Type'] = "application/json"
+// 从 LocalStorage 中读取 token
+axios.defaults.headers['Authorization'] = 'Bearer ' + LocalStorage.getItem('jwt-token') || ''
 
-    return config
-  },
-  err => {
-    return Promise.reject(err)
-  }
-);
+export function setAxiosHeaders (token) {
+  axios.defaults.headers['Authorization'] = 'Bearer ' + token
+}
 
 Vue.prototype.$axios = axios
