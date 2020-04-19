@@ -9,7 +9,8 @@
         <q-icon v-else name="account_circle" size="80px" />
 
         <div class="col text-weight-bold">
-          <router-link to="/login" class="text-white" v-if="!username">登录</router-link>
+          <router-link v-if="!username" to="/login" class="text-white">登录</router-link>
+          <router-link v-else-if="username === 'admin'" to="/admin" class="text-white">{{username}}</router-link>
           <span v-else>{{username}}</span>
         </div>
       </div>
