@@ -49,9 +49,6 @@ export default {
           .then((response) => {
             this.metadata = response.data
           })
-          .catch((error) => {
-            throw new Error(`Failed to request /api/work/${this.workid}: ${error}`)
-          })
       } 
     }
   }
