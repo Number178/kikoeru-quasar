@@ -126,8 +126,10 @@ export default {
 
   computed: {
     coverUrl () {
+      // 从 LocalStorage 中读取 token
+      const token = this.$q.localStorage.getItem('jwt-token') || ''
       const hash = this.currentPlayingHash
-      return hash ? `/api/cover/${hash.substring(0, hash.indexOf('/'))}` : ""
+      return hash ? `/api/cover/${hash.substring(0, hash.indexOf('/'))}?token=${token}` : ""
     },
 
     duration () {

@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="hHh Lpr lff">
+  <q-layout view="hhh LpR fFf">
     <q-header elevated class="bg-black">
       <q-toolbar>
         <q-btn flat @click="drawer = !drawer" round dense icon="menu" />
@@ -23,67 +23,22 @@
     >
       <div class="column justify-between fit">
         <q-list padding class="col-auto">
-          <q-item clickable v-ripple to="/admin">
+          <q-item 
+            clickable
+            v-ripple
+            exact
+            :to="link.path"
+            active-class="text-primary text-weight-bold"
+            v-for="(link, index) in links"
+            :key="index"
+            class="col text-subtitle1"
+          >
             <q-item-section avatar>
-              <q-icon name="folder" />
+              <q-icon :name="link.icon" />
             </q-item-section>
 
             <q-item-section>
-              音声库
-            </q-item-section>
-          </q-item>
-
-          <q-item active clickable v-ripple to="/admin/advanced">
-            <q-item-section avatar>
-              <q-icon name="settings" />
-            </q-item-section>
-
-            <q-item-section>
-              高级设置
-            </q-item-section>
-          </q-item>
-
-          <q-item clickable v-ripple to="/admin/scanner">
-            <q-item-section avatar>
-              <q-icon name="youtube_searched_for" />
-            </q-item-section>
-
-            <q-item-section>
-              Scaner
-            </q-item-section>
-          </q-item>
-
-          <q-separator />
-
-          <q-item clickable v-ripple>
-            <q-item-section avatar>
-              <q-icon name="drafts" />
-            </q-item-section>
-
-            <q-item-section>
-              Drafts
-            </q-item-section>
-          </q-item>
-        </q-list>
-
-        <q-list padding class="col-auto">
-          <q-item clickable v-ripple>
-            <q-item-section avatar>
-              <q-icon name="inbox" />
-            </q-item-section>
-
-            <q-item-section>
-              Inbox
-            </q-item-section>
-          </q-item>
-
-          <q-item active clickable v-ripple>
-            <q-item-section avatar>
-              <q-icon name="settings" />
-            </q-item-section>
-
-            <q-item-section>
-              高级设置
+              {{link.title}}
             </q-item-section>
           </q-item>
         </q-list>
@@ -97,19 +52,36 @@
 </template>
 
 <script>
-// import io from 'socket.io-client';
 export default {
   name: 'DashboardLayout',
-
-  components: {
-    
-  },
 
   data () {
     return {
       drawer: false,
       miniState: true,
-      socket: null
+      links: [
+        {
+          title: '音声库',
+          icon: 'folder',
+          path: '/admin'
+        },
+        {
+          title: '高级设置',
+          icon: 'settings',
+          path: '/admin/advanced'
+        },
+        {
+          title: '扫描',
+          icon: 'youtube_searched_for',
+          path: '/admin/scanner'
+        },
+        {
+          title: '回到主页',
+          icon: 'home',
+          path: '/'
+        }
+      ]
+      
     }
   },
 
@@ -128,7 +100,7 @@ export default {
       this.showSuccNotif('成功登录管理后台')
     },
     error (err) {
-      this.showWarnNotif(err)
+      this.showWarnNotif(err.message || err)
     }
   },
 
@@ -163,3 +135,9 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+  a {
+    text-decoration:none;
+  }
+</style>

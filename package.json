@@ -12,11 +12,12 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
-    "@websanova/vue-auth": "^2.22.0-beta",
     "axios": "^0.18.1",
+    "plyr": "^3.5.10",
     "quasar": "^1.0.0",
-    "vue-axios": "^2.1.5",
+    "vue-plyr": "^6.0.4",
     "vue-slider-component": "^3.1.1",
+    "vue-socket.io": "^3.0.7",
     "vuedraggable": "^2.23.2"
   },
   "devDependencies": {

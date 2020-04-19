@@ -208,24 +208,6 @@ export default {
 
     killScanProceess () {
       this.$socket.emit('KILL_SCAN_PROCESS')
-    },
-
-    showSuccNotif (message) {
-      this.$q.notify({
-        message,
-        color: 'positive',
-        icon: 'done',
-        timeout: 500
-      })
-    },
-
-    showWarnNotif (message) {
-      this.$q.notify({
-        message,
-        color: 'warning',
-        icon: 'warning',
-        multiLine: true,
-      })
     }
   },
 

@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import AudioPlayer from './module-AudioPlayer'
+import User from './module-User'
 
 Vue.use(Vuex)
 
@@ -17,7 +18,8 @@ Vue.use(Vuex)
 export default function (/* { ssrContext } */) {
   const Store = new Vuex.Store({
     modules: {
-      AudioPlayer
+      AudioPlayer,
+      User
     },
 
     // enable strict mode (adds overhead!)

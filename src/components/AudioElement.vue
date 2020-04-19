@@ -21,7 +21,9 @@ export default {
     },
 
     source () {
-      return this.queue.length ? `/api/stream/${this.queue[this.queueIndex].hash}` : ""
+      // 从 LocalStorage 中读取 token
+      const token = this.$q.localStorage.getItem('jwt-token') || ''
+      return this.queue.length ? `/api/stream/${this.queue[this.queueIndex].hash}?token=${token}` : ""
     },
 
     playing () {

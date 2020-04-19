@@ -155,7 +155,7 @@ export default {
         page: this.pagination.currentPage + 1 || 1
       }
 
-      return this.$axios.get(this.url, {params})
+      return this.$axios.get(this.url, { params })
         .then((response) => {
           const works = response.data.works
           this.works = (params.page === 1) ? works.concat() : this.works.concat(works)
@@ -166,7 +166,16 @@ export default {
           }
         })
         .catch((error) => {
-          this.showErrNotif(`Failed to request ${this.url}: ${error}`)
+          if (error.response) {
+            // 请求已发出，但服务器响应的状态码不在 2xx 范围内
+            if (error.response.status === 401 || error.response.status === 500) {
+              this.showWarnNotif(error.response.data.error)
+            } else {
+              this.showErrNotif(`${error.response.status} ${error.response.statusText}`)
+            }
+          } else {
+            this.showErrNotif(error.message || error)
+          }
           this.stopLoad = true
         })
     },
@@ -195,7 +204,16 @@ export default {
             this.pageTitle = pageTitle
           })
           .catch((error) => {
-            this.showErrNotif(`Failed to request ${url}: ${error}`)
+            if (error.response) {
+              // 请求已发出，但服务器响应的状态码不在 2xx 范围内
+              if (error.response.status === 401 || error.response.status === 500) {
+                this.showWarnNotif(error.response.data.error)
+              } else {
+                this.showErrNotif(`${error.response.status} ${error.response.statusText}`)
+              }
+            } else {
+              this.showErrNotif(error.message || error)
+            }
           })
       } else if (this.$route.params.keyword) {
         this.pageTitle = `Search by ${this.$route.params.keyword}`
@@ -214,14 +232,30 @@ export default {
         })
     },
 
+    showSuccNotif (message) {
+      this.$q.notify({
+        message,
+        color: 'positive',
+        icon: 'done',
+        timeout: 500
+      })
+    },
+
+    showWarnNotif (message) {
+      this.$q.notify({
+        message,
+        color: 'warning',
+        icon: 'warning',
+      })
+    },
+
     showErrNotif (message) {
       this.$q.notify({
         message,
-        position: 'bottom-right',
-        icon: 'bug_report',
-        color: 'red'
+        color: 'negative',
+        icon: 'bug_report'
       })
-    } 
+    }
   }
 }
 </script>

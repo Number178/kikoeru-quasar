@@ -1,10 +1,36 @@
 import MainLayout from 'layouts/MainLayout'
-import Works from 'pages/Works.vue'
-import Work from 'pages/Work.vue'
-import List from 'pages/List.vue'
-import Player from 'pages/Player.vue'
+import DashboardLayout from 'layouts/DashboardLayout'
+
+import Works from 'pages/Works'
+import Work from 'pages/Work'
+import List from 'pages/List'
+import Player from 'pages/Player'
+import Login from 'pages/Login'
+
+import Folders from 'pages/Dashboard/Folders'
+import Scanner from 'pages/Dashboard/Scanner'
+import Advanced from 'pages/Dashboard/Advanced'
+
 
 const routes = [
+  {
+    path: '/admin',
+    component: DashboardLayout,
+    children: [
+      {
+        path: '',
+        component: Folders
+      },
+      {
+        path: 'scanner',
+        component: Scanner
+      },
+      {
+        path: 'advanced',
+        component: Advanced
+      }
+    ]
+  },
   {
     path: '/',
     component: MainLayout,
@@ -14,48 +40,55 @@ const routes = [
         component: Works
       },
       {
-        path: '/player',
+        path: 'player',
         component: Player
       },
       {
-        path: '/work/:id',
+        path: 'work/:id',
         component: Work
       },
       {
-        path: '/search/:keyword?',
+        path: 'search/:keyword?',
         component: Works
       },
       {
-        path: '/circle/:id',
+        path: 'circle/:id',
         props: { restrict: "circle" },
         component: Works
       },
       {
-        path: '/tag/:id',
+        path: 'tag/:id',
         props: { restrict: "tag" },
         component: Works
       },
       {
-        path: '/va/:id',
+        path: 'va/:id',
         props: { restrict: "va" },
         component: Works
       },
       {
-        path: '/circles',
+        path: 'circles',
         props: { restrict: "circle" },
         component: List
       },
       {
-        path: '/tags',
+        path: 'tags',
         props: { restrict: "tag" },
         component: List
       },
       {
-        path: '/vas',
+        path: 'vas',
         props: { restrict: "va" },
         component: List
-      },
-    ]
+      }
+    ],
+    meta: {
+      auth: true
+    }
+  },
+  {
+    path: '/login',
+    component: Login
   }
 ]
 

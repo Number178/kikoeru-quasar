@@ -5,6 +5,7 @@
       :ratio="4/3"
       :img-class="imgClass"
       style="max-width: 560px;"
+      transition="fade"
       @mouseover="toggleBlurFlag()"
       @mouseout="toggleBlurFlag()"
     >
@@ -49,7 +50,9 @@ export default {
 
   computed: {
     coverUrl () {
-      return this.workid ? `/api/cover/${this.workid}` : ""
+      // 从 LocalStorage 中读取 token
+      const token = this.$q.localStorage.getItem('jwt-token') || ''
+      return this.workid ? `/api/cover/${this.workid}?token=${token}` : ""
     },
 
     rjcode () {

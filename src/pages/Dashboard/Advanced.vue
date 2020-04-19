@@ -227,19 +227,54 @@ export default {
     requestConfig () {
       this.$axios.get('/api/config')
         .then((response) => {
-          console.log(response)
           this.config = response.data.config
+        })
+        .catch((error) => {
+          if (error.response) {
+            // 请求已发出，但服务器响应的状态码不在 2xx 范围内
+            if (error.response.status === 401) {
+              this.showWarnNotif(error.response.data.error)
+            } else {
+              this.showErrNotif(`${error.response.status} ${error.response.statusText}`)
+            }
+          } else {
+            this.showErrNotif(error.message || error)
+          }
         })
     },
 
     onSubmit () {
       this.$axios.put('/api/config', {
-        headers: { "Content-Type": "application/json;" },
         config: this.config
       })
         .then((response) => {
-          console.log(response.data.message)
+          this.showSuccNotif(response.data.message)
         })
+    },
+
+    showSuccNotif (message) {
+      this.$q.notify({
+        message,
+        color: 'positive',
+        icon: 'done',
+        timeout: 500
+      })
+    },
+
+    showWarnNotif (message) {
+      this.$q.notify({
+        message,
+        color: 'warning',
+        icon: 'warning',
+      })
+    },
+
+    showErrNotif (message) {
+      this.$q.notify({
+        message,
+        color: 'negative',
+        icon: 'bug_report'
+      })
     }
   },
 

@@ -43,7 +43,7 @@ export default {
           this.tracks = response[1].data.concat()
         })
         .catch((error) => {
-          throw new Error(`Failed to request /api/work/${this.workid} or /api/tracks/${this.workid}: ${error}`)
+          throw new Error(`Failed to request /api/work/${this.workid} or /api/tracks/${this.workid}`)
         })
     }
   }
