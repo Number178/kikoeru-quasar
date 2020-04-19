@@ -208,7 +208,7 @@
     </q-card>
 
     <div class="q-ma-lg row justify-end">
-      <q-btn label="保存" type="submit" color="primary" />
+      <q-btn :loading="loading" label="保存" type="submit" color="primary" />
     </div>
   </q-form>
 </template>
@@ -220,6 +220,7 @@ export default {
   data () {
     return {
       config: {},
+      loading: false
     }
   },
 
@@ -244,10 +245,12 @@ export default {
     },
 
     onSubmit () {
+      this.loading = true
       this.$axios.put('/api/config', {
         config: this.config
       })
         .then((response) => {
+          this.loading = false
           this.showSuccNotif(response.data.message)
         })
     },
