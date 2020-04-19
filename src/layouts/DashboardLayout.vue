@@ -66,15 +66,21 @@ export default {
           path: '/admin'
         },
         {
-          title: '高级设置',
-          icon: 'settings',
-          path: '/admin/advanced'
-        },
-        {
           title: '扫描',
           icon: 'youtube_searched_for',
           path: '/admin/scanner'
         },
+        {
+          title: '用户管理',
+          icon: 'person',
+          path: '/admin/usermanage'
+        },
+        {
+          title: '高级设置',
+          icon: 'settings',
+          path: '/admin/advanced'
+        },
+        
         {
           title: '回到主页',
           icon: 'home',

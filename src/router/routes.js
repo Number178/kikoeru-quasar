@@ -10,6 +10,7 @@ import Login from 'pages/Login'
 import Folders from 'pages/Dashboard/Folders'
 import Scanner from 'pages/Dashboard/Scanner'
 import Advanced from 'pages/Dashboard/Advanced'
+import UserManage from 'pages/Dashboard/UserManage'
 
 
 const routes = [
@@ -28,6 +29,10 @@ const routes = [
       {
         path: 'advanced',
         component: Advanced
+      },
+      {
+        path: 'usermanage',
+        component: UserManage
       }
     ]
   },
