@@ -11,11 +11,12 @@
           dense
           rounded
           outlined
+          transition-show="scale"
+          transition-hide="scale"
           v-model="oderOption"
           :options="options"
           label="排序"
           style="max-width: 250px"
-          class="col-11"
         />
       </div>
 
