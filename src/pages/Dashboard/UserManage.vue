@@ -64,7 +64,7 @@
       </q-form>
     </q-card>
 
-    <div class="q-pa-md">
+    <q-card class="q-ma-md q-pa-sm">
       <q-table
         title="所有用户"
         :data="users"
@@ -74,11 +74,23 @@
         selection="multiple"
         :selected.sync="selected"
       />
-
-      <div class="q-mt-md">
-        {{selected}}
+      <div class="row justify-end">
+        <q-btn :loading="loadingDeleteUsers" :disable="selected.length === 0" @click="confirm = true" color="primary" label="删除" />
       </div>
-    </div>
+    </q-card>
+
+    <q-dialog v-model="confirm" persistent>
+      <q-card>
+        <q-card-section class="row items-center">
+          <span class="q-ma-sm text-h6">确认删除选中用户？</span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="取消" color="primary" v-close-popup />
+          <q-btn flat label="确认" color="primary" @click="deleteUsers()" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -92,6 +104,7 @@ export default {
         { name: 'calories', required: true, label: '用户组', align: 'center', field: 'group', sortable: true },
       ],
       users: [],
+      loadingDeleteUsers: false,
 
       newuser: {
         name: '',
@@ -106,6 +119,8 @@ export default {
       adminNewPassword: '',
       adminConfirmPassword: '',
       loadingUpdateAdminPassword: false,
+
+      confirm: false
     }
   },
 
@@ -128,6 +143,7 @@ export default {
           this.requestUsers()
         })
         .catch((error) => {
+          this.loadingAddNewUser = false
           if (error.response) {
             // 请求已发出，但服务器响应的状态码不在 2xx 范围内
             if (error.response.status === 401 || error.response.status === 403 || error.response.status === 500) {
@@ -140,6 +156,35 @@ export default {
           }
         })
 
+    },
+
+    deleteUsers () {
+      this.loadingDeleteUsers = true
+      this.$axios.delete('/api/user', {
+        data: { users: this.selected },
+      })
+        .then((response) => {
+          this.selected.forEach(selectedUser => {
+            const index = this.users.findIndex(user => user.name === selectedUser.name)
+            this.users.splice(index, 1)
+          })
+          this.loadingDeleteUsers = false
+          this.showSuccNotif(response.data.message)
+          this.requestUsers()
+        })
+        .catch((error) => {
+          this.loadingDeleteUsers = false
+          if (error.response) {
+            // 请求已发出，但服务器响应的状态码不在 2xx 范围内
+            if (error.response.status === 401 || error.response.status === 403 || error.response.status === 500) {
+              this.showWarnNotif(error.response.data.error)
+            } else {
+              this.showErrNotif(`${error.response.status} ${error.response.statusText}`)
+            }
+          } else {
+            this.showErrNotif(error.message || error)
+          }
+        })
     },
 
     updateAdminPassword () {
