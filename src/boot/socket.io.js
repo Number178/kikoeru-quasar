@@ -1,9 +1,5 @@
 import Vue from 'vue'
 import VueSocketIO from 'vue-socket.io'
-import { LocalStorage } from 'quasar'
-
-// 从 LocalStorage 中读取 token
-const token = LocalStorage.getItem('jwt-token')
 
 Vue.use(new VueSocketIO({
   debug: true,
@@ -12,7 +8,7 @@ Vue.use(new VueSocketIO({
   options: {
     autoConnect: false,
     query: {
-      auth_token: token || ''
+      auth_token: ''
     }
   }
 }))
