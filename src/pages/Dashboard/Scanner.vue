@@ -41,7 +41,7 @@
       </q-expansion-item>
     </q-card>
 
-    <q-card v-show="tasks.length || failedTasks.length" class="q-ma-md">
+    <q-card v-show="(tasks.length > 0) || (failedTasks.length > 0)" class="q-ma-md">
       <q-tabs
         v-model="tab"
         dense
@@ -54,10 +54,10 @@
         narrow-indicator
       >
         <q-tab name="tasks" icon="hourglass_full" label="处理中">
-          <q-badge v-show="tasks.length" color="primary" floating>{{tasks.length}}</q-badge>
+          <q-badge v-show="tasks.length > 0" color="primary" floating>{{tasks.length}}</q-badge>
         </q-tab>
         <q-tab name="failedTasks" icon="error_outline" label="处理失败">
-          <q-badge v-show="failedTasks.length" color="red" floating>{{failedTasks.length}}</q-badge>
+          <q-badge v-show="failedTasks.length > 0" color="red" floating>{{failedTasks.length}}</q-badge>
         </q-tab>
       </q-tabs>
 
@@ -79,7 +79,7 @@
                   </q-item-section>
 
                   <q-item-section>
-                    <q-item-label v-if="item.logs.length" class="ellipsis">{{item.logs[item.logs.length - 1].message}}</q-item-label>
+                    <q-item-label v-if="item.logs.length > 0" class="ellipsis">{{item.logs[item.logs.length - 1].message}}</q-item-label>
                     <q-item-label caption>{{`RJ${item.rjcode}`}}</q-item-label>
                   </q-item-section>
                 </template>
