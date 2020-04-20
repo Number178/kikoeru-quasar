@@ -5,7 +5,7 @@
         class="col q-ml-md q-mr-sm"
         color="teal"
         label="扫描本地音声库"
-        :disable="state === 'running' || !(logged_in || $socket.connected)"
+        :disable="state === 'running' || !(loggedIn || $socket.connected)"
         @click="performScan()"
       />
 
@@ -13,7 +13,7 @@
         class="col q-ml-sm q-mr-md"
         color="negative"
         label="终止扫描进程"
-        :disable="state !== 'running' || !(logged_in || $socket.connected)"
+        :disable="state !== 'running' || !(loggedIn || $socket.connected)"
         @click="killScanProceess()"
       />
     </div>
@@ -151,7 +151,7 @@ export default {
     return {
       tab: 'tasks',
       state: null, // ['running', 'finished', 'error']
-      logged_in: false,
+      loggedIn: false,
       tasks: [], // 正在处理中的并行任务
       failedTasks: [], // 处理失败的任务
       mainLogs: [],
@@ -192,7 +192,7 @@ export default {
     },
 
     success (data) {
-      this.logged_in = true
+      this.loggedIn = true
     }
   },
 

@@ -167,8 +167,11 @@ export default {
           }
         })
         .catch((error) => {
-          if (error.response && error.response.status !== 401) {
-            this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)
+          if (error.response) {
+            // 请求已发出，但服务器响应的状态码不在 2xx 范围内
+            if (error.response.status !== 401) {
+              this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)
+            }
           } else {
             this.showErrNotif(error.message || error)
           }
@@ -200,8 +203,11 @@ export default {
             this.pageTitle = pageTitle
           })
           .catch((error) => {
-            if (error.response && error.response.status !== 401) {
-              this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)
+            if (error.response) {
+              // 请求已发出，但服务器响应的状态码不在 2xx 范围内
+              if (error.response.status !== 401) {
+                this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)
+              }
             } else {
               this.showErrNotif(error.message || error)
             }

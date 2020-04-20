@@ -146,10 +146,10 @@ export default {
           this.loadingAddNewUser = false
           if (error.response) {
             // 请求已发出，但服务器响应的状态码不在 2xx 范围内
-            if (error.response.status === 401 || error.response.status === 403 || error.response.status === 500) {
+            if (error.response.status === 403) {
               this.showWarnNotif(error.response.data.error)
             } else {
-              this.showErrNotif(`${error.response.status} ${error.response.statusText}`)
+              this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)
             }
           } else {
             this.showErrNotif(error.message || error)
@@ -176,10 +176,10 @@ export default {
           this.loadingDeleteUsers = false
           if (error.response) {
             // 请求已发出，但服务器响应的状态码不在 2xx 范围内
-            if (error.response.status === 401 || error.response.status === 403 || error.response.status === 500) {
+            if (error.response.status === 403) {
               this.showWarnNotif(error.response.data.error)
             } else {
-              this.showErrNotif(`${error.response.status} ${error.response.statusText}`)
+              this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)
             }
           } else {
             this.showErrNotif(error.message || error)
@@ -200,23 +200,17 @@ export default {
             // 删除旧 token
             this.$q.localStorage.set('jwt-token', '')
           } catch (err) {
-            // 由于Web Storage API错误，
-            // 数据未成功保存
             this.showErrNotif(err.message)
           }
+          this.showSuccNotif(response.data.message)
           // 跳转到登录页面
           this.$router.push('/login')
-          this.showSuccNotif(response.data.message)
         })
         .catch((error) => {
           this.loadingUpdateAdminPassword = false
           if (error.response) {
             // 请求已发出，但服务器响应的状态码不在 2xx 范围内
-            if (error.response.status === 401 || error.response.status === 500) {
-              this.showWarnNotif(error.response.data.error)
-            } else {
-              this.showErrNotif(`${error.response.status} ${error.response.statusText}`)
-            }
+            this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)
           } else {
             this.showErrNotif(error.message || error)
           }
@@ -231,10 +225,8 @@ export default {
         .catch((error) => {
           if (error.response) {
             // 请求已发出，但服务器响应的状态码不在 2xx 范围内
-            if (error.response.status === 401) {
-              this.showWarnNotif(error.response.data.error)
-            } else {
-              this.showErrNotif(`${error.response.status} ${error.response.statusText}`)
+            if (error.response.status !== 401) {
+              this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)
             }
           } else {
             this.showErrNotif(error.message || error)

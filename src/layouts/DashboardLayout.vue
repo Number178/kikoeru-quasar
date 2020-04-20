@@ -96,6 +96,8 @@ export default {
     },
     error (err) {
       this.showWarnNotif(err.message || err)
+      // 验证失败，跳转到登录页面
+      this.$router.push('/login')
     }
   },
 
@@ -118,7 +120,7 @@ export default {
     }
   },
 
-  created () {
+  created () {  
     // 从 LocalStorage 中读取 token
     const token = this.$q.localStorage.getItem('jwt-token') || ''
     this.$socket.io.opts.query.auth_token = token
