@@ -7,12 +7,6 @@
         </q-toolbar>
 
         <div class="q-pa-sm">
-          <q-input outlined dense type="password" label="旧密码"
-            v-model="adminOldPassword"
-            lazy-rules
-            :rules="[ val => val.length >= 5 || '密码长度至少为 5' ]"
-          />
-
           <q-input outlined dense type="password" label="新密码"
             v-model="adminNewPassword"
             lazy-rules
@@ -115,7 +109,6 @@ export default {
       loadingAddNewUser: false,
 
       
-      adminOldPassword: '',
       adminNewPassword: '',
       adminConfirmPassword: '',
       loadingUpdateAdminPassword: false,
@@ -191,7 +184,6 @@ export default {
       this.loadingUpdateAdminPassword = true
       this.$axios.put('/api/user', {
         name: 'admin',
-        oldPassword: this.adminOldPassword,
         newPassword: this.adminNewPassword
       })
         .then((response) => {
