@@ -1,11 +1,11 @@
 <template>
-  <q-form @submit="onSubmit" style="width: 280px;" class="absolute-center	q-gutter-md">
-    <q-input filled v-model="name" label="用户名"
+  <q-form @submit="onSubmit" style="width: 260px;" class="absolute-center	q-gutter-md">
+    <q-input filled v-model="name" label="用户名" class="fit"
       lazy-rules
       :rules="[ val => val.length >= 5 || '密码长度至少为 5' ]"
     />
     
-    <q-input filled type="password" v-model="password" label="密码"
+    <q-input filled type="password" v-model="password" label="密码"  class="fit"
       lazy-rules
       :rules="[ val => val.length >= 5 || '密码长度至少为 5' ]"
     />
