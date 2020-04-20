@@ -169,10 +169,8 @@ export default {
         .catch((error) => {
           if (error.response) {
             // 请求已发出，但服务器响应的状态码不在 2xx 范围内
-            if (error.response.status === 401 || error.response.status === 500) {
-              this.showWarnNotif(error.response.data.error)
-            } else {
-              this.showErrNotif(`${error.response.status} ${error.response.statusText}`)
+            if (error.response.status !== 401) {
+              this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)
             }
           } else {
             this.showErrNotif(error.message || error)
@@ -207,10 +205,8 @@ export default {
           .catch((error) => {
             if (error.response) {
               // 请求已发出，但服务器响应的状态码不在 2xx 范围内
-              if (error.response.status === 401 || error.response.status === 500) {
-                this.showWarnNotif(error.response.data.error)
-              } else {
-                this.showErrNotif(`${error.response.status} ${error.response.statusText}`)
+              if (error.response.status !== 401) {
+                this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)
               }
             } else {
               this.showErrNotif(error.message || error)
@@ -231,23 +227,6 @@ export default {
         .then(() => {
           this.stopLoad = false
         })
-    },
-
-    showSuccNotif (message) {
-      this.$q.notify({
-        message,
-        color: 'positive',
-        icon: 'done',
-        timeout: 500
-      })
-    },
-
-    showWarnNotif (message) {
-      this.$q.notify({
-        message,
-        color: 'warning',
-        icon: 'warning',
-      })
     },
 
     showErrNotif (message) {
