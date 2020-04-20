@@ -79,7 +79,9 @@ export default {
 
   data () {
     return {
-      config: {},
+      config: {
+        rootFolders: []
+      },
       rootFolder: {
         name: '',
         path: ''
