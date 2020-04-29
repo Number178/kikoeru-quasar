@@ -23,7 +23,7 @@
       <div class="col-11">
         <q-infinite-scroll @load="onLoad" :offset="250" :disable="stopLoad">
          <div class="row justify-center q-col-gutter-x-md q-col-gutter-y-lg">
-            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 col-xl-auto" v-for="(work, index) in works" :key="index">
+            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 col-xl-auto" v-for="work in works" :key="work.id">
               <WorkCard :workid="work.id" class="work-card" />
             </div>
           </div>

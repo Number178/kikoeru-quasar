@@ -41,7 +41,7 @@
         </q-toolbar>
 
         <q-list>
-          <q-item v-for="(rootFolder, index) in config.rootFolders" :key="index">
+          <q-item v-for="rootFolder in config.rootFolders" :key="rootFolder.name">
             <q-item-section avatar>
               <q-icon color="amber" name="folder" />
             </q-item-section>
