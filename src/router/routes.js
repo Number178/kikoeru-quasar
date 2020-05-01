@@ -4,7 +4,6 @@ import DashboardLayout from 'layouts/DashboardLayout'
 import Works from 'pages/Works'
 import Work from 'pages/Work'
 import List from 'pages/List'
-import Player from 'pages/Player'
 import Login from 'pages/Login'
 
 import Folders from 'pages/Dashboard/Folders'
@@ -43,10 +42,6 @@ const routes = [
       {
         path: '',
         component: Works
-      },
-      {
-        path: 'player',
-        component: Player
       },
       {
         path: 'work/:id',

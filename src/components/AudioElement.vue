@@ -42,10 +42,6 @@ export default {
       return this.$store.state.AudioPlayer.playMode
     },
 
-    seek () {
-      return this.$store.state.AudioPlayer.seek
-    },
-
     muted () {
       return this.$store.state.AudioPlayer.muted
     },
@@ -68,25 +64,6 @@ export default {
         // 加载新音频/视频文件
         this.player.media.load()
       }
-    },
-
-    seek (val) {
-      // 屏蔽非法数值
-      if (val > 100 || val < 0) {
-        return
-      }
-      
-      if (this.player.duration) {
-        if (val === 100) {
-          this.onEnded()
-        } else {
-          // 跳转到指定位置
-          this.player.currentTime = val * 0.01 * this.player.duration
-        }
-      }
-      
-      // 重置seek为初始状态
-      this.$store.commit('AudioPlayer/SEEK', -1)
     },
 
     muted (flag) {
@@ -118,12 +95,7 @@ export default {
 
     onTimeupdate () {
       // 当目前的播放位置已更改时触发
-      const progress = this.player.currentTime / this.player.duration * 100
-
-      // 更新播放进度
-      if (progress) {
-        this.$store.commit('AudioPlayer/TIME_UPDATE', progress)
-      } 
+      this.$store.commit('AudioPlayer/SET_CURRENT_TIME', this.player.currentTime)
     },
 
     onEnded () {

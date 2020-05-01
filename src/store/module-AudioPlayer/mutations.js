@@ -1,4 +1,8 @@
 const mutations = {
+  TOGGLE_HIDE (state) {
+    state.hide = !state.hide
+  },
+
   PLAY (state) {
     state.playing = true
   },
@@ -17,14 +21,12 @@ const mutations = {
 
     state.playing = true
     state.queueIndex = index
-    state.progress = 0
   },
   NEXT_TRACK: (state) => {
     if (state.queueIndex < state.queue.length - 1) {
       // Go to next track only if it exists.
       state.playing = true
       state.queueIndex += 1
-      state.progress = 0
     }
   },
   PREVIOUS_TRACK: (state) => {
@@ -32,27 +34,12 @@ const mutations = {
       // Go to previous track only if it exists.
       state.playing = true
       state.queueIndex -= 1
-      state.progress = 0
     }
-  },
-
-  // Seek audio element to desired value (from 0 to 100).
-  SEEK: (state, seek) => {
-    state.seek = seek
-  },
-
-  // Update UI progress bars.
-  TIME_UPDATE: (state, progress) => {
-    state.progress = progress
   },
 
   SET_QUEUE (state, payload) {
     state.queue = payload.queue
     state.queueIndex = payload.index
-    
-    if (payload.resetProgress) {
-      state.progress = 0
-    }
 
     if (payload.resetPlaying) {
       state.playing = true
@@ -72,7 +59,6 @@ const mutations = {
     if (index === state.queueIndex) {
       state.playing = false
       state.queueIndex = 0
-      state.progress = 0
     } else if (index < state.queueIndex) {
       state.queueIndex -= 1
     } 

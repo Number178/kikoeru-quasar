@@ -31,14 +31,14 @@
       <PlayerBar />
     </q-footer>
     
-    <AudioElement />
+    <AudioPlayer />
   </q-layout>
 </template>
 
 <script>
 import NavBar from 'components/NavBar'
 import PlayerBar from 'components/PlayerBar'
-import AudioElement from 'components/AudioElement'
+import AudioPlayer from 'components/AudioPlayer'
 
 export default {
   name: 'MainLayout',
@@ -46,7 +46,7 @@ export default {
   components: {
     NavBar,
     PlayerBar,
-    AudioElement
+    AudioPlayer
   },
 
   data () {

@@ -1,8 +1,8 @@
 export default function () {
   return {
+    hide: false,
     playing: false, // 播放状态 (true/false)
-    progress: 0, // 播放进度 (0-100)
-    seek: -1, // where to seek to (0-100)
+    currentTime: 0, // 单位: 秒
     duration: 0,
     source: "",
     queue: [

@@ -1,15 +1,18 @@
 <template>
   <q-slide-transition>
-    <div v-show="currentPlayingHash" class="row items-center q-gutter-sm q-px-sm"> 
-      <router-link :to="'/player'" class="col-auto">
-        <q-avatar square size="55px">
-          <q-img :src="coverUrl" :ratio="4/3"/>
-        </q-avatar>
-      </router-link>
-  
-      <span class="col">{{currentPlayingTitle}}</span>
+    <div v-show="currentPlayingHash && hide" class="row">
+      <q-item clickable v-ripple @click="toggleHide()" style="padding: 3px;" class="col">
+        <q-item-section side>
+          <q-img :src="coverUrl" style="height: 54px; width: 72px" class="rounded-borders" />
+        </q-item-section>
+        
+        <q-item-section>
+          <q-item-label class="ellipsis">{{currentPlayingTitle}}</q-item-label>
+          <q-item-label caption class="ellipsis">{{currentPlayingTitle}}</q-item-label>
+        </q-item-section>
+      </q-item>
 
-      <q-btn flat round :icon="playingIcon" @click="togglePlaying()" class="col-auto" />
+      <q-btn flat size="lg" :icon="playingIcon" @click="togglePlaying()" style="height: 60px; width: 60px" class="col-auto" />
     </div>
   </q-slide-transition>
 </template>
@@ -28,12 +31,12 @@ export default {
       return hash ? `/api/cover/${hash.substring(0, hash.indexOf('/'))}?token=${token}` : ""
     },
 
-    playingIcon () {
-      return this.$store.state.AudioPlayer.playing ? "pause" : "play_arrow"
+    hide () {
+      return this.$store.state.AudioPlayer.hide
     },
 
-    progress() {
-      return this.$store.state.AudioPlayer.progress
+    playingIcon () {
+      return this.$store.state.AudioPlayer.playing ? "pause" : "play_arrow"
     },
 
     ...mapGetters({
@@ -43,6 +46,10 @@ export default {
   },
 
   methods: {
+    toggleHide () {
+      this.$store.commit('AudioPlayer/TOGGLE_HIDE')
+    },
+
     togglePlaying () {
       this.$store.commit('AudioPlayer/TOGGLE_PLAYING')
     }
