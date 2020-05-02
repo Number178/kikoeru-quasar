@@ -1,20 +1,23 @@
 <template>
   <div>
     <WorkDetails :metadata="metadata" />
-    <WorkQueue :queue="tracks" :editable="false" />
+    <!-- <WorkQueue :queue="tracks" :editable="false" /> -->
+    <WorkTree :tree="tree" :editable="false" />
   </div>
 </template>
 
 <script>
 import WorkDetails from 'components/WorkDetails'
-import WorkQueue from 'components/WorkQueue'
+// import WorkQueue from 'components/WorkQueue'
+import WorkTree from 'components/WorkTree'
 
 export default {
   name: 'Work',
 
   components: {
     WorkDetails,
-    WorkQueue,
+    // WorkQueue,
+    WorkTree
   },
 
   data () {
@@ -24,7 +27,7 @@ export default {
         id: parseInt(this.$route.params.id),
         circle: {}
       },
-      tracks: []
+      tree: []
     }
   },
 
@@ -34,16 +37,20 @@ export default {
 
   methods: {
     requestData () {
-      const metadataPromise = this.$axios.get(`/api/work/${this.workid}`)
-      const tracksPromise = this.$axios.get(`/api/tracks/${this.workid}`)
-
-      Promise.all([metadataPromise, tracksPromise])
+      this.$axios.get(`/api/work/${this.workid}`)
         .then(response => {
-          this.metadata = response[0].data
-          this.tracks = response[1].data.concat()
+          this.metadata = response.data
         })
         .catch((error) => {
-          throw new Error(`Failed to request /api/work/${this.workid} or /api/tracks/${this.workid}`)
+          throw new Error(`Failed to request /api/work/${this.workid}`)
+        })
+
+      this.$axios.get(`/api/tracks/${this.workid}`)
+        .then(response => {
+          this.tree = response.data
+        })
+        .catch((error) => {
+          throw new Error(`Failed to request /api/tracks/${this.workid}`)
         })
     }
   }

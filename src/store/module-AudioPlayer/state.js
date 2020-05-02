@@ -8,7 +8,7 @@ export default function () {
     queue: [
       // list of tracks. object format:
       /*
-        title: null, // title to show in UI
+        name: null, // title to show in UI
         subtitle: null, // subtitle to show in UI
         hash: null, // unique identifier for the file
        */

@@ -1,6 +1,6 @@
 <template>
   <q-slide-transition>
-    <q-card square v-show="currentPlayingHash && !hide" class="fixed-bottom-right z-top  bg-white audio-player" @mousewheel.prevent @touchmove.prevent>
+    <q-card square v-show="currentPlayingFile.hash && !hide" class="fixed-bottom-right z-top  bg-white audio-player" @mousewheel.prevent @touchmove.prevent>
       <div class="bg-dark column justify-center albumart">
         <q-img :src="coverUrl" :ratio="4/3" />
         <q-btn dense round size="md" color="white" text-color="dark" icon="keyboard_arrow_down" @click="toggleHide()" class="absolute-top-left q-ma-sm" />
@@ -12,13 +12,13 @@
         <div class="col-auto">{{formatSeconds(duration)}}</div>
       </div>
 
-      <div class="text-center q-px-sm" style="height: 50px">
-        <div class="text-subtitle2 text-bold ellipsis">
-          {{currentPlayingTitle}}
+      <div class="column justify-center text-center q-px-sm" style="height: 65px">
+        <div class="col-auto text-subtitle2 text-bold ellipsis-2-lines">
+          {{currentPlayingFile.name}}
         </div>
 
-        <div class="text-caption text-grey ellipsis">
-          {{currentPlayingTitle}}
+        <div class="col-auto text-caption text-grey ellipsis">
+          {{currentPlayingFile.subtitle}}
         </div>
       </div>
 
@@ -63,7 +63,7 @@ export default {
     coverUrl () {
       // 从 LocalStorage 中读取 token
       const token = this.$q.localStorage.getItem('jwt-token') || ''
-      const hash = this.currentPlayingHash
+      const hash = this.currentPlayingFile.hash
       return hash ? `/api/cover/${hash.substring(0, hash.indexOf('/'))}?token=${token}` : ""
     },
 
@@ -126,8 +126,7 @@ export default {
     },
 
     ...mapGetters({
-      currentPlayingHash: 'AudioPlayer/currentPlayingHash',
-      currentPlayingTitle: 'AudioPlayer/currentPlayingTitle'
+      currentPlayingFile: 'AudioPlayer/currentPlayingFile'
     })
   },
 
@@ -202,7 +201,7 @@ export default {
     // 宽度 < $breakpoint-xs-max (599px)
     @media (max-width: $breakpoint-xs-max) {
       width: 100%;
-      height: calc(100% - 215px);
+      height: calc(100% - 230px);
     }
   }
 </style>

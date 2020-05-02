@@ -15,7 +15,7 @@
 
         <div class="row justify-center q-gutter-sm">
           <div class="col-auto" v-for="item in (keyword ? filteredItems : items)" :key="item.id">
-            <q-btn no-caps unelevated rounded color="primary" :label="`${item.name} (${item.count})`" :to="`/${restrict}/${item.id}`" />
+            <q-btn no-caps rounded color="primary" :label="`${item.name} (${item.count})`" :to="`/${restrict}/${item.id}`" />
           </div>
         </div>
       </div>

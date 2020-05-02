@@ -1,14 +1,14 @@
 <template>
   <q-slide-transition>
-    <div v-show="currentPlayingHash && hide" class="row">
+    <div v-show="currentPlayingFile.hash && hide" class="row">
       <q-item clickable v-ripple @click="toggleHide()" style="padding: 3px;" class="col">
         <q-item-section side>
           <q-img :src="coverUrl" style="height: 54px; width: 72px" class="rounded-borders" />
         </q-item-section>
         
         <q-item-section>
-          <q-item-label class="ellipsis">{{currentPlayingTitle}}</q-item-label>
-          <q-item-label caption class="ellipsis">{{currentPlayingTitle}}</q-item-label>
+          <q-item-label lines="1">{{currentPlayingFile.name}}</q-item-label>
+          <q-item-label caption lines="1">{{currentPlayingFile.subtitle}}</q-item-label>
         </q-item-section>
       </q-item>
 
@@ -27,7 +27,7 @@ export default {
     coverUrl () {
       // 从 LocalStorage 中读取 token
       const token = this.$q.localStorage.getItem('jwt-token') || ''
-      const hash = this.currentPlayingHash
+      const hash = this.currentPlayingFile.hash
       return hash ? `/api/cover/${hash.substring(0, hash.indexOf('/'))}?token=${token}` : ""
     },
 
@@ -40,8 +40,7 @@ export default {
     },
 
     ...mapGetters({
-      currentPlayingHash: 'AudioPlayer/currentPlayingHash',
-      currentPlayingTitle: 'AudioPlayer/currentPlayingTitle'
+      currentPlayingFile: 'AudioPlayer/currentPlayingFile'
     })
   },
 
