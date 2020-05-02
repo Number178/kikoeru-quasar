@@ -19,6 +19,7 @@
         :active="item.type === 'file' && currentPlayingFile.hash === item.hash"
         active-class="text-white bg-teal"
         @click="onClickItem(item)"
+        class="non-selectable"
       >
         <q-item-section avatar>
           <q-icon size="34px" v-if="item.type === 'folder'" color="amber" name="folder" />
