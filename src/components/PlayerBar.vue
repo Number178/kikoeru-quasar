@@ -1,8 +1,8 @@
 <template>
   <q-slide-transition>
     <div v-show="currentPlayingFile.hash && hide" class="row">
-      <q-item clickable v-ripple @click="toggleHide()" style="padding: 3px;" class="col">
-        <q-item-section side>
+      <q-item clickable v-ripple @click="toggleHide()" style="padding: 3px;" class="col non-selectable">
+        <q-item-section avatar>
           <q-img :src="coverUrl" style="height: 54px; width: 72px" class="rounded-borders" />
         </q-item-section>
         
