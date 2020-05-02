@@ -6,21 +6,18 @@
         <q-btn dense round size="md" color="white" text-color="dark" icon="keyboard_arrow_down" @click="toggleHide()" class="absolute-top-left q-ma-sm" />
       </div>
 
-      <div class="row items-center q-mx-sm" style="height: 50px">
+      <div class="row items-center q-mx-sm" style="height: 40px">
         <div class="col-auto">{{formatSeconds(currentTime)}}</div>
         <AudioElement class="col" />
         <div class="col-auto">{{formatSeconds(duration)}}</div>
       </div>
 
-      <div class="column justify-center text-center q-px-sm" style="height: 65px">
-        <div class="col-auto text-subtitle2 text-bold ellipsis-2-lines">
-          {{currentPlayingFile.name}}
-        </div>
-
-        <div class="col-auto text-caption text-grey ellipsis">
-          {{currentPlayingFile.subtitle}}
-        </div>
-      </div>
+      <q-item style="height: 55px; padding: 0px 15px;" class="text-center non-selectable">
+        <q-item-section>
+          <q-item-label lines="2" class="text-bold">{{ currentPlayingFile.name }}</q-item-label>
+          <q-item-label caption lines="1">{{ currentPlayingFile.subtitle }}</q-item-label>
+        </q-item-section>
+      </q-item>
 
       <div class="row justify-around" style="height: 65px">
         <q-btn flat dense size="md" icon="queue_music" style="width: 55px" class="col-auto" />
