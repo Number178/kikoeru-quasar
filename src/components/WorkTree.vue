@@ -2,7 +2,7 @@
   <div class="q-ma-md " style="">
     <q-breadcrumbs gutter="xs" v-if="path.length">
       <q-breadcrumbs-el   >
-        <q-btn no-caps flat  dense size="md" icon="folder" style="height: 30px;"  @click="() => this.path = []">ROOT</q-btn>
+        <q-btn no-caps flat dense size="md" icon="folder" style="height: 30px;" @click="path = []">ROOT</q-btn>
       </q-breadcrumbs-el>
       
       <q-breadcrumbs-el v-for="(folderName, index) in path"  :key="index"  class="cursor-pointer" >
@@ -10,28 +10,30 @@
       </q-breadcrumbs-el>
     </q-breadcrumbs>
 
-    <q-list separator bordered>
-      <q-item
-        clickable
-        v-ripple
-        v-for="(item, index) in fatherFolder"
-        :key="index"
-        :active="item.type === 'file' && currentPlayingFile.hash === item.hash"
-        active-class="text-white bg-teal"
-        @click="onClickItem(item)"
-        class="non-selectable"
-      >
-        <q-item-section avatar>
-          <q-icon size="34px" v-if="item.type === 'folder'" color="amber" name="folder" />
-          <q-btn v-else round dense color="primary" :icon="playIcon(item.hash)" @click="onClickPlayButton(item.hash)" />
-        </q-item-section>
+    <q-card>
+      <q-list separator>
+        <q-item
+          clickable
+          v-ripple
+          v-for="(item, index) in fatherFolder"
+          :key="index"
+          :active="item.type === 'file' && currentPlayingFile.hash === item.hash"
+          active-class="text-white bg-teal"
+          @click="onClickItem(item)"
+          class="non-selectable"
+        >
+          <q-item-section avatar>
+            <q-icon size="34px" v-if="item.type === 'folder'" color="amber" name="folder" />
+            <q-btn v-else round dense color="primary" :icon="playIcon(item.hash)" @click="onClickPlayButton(item.hash)" />
+          </q-item-section>
 
-        <q-item-section>
-          <q-item-label lines="2">{{ item.name }}</q-item-label>
-          <q-item-label v-if="item.children" caption lines="1">{{ `${item.children.length} 项目` }}</q-item-label>
-        </q-item-section>
-      </q-item>
-    </q-list>
+          <q-item-section>
+            <q-item-label lines="2">{{ item.title }}</q-item-label>
+            <q-item-label v-if="item.children" caption lines="1">{{ `${item.children.length} 项目` }}</q-item-label>
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </q-card>
   </div>
 </template>
 
@@ -64,7 +66,7 @@ export default {
     fatherFolder () {
       let fatherFolder = this.tree.concat()
       this.path.forEach(folderName => {
-        fatherFolder = fatherFolder.find(item => item.type === 'folder' && item.name === folderName).children
+        fatherFolder = fatherFolder.find(item => item.type === 'folder' && item.title === folderName).children
       })
 
       return fatherFolder
@@ -104,7 +106,7 @@ export default {
         if (fatherFolder[0].type === 'file') {
           break
         }
-        initialPath.push(fatherFolder[0].name)
+        initialPath.push(fatherFolder[0].title)
         fatherFolder = fatherFolder[0].children
       }
       this.path = initialPath
@@ -116,13 +118,13 @@ export default {
 
     onClickItem (item) {
       if (item.type === 'folder') {
-        this.path.push(item.name)
+        this.path.push(item.title)
       } else if (this.currentPlayingFile.hash !== item.hash) {
         this.$store.commit('AudioPlayer/SET_QUEUE', {
           queue: this.queue.concat(),
           index: this.queue.findIndex(file => file.hash === item.hash),
+          resetPlaying: true
         })
-        this.$store.commit('AudioPlayer/PLAY')
       }
     },
 
@@ -133,10 +135,10 @@ export default {
         this.$store.commit('AudioPlayer/SET_QUEUE', {
           queue: this.queue.concat(),
           index: this.queue.findIndex(file => file.hash === hash),
+          resetPlaying: true
         })
-        this.$store.commit('AudioPlayer/PLAY')
       }
-    },
+    }
   }
 }
 </script>

@@ -1,9 +1,9 @@
 const getters = {
   currentPlayingFile: (state) => {
     return state.queue[state.queueIndex] || {
-      name: null,
-      subtitle: null,
-      hash: null
+      hash: '',
+      title: '',
+      workTitle: ''
     }
   }
 }

@@ -1,6 +1,6 @@
 <template>
-  <q-layout view="hhh LpR fFf">
-    <q-header reveal elevated>
+  <q-layout view="lHh lpr lFf">
+    <q-header class="shadow-4">
       <q-toolbar>
         <q-toolbar-title >
           <router-link :to="'/'" class="text-white">
@@ -17,6 +17,8 @@
 
         <q-btn flat dense round @click="rightDrawerOpen = !rightDrawerOpen" icon="menu" aria-label="Menu"/>
       </q-toolbar>
+      
+      <AudioPlayer />
     </q-header>
 
     <q-drawer overlay elevated v-model="rightDrawerOpen" side="right">
@@ -30,8 +32,6 @@
     <q-footer bordered elevated class="bg-white text-black q-pa-none" >
       <PlayerBar />
     </q-footer>
-    
-    <AudioPlayer />
   </q-layout>
 </template>
 
