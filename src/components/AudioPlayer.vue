@@ -52,7 +52,7 @@
 
     <!-- 当前播放列表 -->
     <q-dialog v-model="showCurrentPlayList">
-      <q-card style="max-height: 500px; max-width: 450px; min-width: 280px;">
+      <q-card class="current-play-list">
         <!-- 操作当前播放列表的控制按钮 -->
         <div class="row" style="padding: 5px; height: 45px;">
           <q-btn dense round size="md" icon="edit" color="primary" @click="editCurrentPlayList = !editCurrentPlayList" style="height: 35px; width: 35px;" class="col-auto" />
@@ -311,6 +311,19 @@ export default {
     @media (max-width: $breakpoint-xs-max) {
       width: 100%;
       height: calc(100% - 230px);
+    }
+  }
+
+  .current-play-list {
+    max-height: 500px;
+
+    // 宽度 > $breakpoint-xs-max
+    @media (min-width: $breakpoint-xs-max) {
+      width: 450px;
+    }
+    // 宽度 < $breakpoint-xs-max (599px)
+    @media (max-width: $breakpoint-xs-max) {
+      min-width: 280px;
     }
   }
 </style>
