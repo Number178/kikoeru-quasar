@@ -13,6 +13,8 @@
           <router-link v-else-if="username === 'admin'" to="/admin" class="text-white">{{username}}</router-link>
           <span v-else>{{username}}</span>
         </div>
+
+        <q-btn dense v-if="username" label="退出登录" @click="logout()" class="col" />
       </div>
     </q-img>
 
@@ -57,6 +59,13 @@ export default {
   computed: {
     username () {
       return this.$store.state.User.name
+    }
+  },
+
+  methods: {
+    logout () {
+      this.$q.localStorage.set('jwt-token', '')
+      this.$router.push('/login')
     }
   }
 }
