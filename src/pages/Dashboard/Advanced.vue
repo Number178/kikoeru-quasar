@@ -6,20 +6,6 @@
       </q-toolbar>
 
       <q-list>
-        <q-item style="height: 70px;"> 
-          <q-item-section>
-            <q-item-label>封面图片源</q-item-label>
-            <q-item-label caption>默认 DLSite</q-item-label>
-          </q-item-section>
-
-          <q-item-section avatar>
-            <div class="q-gutter-sm">
-              <q-radio dense v-model="config.coverSource" val="DLite" label="DLite" />
-              <q-radio dense v-model="config.coverSource" val="HVDB" label="HVDB" />
-            </div>
-          </q-item-section>
-        </q-item>
-
         <q-item style="height: 70px;">
           <q-item-section>
             <q-item-label>标签语言</q-item-label>
@@ -37,13 +23,29 @@
 
         <q-item>
           <q-item-section>
-            <q-item-label>网络请求超时时间</q-item-label>
-            <q-item-label caption>默认 2000 毫秒</q-item-label>
+            <q-item-label>DLsite 超时时间</q-item-label>
+            <q-item-label caption>默认 10000 毫秒</q-item-label>
           </q-item-section>
 
           <q-item-section avatar>
             <q-input
-              v-model.number="config.timeout"
+              v-model.number="config.dlsiteTimeout"
+              type="number"
+              input-class="text-right"
+              style="max-width: 100px;"
+            />
+          </q-item-section>
+        </q-item>
+
+        <q-item>
+          <q-item-section>
+            <q-item-label>HVDB 超时时间</q-item-label>
+            <q-item-label caption>默认 10000 毫秒</q-item-label>
+          </q-item-section>
+
+          <q-item-section avatar>
+            <q-input
+              v-model.number="config.hvdbTimeout"
               type="number"
               input-class="text-right"
               style="max-width: 100px;"
@@ -54,7 +56,7 @@
         <q-item>
           <q-item-section>
             <q-item-label>重新请求间隔时间</q-item-label>
-            <q-item-label caption>默认 500 毫秒</q-item-label>
+            <q-item-label caption>默认 2000 毫秒</q-item-label>
           </q-item-section>
 
           <q-item-section avatar>
