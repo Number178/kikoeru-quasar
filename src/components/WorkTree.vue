@@ -31,6 +31,26 @@
             <q-item-label lines="2">{{ item.title }}</q-item-label>
             <q-item-label v-if="item.children" caption lines="1">{{ `${item.children.length} 项目` }}</q-item-label>
           </q-item-section>
+
+          <!-- 上下文菜单 -->
+          <q-menu
+            v-if="item.type === 'file'"
+            touch-position
+            context-menu
+            auto-close
+            transition-show="jump-down"
+            transition-hide="jump-up"
+          >
+            <q-list separator>
+              <q-item clickable @click="addToQueue(item)">
+                <q-item-section>添加到播放列表</q-item-section>
+              </q-item>
+
+              <q-item clickable @click="playNext(item)">
+                <q-item-section>下一曲播放</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
         </q-item>
       </q-list>
     </q-card>
@@ -138,6 +158,14 @@ export default {
           resetPlaying: true
         })
       }
+    },
+
+    addToQueue (file) {
+      this.$store.commit('AudioPlayer/ADD_TO_QUEUE', file)
+    },
+
+    playNext (file) {
+      this.$store.commit('AudioPlayer/PLAY_NEXT', file)
     }
   }
 }
