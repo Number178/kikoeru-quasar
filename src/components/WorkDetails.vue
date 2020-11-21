@@ -62,6 +62,11 @@
           <div class="col-auto q-px-sm">
             <q-icon name="chat" size="xs" /> <span class="text-grey"> ({{metadata.review_count}})</span>
           </div>
+		  
+		  <!-- DLsite链接 -->
+		  <div class="col-auto">
+            <q-icon name="launch" size="xs" /><a class="text-blue" :href="`https://www.dlsite.com/home/work/=/product_id/RJ${metadata.id}.html`" target="_blank">DLsite</a>
+          </div>
         </div>
       </div>
       
