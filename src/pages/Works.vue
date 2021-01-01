@@ -114,12 +114,12 @@ export default {
           sort: 'asc'
         },
         {
-          label: '按照全年龄优先的顺序',
+          label: '按照全年龄新作优先的顺序',
           order: 'nsfw',
           sort: 'asc'
         },
         {
-          label: '按照18禁优先的顺序',
+          label: '按照18禁新作优先的顺序',
           order: 'nsfw',
           sort: 'desc'
         }
