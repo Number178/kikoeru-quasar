@@ -49,6 +49,10 @@
               <q-item clickable @click="playNext(item)">
                 <q-item-section>下一曲播放</q-item-section>
               </q-item>
+
+              <q-item clickable @click="download(item)">
+                <q-item-section>下载文件</q-item-section>
+              </q-item>
             </q-list>
           </q-menu>
         </q-item>
@@ -166,6 +170,15 @@ export default {
 
     playNext (file) {
       this.$store.commit('AudioPlayer/PLAY_NEXT', file)
+    },
+
+    download (file) {
+      const token = this.$q.localStorage.getItem('jwt-token') || '';
+      const url = `/api/download/${file.hash}?token=${token}`;
+      const link = document.createElement('a');
+      link.href = url;
+      link.target="_blank";
+      link.click();
     }
   }
 }
