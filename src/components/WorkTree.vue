@@ -24,6 +24,8 @@
         >
           <q-item-section avatar>
             <q-icon size="34px" v-if="item.type === 'folder'" color="amber" name="folder" />
+            <q-icon size="34px" v-else-if="item.type === 'text'" color="info" name="description" />
+            <q-icon size="34px" v-else-if="item.type === 'image'" color="orange" name="photo" />
             <q-btn v-else round dense color="primary" :icon="playIcon(item.hash)" @click="onClickPlayButton(item.hash)" />
           </q-item-section>
 
@@ -142,7 +144,9 @@ export default {
 
     onClickItem (item) {
       if (item.type === 'folder') {
-        this.path.push(item.title)
+        this.path.push(item.title);
+      } else if (item.type === 'text' || item.type === 'image') {
+        this.openFile(item);
       } else if (this.currentPlayingFile.hash !== item.hash) {
         this.$store.commit('AudioPlayer/SET_QUEUE', {
           queue: this.queue.concat(),
@@ -175,6 +179,15 @@ export default {
     download (file) {
       const token = this.$q.localStorage.getItem('jwt-token') || '';
       const url = `/api/download/${file.hash}?token=${token}`;
+      const link = document.createElement('a');
+      link.href = url;
+      link.target="_blank";
+      link.click();
+    },
+
+    openFile (file) {
+      const token = this.$q.localStorage.getItem('jwt-token') || '';
+      const url = `/api/stream/${file.hash}?token=${token}`;
       const link = document.createElement('a');
       link.href = url;
       link.target="_blank";
