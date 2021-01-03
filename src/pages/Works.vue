@@ -8,8 +8,8 @@
     </div>
     
     <div :class="`row justify-center ${listMode ? 'list' : 'q-mx-md'}`">
-      <q-infinite-scroll @load="onLoad" :offset="250" :disable="stopLoad" style="max-width: 1550px;" class="col">
-        <div v-show="works.length" class="row justify-between q-mb-md q-mx-xs">
+      <q-infinite-scroll @load="onLoad" :offset="250" :disable="stopLoad" style="max-width: 1680px;" class="col">
+        <div v-show="works.length" class="row justify-between q-mb-md q-mr-sm">
           <!-- 排序选择框 -->
           <q-select
             dense
@@ -45,7 +45,6 @@
             dense
             spread
             rounded
-            :disable="!listMode"
             v-model="showLabel"
             toggle-color="primary"
             color="white"
@@ -56,8 +55,27 @@
             ]"
             style="width: 85px;"
             class="col-auto"
-            v-if="windowWidth > 700"
+            v-if="windowWidth > 700 && listMode"
           />
+
+          <q-btn-toggle
+            dense
+            spread
+            rounded
+            :disable="windowWidth < 1120"
+            v-model="detailMode"
+            toggle-color="primary"
+            color="white"
+            text-color="primary"
+            :options="[
+              { icon: 'zoom_in', value: true },
+              { icon: 'zoom_out', value: false },
+            ]"
+            style="width: 85px;"
+            class="col-auto"
+            v-if="windowWidth > 700 && !listMode"
+          />
+
         </div>
         
         <q-list v-if="listMode" bordered separator class="shadow-2">
@@ -65,8 +83,8 @@
         </q-list>
 
         <div v-else class="row q-col-gutter-x-md q-col-gutter-y-lg">
-          <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" v-for="work in works" :key="work.id">
-            <WorkCard :workid="work.id" class="fit" /> 
+          <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" :class="detailStyle()" v-for="work in works" :key="work.id">
+            <WorkCard :workid="work.id" class="fit"/> 
           </div> 
         </div>
         
@@ -104,6 +122,7 @@ export default {
     return {
       listMode: false,
       showLabel: true,
+      detailMode: false,
       stopLoad: false,
       works: [],
       pageTitle: '',
@@ -186,6 +205,9 @@ export default {
     if (localStorage.listMode) {
       this.listMode = (localStorage.listMode === 'true');
     }
+    if (localStorage.detailMode) {
+      this.detailMode = (localStorage.detailMode === 'true');
+    }
   },
 
   computed: {
@@ -215,6 +237,10 @@ export default {
 
     listMode (newListModeSetting) {
       localStorage.listMode = newListModeSetting;
+    },
+
+    detailMode(newModeSetting) {
+      localStorage.detailMode = newModeSetting;
     },
   },
 
@@ -310,6 +336,14 @@ export default {
         color: 'negative',
         icon: 'bug_report'
       })
+    },
+    
+    detailStyle() {
+      if (this.detailMode) {
+        return 'work-card';
+      } else {
+        return '';
+      }
     }
   }
 }
@@ -320,6 +354,13 @@ export default {
     // 宽度 >= $breakpoint-sm-min
     @media (min-width: $breakpoint-sm-min) {
       padding: 0px 20px;
+    }
+  }
+  
+  .work-card {
+    // 宽度 > $breakpoint-xl-min
+    @media (min-width: $breakpoint-md-min) {
+      width: 560px;
     }
   }
 </style>
