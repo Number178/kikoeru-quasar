@@ -36,7 +36,7 @@
 
           <!-- 上下文菜单 -->
           <q-menu
-            v-if="item.type === 'file'"
+            v-if="item.type === 'file' || item.type === 'text' || item.type === 'image'"
             touch-position
             context-menu
             auto-close
@@ -44,11 +44,11 @@
             transition-hide="jump-up"
           >
             <q-list separator>
-              <q-item clickable @click="addToQueue(item)">
+              <q-item clickable @click="addToQueue(item)" v-if="item.type === 'file'">
                 <q-item-section>添加到播放列表</q-item-section>
               </q-item>
 
-              <q-item clickable @click="playNext(item)">
+              <q-item clickable @click="playNext(item)" v-if="item.type === 'file'">
                 <q-item-section>下一曲播放</q-item-section>
               </q-item>
 
