@@ -1,8 +1,10 @@
 <template>
-  <q-layout view="lHh lpr lFf">
+  <q-layout view="hHh Lpr lff" class="bg-grey-3">
     <q-header class="shadow-4">
       <q-toolbar>
-        <q-toolbar-title >
+        <q-btn flat dense round @click="drawerOpen = !drawerOpen" icon="menu" aria-label="Menu" />
+
+        <q-toolbar-title class="gt-xs">
           <router-link :to="'/'" class="text-white">
             Kikoeru
           </router-link>
@@ -15,18 +17,87 @@
           </template>
         </q-input>
 
-        <q-btn flat dense round @click="rightDrawerOpen = !rightDrawerOpen" icon="menu" aria-label="Menu"/>
       </q-toolbar>
       
       <AudioPlayer />
     </q-header>
 
-    <q-drawer overlay elevated v-model="rightDrawerOpen" side="right">
-      <NavBar :links="links" />      
+    <q-drawer
+      v-model="drawerOpen"
+
+      :mini="miniState"
+      @mouseover="miniState = false"
+      @mouseout="miniState = true"
+      mini-to-overlay
+
+      :width="230"
+      :breakpoint="500"
+      bordered
+      content-class="bg-grey-1"
+    >
+      <q-scroll-area class="fit">
+        <q-list>
+          <q-item 
+            clickable
+            v-ripple
+            exact
+            :to="link.path"
+            active-class="text-deep-purple text-weight-medium"
+            v-for="(link, index) in links"
+            :key="index"
+            @click="miniState = true"
+          >
+            <q-item-section avatar>
+              <q-icon :name="link.icon" />
+            </q-item-section>
+
+            <q-item-section>
+              <q-item-label class="text-subtitle1">
+                {{link.title}}
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item 
+            clickable
+            v-ripple
+            exact
+            active-class="text-deep-purple text-weight-medium"
+            @click="confirm = true"
+          >
+            <q-item-section avatar>
+              <q-icon name="exit_to_app" />
+            </q-item-section>
+
+            <q-item-section>
+              <q-item-label class="text-subtitle1">
+                Logout
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-scroll-area>
     </q-drawer>
 
+    <q-dialog v-model="confirm" persistent>
+      <q-card>
+        <q-card-section class="row items-center">
+          <q-avatar icon="power_settings_new" color="primary" text-color="white" />
+          <span class="q-ml-sm">是否退出登录？</span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="取消" color="primary" v-close-popup />
+          <q-btn flat label="退出" color="primary" @click="logout()" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
     <q-page-container>
-      <router-view />
+      <!-- <q-page padding> -->
+        <router-view class="page-content" />
+      <!-- </q-page> -->
+      
     </q-page-container>
 
     <q-footer bordered elevated class="bg-white text-black q-pa-none" >
@@ -36,7 +107,6 @@
 </template>
 
 <script>
-import NavBar from 'components/NavBar'
 import PlayerBar from 'components/PlayerBar'
 import AudioPlayer from 'components/AudioPlayer'
 
@@ -44,7 +114,6 @@ export default {
   name: 'MainLayout',
 
   components: {
-    NavBar,
     PlayerBar,
     AudioPlayer
   },
@@ -52,7 +121,9 @@ export default {
   data () {
     return {
       keyword: '',
-      rightDrawerOpen: false,
+      drawerOpen: true,
+      miniState: true,
+      confirm: false,
       links: [
         {
           title: 'Works',
@@ -73,7 +144,12 @@ export default {
           title: 'VAs',
           icon: 'mic',
           path: '/vas'
-        }
+        },
+        {
+          title: 'Settings',
+          icon: 'tune',
+          path: '/admin'
+        },
       ]
     }
   },
@@ -81,11 +157,11 @@ export default {
   watch: {
     keyword () {
       this.$router.push(`/search/${this.keyword}`)
-    }
+    },
   },
 
   created () {
-    this.initUser()
+    this.initUser();
   },
 
   methods: {
@@ -125,18 +201,13 @@ export default {
         color: 'negative',
         icon: 'bug_report'
       })
+    },
+    
+    logout () {
+      this.$q.localStorage.set('jwt-token', '')
+      this.$router.push('/login')
     }
   },
-
-  beforeRouteUpdate (to, from, next) {
-    this.rightDrawerOpen = false
-
-    // 离开搜索页面时清空输入框
-    //if (to.path.indexOf('search') === -1) {
-    //  this.keyword = ''
-    //}
-    next()
-  }
 }
 </script>
 
