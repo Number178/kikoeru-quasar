@@ -35,9 +35,9 @@
         />
 
         <!-- 评价分布明细 -->
-        <q-tooltip content-class="text-subtitle1">
+        <q-tooltip content-class="text-subtitle1" v-if=metadata.rate_count_detail>
           <div>平均: {{ metadata.rate_average_2dp }}</div>
-          <div v-for="(rate, index) in metadata.rate_count_detail" :key=index class="row items-center">
+          <div v-for="(rate, index) in sortedRatings" :key=index class="row items-center">
             <div class="col">{{ rate.review_point }}星</div>
 
             <!-- 评价占比 -->
@@ -73,7 +73,7 @@
     </div>
     
     <!-- 标签 -->
-    <div class="q-ma-xs">
+    <div class="q-ma-xs" v-if="showLabel">
       <router-link
         v-for="(tag, index) in metadata.tags"
         :to="`/tag/${tag.id}`"
@@ -116,7 +116,11 @@ export default {
     workid: {
       type: Number,
       required: true
-    }
+    },
+    showLabel: {
+      type: Boolean,
+      default: true
+    },
   },
 
   data () {
@@ -125,6 +129,16 @@ export default {
         id: this.workid,
         circle: {}
       }
+    }
+  },
+
+  computed: {
+    sortedRatings: function() {
+      function compare(a, b) {
+        return (a.review_point > b.review_point) ? -1 : 1;
+      }
+
+      return this.metadata.rate_count_detail.slice().sort(compare);
     }
   },
 

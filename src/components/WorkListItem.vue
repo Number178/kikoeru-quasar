@@ -7,7 +7,7 @@
     </q-item-section>
 
     <q-item-section>
-      <q-item-label lines="2" class="text-bold">
+      <q-item-label lines="2" class="text">
         <router-link :to="`/work/${metadata.id}`" class="text-black">
           {{ metadata.title }}
         </router-link>
@@ -32,13 +32,13 @@
         </div>
       </q-item-label>
 
-      <q-item-label>
+      <q-item-label v-if="showLabel && windowWidth > 700">
         <div class="row q-gutter-x-sm q-gutter-y-xs">
           <router-link
             v-for="(tag, index) in metadata.tags"
             :to="`/tag/${tag.id}`"
             :key=index
-            class="col-auto text-primary"
+            class="col-auto text-grey"
           >
             {{ tag.name }}
           </router-link>
@@ -64,11 +64,17 @@ export default {
     workid: {
       type: Number,
       required: true
-    }
+    },
+
+    showLabel: {
+      type: Boolean,
+      default: true
+    },
   },
 
   data () {
     return {
+      windowWidth: window.innerWidth,
       metadata: {
         id: this.workid,
         circle: {}

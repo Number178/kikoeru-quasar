@@ -40,15 +40,32 @@
             style="width: 85px;"
             class="col-auto"
           />
+
+          <q-btn-toggle
+            dense
+            spread
+            rounded
+            v-model="showLabel"
+            toggle-color="primary"
+            color="white"
+            text-color="primary"
+            :options="[
+              { icon: 'label', value: true },
+              { icon: 'label_off', value: false }
+            ]"
+            style="width: 85px;"
+            class="col-auto"
+            v-if="windowWidth > 700"
+          />
         </div>
         
         <q-list v-if="listMode" bordered separator class="shadow-2">
-          <WorkListItem v-for="work in works" :key="work.id" :workid="work.id" class="fit" />
+          <WorkListItem v-for="work in works" :key="work.id" :workid="work.id" :showLabel="showLabel" class="fit" />
         </q-list>
 
         <div v-else class="row q-col-gutter-x-md q-col-gutter-y-lg">
           <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" v-for="work in works" :key="work.id">
-            <WorkCard :workid="work.id" class="fit" /> 
+            <WorkCard :workid="work.id" :showLabel="showLabel" class="fit" /> 
           </div> 
         </div>
         
@@ -85,11 +102,13 @@ export default {
   data () {
     return {
       listMode: false,
+      showLabel: true,
       stopLoad: false,
       works: [],
       pageTitle: '',
       page: 1,
       pagination: {},
+      windowWidth: window.innerWidth,
       oderOption: {
         label: '按照发售日期新到老的顺序',
         order: 'release',
@@ -159,6 +178,15 @@ export default {
     this.refreshPageTitle()
   },
 
+  mounted() {
+    if (localStorage.showLabel) {
+      this.showLabel = (localStorage.showLabel === 'true');
+    }
+    if (localStorage.listMode) {
+      this.listMode = (localStorage.listMode === 'true');
+    }
+  },
+
   computed: {
     url () {
       if (this.$route.params.keyword) {
@@ -178,7 +206,15 @@ export default {
 
     oderOption () {
       this.reset()
-    }
+    },
+
+    showLabel (newLabelSetting) {
+      localStorage.showLabel = newLabelSetting;
+    },
+
+    listMode (newListModeSetting) {
+      localStorage.listMode = newListModeSetting;
+    },
   },
 
   methods: {
