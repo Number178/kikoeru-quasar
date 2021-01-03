@@ -79,7 +79,7 @@
     </div>
     
     <!-- 标签 -->
-    <div class="q-ma-xs" v-if="showLabel">
+    <div class="q-ma-xs">
       <router-link
         v-for="(tag, index) in metadata.tags"
         :to="`/tag/${tag.id}`"
@@ -122,10 +122,6 @@ export default {
     workid: {
       type: Number,
       required: true
-    },
-    showLabel: {
-      type: Boolean,
-      default: true
     },
   },
 
