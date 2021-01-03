@@ -24,7 +24,7 @@
 
     <q-drawer
       v-model="drawerOpen"
-
+      show-if-above
       :mini="miniState"
       @mouseover="miniState = false"
       @mouseout="miniState = true"
@@ -121,7 +121,7 @@ export default {
   data () {
     return {
       keyword: '',
-      drawerOpen: true,
+      drawerOpen: false,
       miniState: true,
       confirm: false,
       links: [
