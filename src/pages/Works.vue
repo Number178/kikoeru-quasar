@@ -8,7 +8,7 @@
     </div>
     
     <div :class="`row justify-center ${listMode ? 'list' : 'q-mx-md'}`">
-      <q-infinite-scroll @load="onLoad" :offset="250" :disable="stopLoad" style="max-width: 1350px;" class="col">
+      <q-infinite-scroll @load="onLoad" :offset="250" :disable="stopLoad" style="max-width: 1550px;" class="col">
         <div v-show="works.length" class="row justify-between q-mb-md q-mx-xs">
           <!-- 排序选择框 -->
           <q-select
