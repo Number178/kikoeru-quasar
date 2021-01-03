@@ -100,7 +100,7 @@
       
     </q-page-container>
 
-    <q-footer bordered elevated class="bg-white text-black q-pa-none" >
+    <q-footer bordered elevated class="bg-white text-black q-pa-none" style="position: fixed;">
       <PlayerBar />
     </q-footer>
   </q-layout>
