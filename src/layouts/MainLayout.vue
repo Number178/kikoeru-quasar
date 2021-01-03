@@ -71,7 +71,7 @@
 
             <q-item-section>
               <q-item-label class="text-subtitle1">
-                Logout
+                登出
               </q-item-label>
             </q-item-section>
           </q-item>
@@ -83,7 +83,7 @@
       <q-card>
         <q-card-section class="row items-center">
           <q-avatar icon="power_settings_new" color="primary" text-color="white" />
-          <span class="q-ml-sm">是否退出登录？</span>
+          <span class="q-ml-sm">是否退出登录？（若未开启用户验证，则操作无效）</span>
         </q-card-section>
 
         <q-card-actions align="right">
@@ -126,27 +126,27 @@ export default {
       confirm: false,
       links: [
         {
-          title: 'Works',
+          title: '媒体库',
           icon: 'widgets',
           path: '/'
         },
         {
-          title: 'Circles',
+          title: '社团',
           icon: 'group',
           path: '/circles'
         },
         {
-          title: 'Tags',
+          title: '标签',
           icon: 'label',
           path: '/tags'
         },
         {
-          title: 'VAs',
+          title: '声优',
           icon: 'mic',
           path: '/vas'
         },
         {
-          title: 'Settings',
+          title: '设定',
           icon: 'tune',
           path: '/admin'
         },
