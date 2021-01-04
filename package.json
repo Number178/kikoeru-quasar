@@ -13,6 +13,7 @@
   "dependencies": {
     "@quasar/extras": "^1.0.0",
     "axios": "^0.18.1",
+    "lrc-file-parser": "^1.0.5",
     "plyr": "^3.5.10",
     "quasar": "^1.0.0",
     "vue-plyr": "^6.0.4",

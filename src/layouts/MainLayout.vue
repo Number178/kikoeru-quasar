@@ -101,6 +101,11 @@
     </q-page-container>
 
     <q-footer bordered elevated class="bg-white text-black q-pa-none" style="position: fixed;">
+      <q-card class="row items-center">
+        <div id="lyric" class="col-12 text-center text-h6 text-bold ellipsis-2-lines text-purple" style="position: fixed; margin-bottom: 60px;">
+            <!-- 歌词占位 -->
+        </div>
+      </q-card>
       <PlayerBar />
     </q-footer>
   </q-layout>
