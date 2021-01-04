@@ -223,6 +223,10 @@ export default {
           } else {
             this.lrcAvailable = false;
             this.lrcObj.setLyric('');
+            let dom_lyric = document.getElementById('lyric');
+            if (dom_lyric) {
+              dom_lyric.innerHTML = '';
+            }
             console.log(response.data.result);
             console.log(response.data.message);
           }
