@@ -165,11 +165,8 @@ export default {
         let dom_lyric = document.getElementById('lyric');
         this.lrcObj = new Lyric({
           onPlay: function (line, text) {
-            console.log(line, text);
+            //console.log(line, text);
             dom_lyric.innerHTML = text;
-          },
-          onSetLyric: function (lines) {
-            //console.log(lines)
           },
         })
     },
@@ -189,7 +186,6 @@ export default {
             this.$axios.get(lrcUrl)
               .then(response => {
                 console.log('歌词读入成功');
-                //console.log(response.data);
                 this.lrcObj.setLyric(response.data);
                 this.lrcObj.play(this.player.currentTime * 1000);
               });
@@ -207,12 +203,10 @@ export default {
           if (error.response) {
             // 请求已发出，但服务器响应的状态码不在 2xx 范围内
             if (error.response.status !== 401) {
-              // this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)
-              console.log('Got here!');
+              this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`);
             }
           } else {
-            // 认证失败
-            this.showErrNotif(error.message || error)
+            this.showErrNotif(error.message || error);
           }
         })
     },
