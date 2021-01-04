@@ -18,7 +18,7 @@
             bg-color="white"
             transition-show="scale"
             transition-hide="scale"
-            v-model="oderOption"
+            v-model="sortOption"
             :options="options"
             label="排序"
             class="col-auto"
@@ -129,7 +129,7 @@ export default {
       page: 1,
       pagination: {},
       windowWidth: window.innerWidth,
-      oderOption: {
+      sortOption: {
         label: '按照发售日期新到老的顺序',
         order: 'release',
         sort: 'desc'
@@ -199,6 +199,13 @@ export default {
   },
 
   mounted() {
+    if (localStorage.sortOption) {
+      try {
+        this.sortOption = JSON.parse(localStorage.sortOption);
+      } catch {
+        localStorage.removeItem('sortOption');
+      }
+    }
     if (localStorage.showLabel) {
       this.showLabel = (localStorage.showLabel === 'true');
     }
@@ -227,8 +234,9 @@ export default {
       this.reset()
     },
 
-    oderOption () {
-      this.reset()
+    sortOption (newSortOptionSetting) {
+      localStorage.sortOption = JSON.stringify(newSortOptionSetting);
+      this.reset();
     },
 
     showLabel (newLabelSetting) {
@@ -252,8 +260,8 @@ export default {
 
     requestWorksQueue () {
       const params = {
-        order: this.oderOption.order,
-        sort: this.oderOption.sort,
+        order: this.sortOption.order,
+        sort: this.sortOption.sort,
         page: this.pagination.currentPage + 1 || 1
       }
 
