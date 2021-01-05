@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="hHh Lpr lff" class="bg-grey-3">
+  <q-layout view="hHh Lpr lFf" class="bg-grey-3">
     <q-header class="shadow-4">
       <q-toolbar>
         <q-btn flat dense round @click="drawerOpen = !drawerOpen" icon="menu" aria-label="Menu" />
@@ -100,9 +100,9 @@
       
     </q-page-container>
 
-    <q-footer bordered elevated class="bg-white text-black q-pa-none" style="position: fixed;">
-      <q-card class="row items-center">
-        <div id="lyric" class="col-12 text-center text-h6 text-bold ellipsis-2-lines text-purple" style="position: fixed; margin-bottom: 60px;">
+    <q-footer bordered elevated class="q-pa-none">
+      <q-card>
+        <div id="lyric" class="text-center text-h6 text-bold ellipsis-2-lines text-purple q-mb-md absolute-bottom">
             <!-- 歌词占位 -->
         </div>
       </q-card>
