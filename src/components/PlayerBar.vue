@@ -1,5 +1,5 @@
 <template>
-  <q-slide-transition>
+  <q-slide-transition class="bordered elevated">
     <div v-show="currentPlayingFile.hash && hide" class="row bg-white text-black">
       <q-item clickable v-ripple @click="toggleHide()" style="padding: 0px 5px;" class="col non-selectable">
         <q-item-section avatar>

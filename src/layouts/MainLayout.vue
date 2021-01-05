@@ -100,12 +100,8 @@
       
     </q-page-container>
 
-    <q-footer bordered elevated class="q-pa-none">
-      <q-card>
-        <div id="lyric" class="text-center text-h6 text-bold ellipsis-2-lines text-purple q-mb-md absolute-bottom">
-            <!-- 歌词占位 -->
-        </div>
-      </q-card>
+    <q-footer class="q-pa-none">
+      <LyricsBar />
       <PlayerBar />
     </q-footer>
   </q-layout>
@@ -114,13 +110,15 @@
 <script>
 import PlayerBar from 'components/PlayerBar'
 import AudioPlayer from 'components/AudioPlayer'
+import LyricsBar from 'components/LyricsBar'
 
 export default {
   name: 'MainLayout',
 
   components: {
     PlayerBar,
-    AudioPlayer
+    AudioPlayer,
+    LyricsBar,
   },
 
   data () {
