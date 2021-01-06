@@ -25,13 +25,12 @@
       <!-- 评价 -->
       <div class="col-auto q-ml-sm">
         <q-rating
-          :value="metadata.rate_average_2dp || 0"
+          v-model="rating"
           size="sm"
-          color="amber"
+          :color="userMarked ? 'blue' : 'amber'"
           icon="star_border"
           icon-selected="star"
           icon-half="star_half"
-          readonly 
         />
 
         <!-- 评价分布明细 -->
@@ -130,7 +129,9 @@ export default {
       metadata: {
         id: this.workid,
         circle: {}
-      }
+      },
+      rating: 0,
+      userMarked: false,
     }
   },
 
@@ -151,6 +152,28 @@ export default {
   watch: {
     workid (newWorkid, oldWorkid) {
       this.requestMetadata()
+    },
+    
+    metadata () {
+      if (this.metadata.userRating) {
+        this.userMarked = true;
+        this.rating = this.metadata.userRating;
+      } else {
+        this.userMarked = false;
+        this.rating = this.metadata.rate_average_2dp || 0;
+      }
+    },
+
+    rating (newRating, oldRating) {
+      if (oldRating) {
+        const submitPayload = {
+          'user_name': this.$store.state.User.name, // 用户名不会被后端使用
+          'work_id': this.metadata.id,
+          'rating': newRating
+        };
+        this.userMarked = true;
+        this.submitRating(submitPayload);
+      }
     }
   },
 
@@ -162,7 +185,41 @@ export default {
             this.metadata = response.data
           })
       } 
-    }
+    },
+
+    submitRating (payload) {
+      this.$axios.put('/api/review', payload)
+        .then((response) => {
+          this.loading = false
+          this.showSuccNotif(response.data.message)
+        })
+        .catch((error) => {
+          this.loading = false
+          if (error.response) {
+            // 请求已发出，但服务器响应的状态码不在 2xx 范围内
+            this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)
+          } else {
+            this.showErrNotif(error.message || error)
+          }
+        })
+    },
+
+    showSuccNotif (message) {
+        this.$q.notify({
+          message,
+          color: 'positive',
+          icon: 'done',
+          timeout: 500
+        })
+      },
+
+      showErrNotif (message) {
+        this.$q.notify({
+          message,
+          color: 'negative',
+          icon: 'bug_report'
+        })
+      }
   }
 }
 </script>
