@@ -4,6 +4,8 @@
       <q-toolbar>
         <q-btn flat dense round @click="drawerOpen = !drawerOpen" icon="menu" aria-label="Menu" />
 
+        <q-btn flat size="md" icon="arrow_back_ios"@click="backToMain()" v-if="isNotInMain()"/>
+
         <q-toolbar-title class="gt-xs">
           <router-link :to="'/'" class="text-white">
             Kikoeru
@@ -211,7 +213,16 @@ export default {
     logout () {
       this.$q.localStorage.set('jwt-token', '')
       this.$router.push('/login')
-    }
+    },
+
+    backToMain () {
+      this.$router.push('/');
+    },
+
+    isNotInMain () {
+      let path = this.$router.currentRoute.path
+      return (path && path !=='/') ? true : false;
+    },
   },
 }
 </script>
