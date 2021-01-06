@@ -177,6 +177,22 @@
 
         <q-item>
           <q-item-section>
+            <q-item-label>设置端口号</q-item-label>
+            <q-item-label caption>服务器监听端口号</q-item-label>
+          </q-item-section>
+
+          <q-item-section avatar>
+            <q-input
+              v-model.number="config.listenPort"
+              type="number"
+              input-class="text-right"
+              style="max-width: 100px;"
+            />
+          </q-item-section>
+        </q-item>
+
+        <q-item>
+          <q-item-section>
             <q-item-label>token 过期时间</q-item-label>
             <q-item-label caption>默认 2592000 秒</q-item-label>
           </q-item-section>
