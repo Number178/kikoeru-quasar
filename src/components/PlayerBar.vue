@@ -12,7 +12,9 @@
         </q-item-section>
       </q-item>
 
+      <q-btn flat size="lg" icon="skip_previous" @click="previousTrack()" style="height: 60px; width: 60px" class="col-auto gt-sm"/>
       <q-btn flat size="lg" :icon="playingIcon" @click="togglePlaying()" style="height: 60px; width: 60px" class="col-auto" />
+      <q-btn flat size="lg" icon="skip_next" @click="nextTrack()" style="height: 60px; width: 60px" class="col-auto gt-sm"/>
     </div>
   </q-slide-transition>
 </template>
@@ -51,7 +53,15 @@ export default {
 
     togglePlaying () {
       this.$store.commit('AudioPlayer/TOGGLE_PLAYING')
-    }
+    },
+
+    nextTrack () {
+      this.$store.commit('AudioPlayer/NEXT_TRACK')
+    },
+
+    previousTrack () {
+      this.$store.commit('AudioPlayer/PREVIOUS_TRACK')
+    },
   }
 }
 </script>
