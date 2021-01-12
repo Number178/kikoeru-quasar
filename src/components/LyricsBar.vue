@@ -3,7 +3,7 @@
     <q-card>
         <div id="lyricsBar" class="text-center text-h6 text-bold ellipsis-2-lines text-purple q-mb-md absolute-bottom">
             <span id="lyric">
-              <!-- 歌词占位 -->
+              {{currentLyric}}
             </span>
         </div>
     </q-card>
@@ -12,12 +12,19 @@
 
 <script>
 import Moveable from "vue-moveable";
+import { mapState } from 'vuex'
 
 export default {
   name: 'LyricsBar',
 
   components: {
     Moveable,
+  },
+
+  computed: {
+    ...mapState('AudioPlayer', [
+      'currentLyric'
+    ]),
   },
 
   data () {

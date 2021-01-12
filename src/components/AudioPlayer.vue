@@ -108,7 +108,7 @@
 <script>
 import draggable from 'vuedraggable'
 import AudioElement from 'components/AudioElement'
-import { mapGetters } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 export default {
   name: 'AudioPlayer',
@@ -151,18 +151,6 @@ export default {
       return hash ? `/api/cover/${hash.split('/')[0]}?token=${token}` : ""
     },
 
-    hide () {
-      return this.$store.state.AudioPlayer.hide
-    },
-
-    currentTime () {
-      return this.$store.state.AudioPlayer.currentTime
-    },
-
-    duration () {
-      return this.$store.state.AudioPlayer.duration
-    },
-
     volume: {
       get () {
         return this.$store.state.AudioPlayer.volume
@@ -179,12 +167,8 @@ export default {
       set () {}
     },
 
-    queueIndex () {
-      return this.$store.state.AudioPlayer.queueIndex
-    },
-
     playModeIcon () {
-      switch (this.$store.state.AudioPlayer.playMode.name) {
+      switch (this.playMode.name) {
         case "all repeat":
           return "repeat"
         case "repeat once":
@@ -197,12 +181,21 @@ export default {
     },
 
     playingIcon () {
-      return this.$store.state.AudioPlayer.playing ? "pause" : "play_arrow"
+      return this.playing ? "pause" : "play_arrow"
     },
+
+    ...mapState('AudioPlayer', [
+      'playing',
+      'hide',
+      'currentTime',
+      'duration',
+      'queueIndex',
+      'playMode'
+    ]),
     
-    ...mapGetters({
-      currentPlayingFile: 'AudioPlayer/currentPlayingFile'
-    })
+    ...mapGetters('AudioPlayer', [
+      'currentPlayingFile'
+    ])
   },
 
   methods: {

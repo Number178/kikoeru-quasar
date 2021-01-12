@@ -79,11 +79,11 @@
         </div>
         
         <q-list v-if="listMode" bordered separator class="shadow-2">
-          <WorkListItem v-for="work in works" :key="work.id" :workid="work.id" :showLabel="showLabel && windowWidth > 700" class="fit" />
+          <WorkListItem v-for="work in works" :key="work.id" :workid="work.id" :showLabel="showLabel && windowWidth > 700" />
         </q-list>
 
         <div v-else class="row q-col-gutter-x-md q-col-gutter-y-lg">
-          <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" :class="detailStyle()" v-for="work in works" :key="work.id">
+          <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" :class="{'work-card': detailMode}" v-for="work in works" :key="work.id">
             <WorkCard :workid="work.id" class="fit"/> 
           </div> 
         </div>
@@ -138,6 +138,11 @@ export default {
         {
           label: '按照发售日期新到老的顺序',
           order: 'release',
+          sort: 'desc'
+        },
+        {
+          label: '按照我的评价排序',
+          order: 'rating',
           sort: 'desc'
         },
         {
@@ -345,14 +350,6 @@ export default {
         icon: 'bug_report'
       })
     },
-    
-    detailStyle() {
-      if (this.detailMode) {
-        return 'work-card';
-      } else {
-        return '';
-      }
-    }
   }
 }
 </script>

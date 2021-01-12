@@ -4,7 +4,7 @@
       <q-toolbar>
         <q-btn flat dense round @click="drawerOpen = !drawerOpen" icon="menu" aria-label="Menu" />
 
-        <q-btn flat size="md" icon="arrow_back_ios"@click="backToMain()" v-if="isNotInMain()"/>
+        <q-btn flat size="md" icon="arrow_back_ios" @click="back()" v-if="isNotInMain()"/>
 
         <q-toolbar-title class="gt-xs">
           <router-link :to="'/'" class="text-white">
@@ -138,6 +138,11 @@ export default {
           path: '/'
         },
         {
+          title: '我的收藏',
+          icon: 'favorite',
+          path: '/favourites'
+        },
+        {
           title: '社团',
           icon: 'group',
           path: '/circles'
@@ -215,13 +220,13 @@ export default {
       this.$router.push('/login')
     },
 
-    backToMain () {
-      this.$router.push('/');
+    back () {
+      this.$router.go(-1)
     },
 
     isNotInMain () {
       let path = this.$router.currentRoute.path
-      return (path && path !=='/') ? true : false;
+      return (path && path !=='/' && path !== '/favourites') ? true : false;
     },
   },
 }

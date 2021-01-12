@@ -129,16 +129,20 @@ export default {
     },
 
     onSubmitRootFolder () {
-      this.config.rootFolders.push({
-        name: this.rootFolder.name,
-        path: this.rootFolder.path
-      })
-      this.rootFolder.name = ''
-      this.rootFolder.path = ''
+      if (this.rootFolder.name !== '' && this.rootFolder.path !== '') {
+        this.config.rootFolders.push({
+          name: this.rootFolder.name,
+          path: this.rootFolder.path
+        })
+        this.rootFolder.name = ''
+        this.rootFolder.path = ''
+        this.onSubmit()
+      }
     },
 
     removeFromRootFolders (index) {
       this.config.rootFolders.splice(index, 1)
+      this.onSubmit()
     },
 
     showSuccNotif (message) {

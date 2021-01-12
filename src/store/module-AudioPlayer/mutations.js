@@ -111,6 +111,9 @@ const mutations = {
       return
     }
     state.volume = val
+  },
+  SET_CURRENT_LYRIC: (state, line) => {
+    state.currentLyric = line
   }
 }
 

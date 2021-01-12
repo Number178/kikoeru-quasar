@@ -42,7 +42,10 @@
             v-model="newuser.name" label="用户名"
             required
             lazy-rules
-            :rules="[val => !users.find(user => user.name === val) || '该名称已存在，用户名不能重复' ]" 
+            :rules="[
+                val => val.length >= 5 || '用户名长度至少为 5',
+                val => !users.find(user => user.name === val) || '该名称已存在，用户名不能重复',
+              ]" 
           />
 
           <q-input outlined dense label="密码"
@@ -105,7 +108,7 @@ export default {
         password: '',
         group: 'user'
       },
-      groups: ['user', 'gaust'],
+      groups: ['user', 'guest'],
       loadingAddNewUser: false,
 
       
@@ -137,15 +140,13 @@ export default {
         })
         .catch((error) => {
           this.loadingAddNewUser = false
-          if (error.response) {
-            // 请求已发出，但服务器响应的状态码不在 2xx 范围内
-            if (error.response.status === 403) {
-              this.showWarnNotif(error.response.data.error)
-            } else {
-              this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)
-            }
+          // 请求已发出，但服务器响应的状态码不在 2xx 范围内
+          if (error.response.status === 422) {
+            this.showErrNotif(error.response.data.errors[0].msg)
+          } else if (error.response.status === 403) {
+            this.showWarnNotif(error.response.data.error)
           } else {
-            this.showErrNotif(error.message || error)
+            this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)
           }
         })
 

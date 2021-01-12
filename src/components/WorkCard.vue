@@ -190,11 +190,9 @@ export default {
     submitRating (payload) {
       this.$axios.put('/api/review', payload)
         .then((response) => {
-          this.loading = false
           this.showSuccNotif(response.data.message)
         })
         .catch((error) => {
-          this.loading = false
           if (error.response) {
             // 请求已发出，但服务器响应的状态码不在 2xx 范围内
             this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)

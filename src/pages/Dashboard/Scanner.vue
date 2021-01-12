@@ -208,6 +208,14 @@ export default {
 
     killScanProceess () {
       this.$socket.emit('KILL_SCAN_PROCESS')
+    },
+
+    showErrNotif (message) {
+      this.$q.notify({
+        message,
+        color: 'negative',
+        icon: 'bug_report'
+      })
     }
   },
 
@@ -223,6 +231,9 @@ export default {
 
   mounted () {
     this.$socket.emit('ON_SCANNER_PAGE')
-  }
+    this.$socket.on('connect_error', (error) => {
+      this.showErrNotif('连接Socket失败')
+    });
+  },
 }
 </script>

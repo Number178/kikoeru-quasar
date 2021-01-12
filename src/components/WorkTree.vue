@@ -64,7 +64,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 export default {
   name: 'WorkTree',
@@ -109,22 +109,20 @@ export default {
       return queue
     },
 
-    playIcon () {
-      return function (hash) {
-        return this.playing && this.currentPlayingFile.hash === hash ? "pause" : "play_arrow"        
-      }      
-    },
+    ...mapState('AudioPlayer', [
+      'playing'
+    ]),
 
-    playing () {
-      return this.$store.state.AudioPlayer.playing
-    },
-
-    ...mapGetters({
-      currentPlayingFile: 'AudioPlayer/currentPlayingFile'
-    })
+    ...mapGetters('AudioPlayer', [
+      'currentPlayingFile'
+    ])
   },
 
   methods: {
+    playIcon (hash) {
+      return this.playing && this.currentPlayingFile.hash === hash ? "pause" : "play_arrow"            
+    },
+
     initPath () {
       const initialPath = []
       let fatherFolder = this.tree.concat()

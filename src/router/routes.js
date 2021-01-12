@@ -5,6 +5,7 @@ import Works from 'pages/Works'
 import Work from 'pages/Work'
 import List from 'pages/List'
 import Login from 'pages/Login'
+import Favourites from 'pages/Favourites'
 
 import Folders from 'pages/Dashboard/Folders'
 import Scanner from 'pages/Dashboard/Scanner'
@@ -80,6 +81,10 @@ const routes = [
         path: 'vas',
         props: { restrict: "va" },
         component: List
+      },
+      {
+        path: 'favourites',
+        component: Favourites
       }
     ],
     meta: {

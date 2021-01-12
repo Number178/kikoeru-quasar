@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 export default {
   name: 'PlayerBar',
@@ -33,17 +33,18 @@ export default {
       return hash ? `/api/cover/${hash.split('/')[0]}?type=sam&token=${token}` : ""
     },
 
-    hide () {
-      return this.$store.state.AudioPlayer.hide
-    },
-
     playingIcon () {
-      return this.$store.state.AudioPlayer.playing ? "pause" : "play_arrow"
+      return this.playing ? "pause" : "play_arrow"
     },
 
-    ...mapGetters({
-      currentPlayingFile: 'AudioPlayer/currentPlayingFile'
-    })
+    ...mapState('AudioPlayer', [
+      'hide',
+      'playing'
+    ]),
+
+    ...mapGetters('AudioPlayer', [
+      'currentPlayingFile'
+    ])
   },
 
   methods: {
