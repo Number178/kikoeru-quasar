@@ -1,6 +1,6 @@
 <template>
   <div>
-    <WorkDetails :metadata="metadata" />
+    <WorkDetails :metadata="metadata" @reset="requestData()" />
     <!-- <WorkQueue :queue="tracks" :editable="false" /> -->
     <WorkTree :tree="tree" :editable="false" />
   </div>

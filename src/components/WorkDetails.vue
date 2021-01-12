@@ -221,7 +221,8 @@ export default {
       }
       this.$axios.put('/api/review', payload, {params})
         .then((response) => {
-          this.showSuccNotif(response.data.message)
+          this.showSuccNotif(response.data.message);
+          this.$emit('reset');
         })
         .catch((error) => {
           if (error.response) {
@@ -245,7 +246,8 @@ export default {
     submitRating (payload) {
       this.$axios.put('/api/review', payload)
         .then((response) => {
-          this.showSuccNotif(response.data.message)
+          this.showSuccNotif(response.data.message);
+          this.$emit('reset');
         })
         .catch((error) => {
           if (error.response) {
