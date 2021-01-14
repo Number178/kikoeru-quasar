@@ -191,7 +191,7 @@ export default {
       this.state = 'error'
     },
 
-    success (data) {
+    success () {
       this.loggedIn = true
     }
   },
@@ -231,7 +231,7 @@ export default {
 
   mounted () {
     this.$socket.emit('ON_SCANNER_PAGE')
-    this.$socket.on('connect_error', (error) => {
+    this.$socket.on('connect_error', () => {
       this.showErrNotif('连接Socket失败')
     });
   },

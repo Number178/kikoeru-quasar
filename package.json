@@ -8,11 +8,11 @@
   "author": "Watanuki-Kimihiro",
   "private": true,
   "scripts": {
-    "test": "echo \"No test specified\" && exit 0"
+    "test": "node_modules/.bin/eslint ."
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
-    "axios": "^0.18.1",
+    "axios": "^0.21.1",
     "lrc-file-parser": "^1.0.5",
     "plyr": "^3.5.10",
     "quasar": "^1.0.0",
@@ -23,7 +23,11 @@
     "vuedraggable": "^2.23.2"
   },
   "devDependencies": {
-    "@quasar/app": "^1.0.0"
+    "@quasar/app": "^1.0.0",
+    "eslint": "^7.17.0",
+    "eslint-loader": "^4.0.2",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-vue": "^7.4.1"
   },
   "engines": {
     "node": ">= 10.18.1",
@@ -32,5 +36,9 @@
   },
   "browserslist": [
     "last 1 version, not dead, ie >= 11"
+  ],
+  "eslintIgnore": [
+    "dist/*",
+    "src/router/index.js"
   ]
 }

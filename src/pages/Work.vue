@@ -41,7 +41,7 @@ export default {
         .then(response => {
           this.metadata = response.data
         })
-        .catch((error) => {
+        .catch(() => {
           throw new Error(`Failed to request /api/work/${this.workid}`)
         })
 
@@ -49,7 +49,7 @@ export default {
         .then(response => {
           this.tree = response.data
         })
-        .catch((error) => {
+        .catch(() => {
           throw new Error(`Failed to request /api/tracks/${this.workid}`)
         })
     }

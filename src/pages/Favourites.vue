@@ -140,10 +140,10 @@ export default {
       localStorage.sortByFavourites = JSON.stringify(newSortOptionSetting);
       this.reset();
     },
-    mode(newMode, oldMode) {
+    mode() {
       this.reset();
     },
-    progressFilter(newFilter) {
+    progressFilter() {
       this.reset();
     }
   },

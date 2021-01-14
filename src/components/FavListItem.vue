@@ -132,7 +132,7 @@ export default {
 
   watch: {
     // 需要watch metadata 当父component刷新metadata时更新
-    metadata (newData) {
+    metadata () {
       this.setMetadata();
     }
   },

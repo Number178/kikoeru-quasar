@@ -116,7 +116,7 @@ export default {
           this.player.currentTime = 0
           this.$store.commit('AudioPlayer/PLAY')
           break
-        case "shuffle":
+        case "shuffle": {
           // 随机播放
           const index = Math.floor(Math.random()*this.queue.length)
           this.$store.commit('AudioPlayer/SET_TRACK', index)
@@ -124,6 +124,7 @@ export default {
             this.player.currentTime = 0
           }
           break
+        }
         default:
           // 顺序播放
           if (this.queueIndex === this.queue.length - 1) {
@@ -152,7 +153,6 @@ export default {
     },
 
     initLrcObj () {
-        let dom_lyric = document.getElementById('lyric');
         this.lrcObj = new Lyric({
           onPlay: (line, text) => {
             this.$store.commit('AudioPlayer/SET_CURRENT_LYRIC', text);

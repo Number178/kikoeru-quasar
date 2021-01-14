@@ -49,16 +49,16 @@
 </template>
 
 <script>
-import WorkDetails from 'components/WorkDetails'
-import CoverSFW from 'components/CoverSFW'
+// import WorkDetails from 'components/WorkDetails'
+// import CoverSFW from 'components/CoverSFW'
 
 export default {
   name: 'WorkListItem',
 
-  components: {
-    CoverSFW,
-    WorkDetails
-  },
+  // components: {
+    // CoverSFW,
+    // WorkDetails
+  // },
 
   props: {
     workid: {
@@ -95,7 +95,7 @@ export default {
   },
 
   watch: {
-    workid (newWorkid, oldWorkid) {
+    workid () {
       this.requestMetadata()
     }
   },

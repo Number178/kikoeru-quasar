@@ -24,6 +24,7 @@ export default function (/* { ssrContext } */) {
 
     // enable strict mode (adds overhead!)
     // for dev mode only
+    // eslint-disable-next-line
     strict: process.env.DEV
   })
 

@@ -65,7 +65,7 @@
       </div>
 
       <!-- DLsite链接 -->
-		  <div class="col-auto">
+      <div class="col-auto">
         <q-icon name="launch" size="xs" />
         <a class="text-blue" :href="`https://www.dlsite.com/home/work/=/product_id/RJ${metadata.id}.html`" target="_blank">DLsite</a>
       </div>
@@ -106,7 +106,7 @@
 </template>
 
 <script>
-import WorkDetails from 'components/WorkDetails'
+// import WorkDetails from 'components/WorkDetails'
 import CoverSFW from 'components/CoverSFW'
 
 export default {
@@ -114,7 +114,7 @@ export default {
 
   components: {
     CoverSFW,
-    WorkDetails
+    // WorkDetails
   },
 
   props: {
@@ -150,7 +150,7 @@ export default {
   },
 
   watch: {
-    workid (newWorkid, oldWorkid) {
+    workid () {
       this.requestMetadata()
     },
     
