@@ -225,9 +225,7 @@ export default {
     },
 
     randomPlay() {
-      console.log('here');
       this.requestRandomWork();
-
     },
 
     requestRandomWork () {
