@@ -60,8 +60,26 @@
             </q-item-section>
           </q-item>
 
-          <q-separator/>
+          <q-item 
+            clickable
+            v-ripple
+            exact
+            active-class="text-deep-purple text-weight-medium"
+            @click="randomPlay"
+          >
+            <q-item-section avatar>
+              <q-icon name="shuffle" />
+            </q-item-section>
 
+            <q-item-section>
+              <q-item-label class="text-subtitle1">
+                随心听
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
+
+        <q-list>
           <q-item 
             clickable
             v-ripple
@@ -133,6 +151,7 @@ export default {
       drawerOpen: false,
       miniState: true,
       confirm: false,
+      randId: null,
       links: [
         {
           title: '媒体库',
@@ -172,6 +191,10 @@ export default {
     keyword () {
       this.$router.push(`/search/${this.keyword}`)
     },
+
+    randId () {
+      this.$router.push(`/work/${this.randId}`)
+    }
   },
 
   created () {
@@ -193,6 +216,33 @@ export default {
               // 验证失败，跳转到登录页面
               this.$router.push('/login')
             } else {
+              this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)
+            }
+          } else {
+            this.showErrNotif(error.message || error)
+          }
+        })
+    },
+
+    randomPlay() {
+      console.log('here');
+      this.requestRandomWork();
+
+    },
+
+    requestRandomWork () {
+      const params = {
+        order: 'betterRandom'
+      }
+      this.$axios.get('/api/works', { params })
+        .then((response) => {
+          const works = response.data.works
+          this.randId = works.length ? works[0].id : null;
+        })
+        .catch((error) => {
+          if (error.response) {
+            // 请求已发出，但服务器响应的状态码不在 2xx 范围内
+            if (error.response.status !== 401) {
               this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)
             }
           } else {
@@ -234,8 +284,13 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-  a {
-   text-decoration:none;
+
+<style lang="scss">
+// 侧边栏底部按钮
+  aside.q-drawer div.q-scrollarea > div.scroll > div {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
   }
 </style>

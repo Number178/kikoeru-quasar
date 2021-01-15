@@ -31,6 +31,13 @@ export default {
     }
   },
 
+  watch: {
+    $route (to) {
+      this.workid = to.params.id;
+      this.requestData();
+    }
+  },
+
   created () {
     this.requestData()
   },
