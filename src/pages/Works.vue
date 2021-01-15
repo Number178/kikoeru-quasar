@@ -129,6 +129,7 @@ export default {
       page: 1,
       pagination: {},
       windowWidth: window.innerWidth,
+      seed: 7, // random sort
       sortOption: {
         label: '按照发售日期新到老的顺序',
         order: 'release',
@@ -191,8 +192,8 @@ export default {
           sort: 'asc'
         },
         {
-          label: '按照18禁新作优先的顺序',
-          order: 'nsfw',
+          label: '随机排序',
+          order: 'random',
           sort: 'desc'
         }
       ]
@@ -200,7 +201,8 @@ export default {
   },
 
   created () {
-    this.refreshPageTitle()
+    this.refreshPageTitle();
+    this.seed = Math.floor(Math.random() * 100);
   },
 
   mounted() {
@@ -241,6 +243,7 @@ export default {
 
     sortOption (newSortOptionSetting) {
       localStorage.sortOption = JSON.stringify(newSortOptionSetting);
+      this.seed = Math.floor(Math.random() * 100);
       this.reset();
     },
 
@@ -267,7 +270,8 @@ export default {
       const params = {
         order: this.sortOption.order,
         sort: this.sortOption.sort,
-        page: this.pagination.currentPage + 1 || 1
+        page: this.pagination.currentPage + 1 || 1,
+        seed: this.seed
       }
 
       return this.$axios.get(this.url, { params })
