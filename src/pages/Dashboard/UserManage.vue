@@ -196,8 +196,12 @@ export default {
             this.showErrNotif(err.message)
           }
           this.showSuccNotif(response.data.message)
-          // 跳转到登录页面
-          this.$router.push('/login')
+
+          // 仅当启用鉴权时跳转到登录页面
+          if (this.$store.state.User.auth) {
+            console.log('Got here')
+            this.$router.push('/login')
+          }
         })
         .catch((error) => {
           this.loadingUpdateAdminPassword = false

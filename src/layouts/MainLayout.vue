@@ -86,6 +86,7 @@
             exact
             active-class="text-deep-purple text-weight-medium"
             @click="confirm = true"
+            v-if="authEnabled"
           >
             <q-item-section avatar>
               <q-icon name="exit_to_app" />
@@ -199,6 +200,12 @@ export default {
 
   created () {
     this.initUser();
+  },
+
+  computed: {
+    authEnabled: function () {
+      return this.$store.state.User.auth;
+    }
   },
 
   methods: {

@@ -93,6 +93,10 @@ export default {
   sockets: {
     success (payload) {
       this.showSuccNotif(payload.message)
+      if (payload.auth) {
+        this.$store.commit('User/INIT', payload.user)
+        this.$store.commit('User/SET_AUTH', payload.auth)
+      }
     },
     error (err) {
       this.showWarnNotif(err.message || err)
