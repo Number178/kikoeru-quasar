@@ -155,6 +155,16 @@
             />
           </q-item-section>
         </q-item>
+        <q-item>
+          <q-item-section>
+            <q-item-label>扫描时不清理音声库</q-item-label>
+            <q-item-label caption>是否跳过清理不存在的音声</q-item-label>
+          </q-item-section>
+
+          <q-item-section side>
+            <q-toggle v-model="config.skipCleanup" />
+          </q-item-section>
+        </q-item>
       </q-list>
     </q-card>
 
