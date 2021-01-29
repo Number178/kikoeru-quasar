@@ -78,7 +78,7 @@
     </div>
     
     <!-- 标签 -->
-    <div class="q-ma-xs">
+    <div class="q-ma-xs" v-if="showTags">
       <router-link
         v-for="(tag, index) in metadata.tags"
         :to="`/tag/${tag.id}`"
@@ -132,6 +132,7 @@ export default {
       },
       rating: 0,
       userMarked: false,
+      showTags: true
     }
   },
 
@@ -161,6 +162,11 @@ export default {
       } else {
         this.userMarked = false;
         this.rating = this.metadata.rate_average_2dp || 0;
+      }
+
+      // 极个别作品没有标签
+      if (this.metadata.tags && this.metadata.tags[0].name === null) {
+        this.showTags = false;
       }
     },
 
