@@ -113,7 +113,10 @@ module.exports = function (ctx) {
       workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
       workboxOptions: {
         skipWaiting: true,
-        clientsClaim: true
+        clientsClaim: true,
+        exclude: [
+          /^\/api\/.*$/
+        ]
       }, // only for GenerateSW
       manifest: {
         name: 'Kikoeru',
