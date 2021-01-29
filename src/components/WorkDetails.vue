@@ -192,18 +192,18 @@ export default {
 
   watch: {
     // 需要用watch因为父component pages/work.vue是先用空值初始化的
-    metadata () {
-      if (this.metadata.userRating) {
+    metadata (newMetaData) {
+      if (newMetaData.userRating) {
         this.userMarked = true;
-        this.rating = this.metadata.userRating;
+        this.rating = newMetaData.userRating;
       } else {
         this.userMarked = false;
-        this.rating = this.metadata.rate_average_2dp || 0;
+        this.rating = newMetaData.rate_average_2dp || 0;
       }
-      this.progress = this.metadata.progress;
+      this.progress = newMetaData.progress;
 
       // 极个别作品没有标签
-      if (this.metadata.tags && this.metadata.tags[0].name === null) {
+      if (newMetaData.tags && newMetaData.tags[0].name === null) {
         this.showTags = false;
       }
     },
