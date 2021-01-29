@@ -115,6 +115,9 @@ module.exports = function (ctx) {
         skipWaiting: true,
         clientsClaim: true,
         exclude: [
+          /manifest\.json$/
+        ],
+        navigateFallbackBlacklist: [
           /^\/api\/.*$/
         ]
       }, // only for GenerateSW
