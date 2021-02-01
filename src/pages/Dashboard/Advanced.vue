@@ -177,7 +177,7 @@
         <q-item>
           <q-item-section>
             <q-item-label>用户验证</q-item-label>
-            <q-item-label caption>是否启用用户验证</q-item-label>
+            <q-item-label caption>是否启用用户验证（更改此设置需要重启程序）</q-item-label>
           </q-item-section>
 
           <q-item-section avatar>
