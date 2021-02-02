@@ -119,7 +119,8 @@ module.exports = function (ctx) {
         ],
         navigateFallbackBlacklist: [
           /^\/api\/.*$/
-        ]
+        ],
+        importWorkboxFrom: 'local'
       }, // only for GenerateSW
       manifest: {
         name: 'Kikoeru',
