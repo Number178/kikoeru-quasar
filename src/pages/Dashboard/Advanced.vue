@@ -162,7 +162,7 @@
           </q-item-section>
 
           <q-item-section side>
-            <q-toggle v-model="config.skipCleanup" />
+            <q-toggle v-model="config.skipCleanup" dense />
           </q-item-section>
         </q-item>
       </q-list>
@@ -171,17 +171,29 @@
     <q-card class="q-ma-md">
       <q-toolbar>
         <q-toolbar-title>Web 服务器相关设置</q-toolbar-title>
+        <div class="q-pr-xs">更改此设置需要重启程序</div>
       </q-toolbar>
 
       <q-list>
         <q-item>
           <q-item-section>
             <q-item-label>用户验证</q-item-label>
-            <q-item-label caption>是否启用用户验证（更改此设置需要重启程序）</q-item-label>
+            <q-item-label caption>是否启用用户验证</q-item-label>
           </q-item-section>
 
           <q-item-section avatar>
-            <q-toggle v-model="config.auth" />
+            <q-toggle v-model="config.auth" dense />
+          </q-item-section>
+        </q-item>
+
+        <q-item>
+          <q-item-section>
+            <q-item-label>启用Gzip</q-item-label>
+            <q-item-label caption>对网络传输启用Gzip压缩</q-item-label>
+          </q-item-section>
+
+          <q-item-section avatar>
+            <q-toggle v-model="config.enableGzip" dense/>
           </q-item-section>
         </q-item>
 
