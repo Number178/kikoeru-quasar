@@ -14,7 +14,7 @@
 
 <script>
 import Lyric from 'lrc-file-parser'
-import { mapState, mapGetters } from 'vuex'
+import { mapState, mapGetters, mapMutations } from 'vuex'
 
 export default {
   name: 'AudioElement',
@@ -87,9 +87,19 @@ export default {
   },
 
   methods: {
+    ...mapMutations('AudioPlayer', [
+      'SET_DURATION',
+      'SET_CURRENT_TIME',
+      'PAUSE',
+      'SET_TRACK',
+      'NEXT_TRACK',
+      'SET_CURRENT_LYRIC',
+      'SET_VOLUME'
+    ]),
+
     onCanplay () {
       // 缓冲至可播放状态时触发 (只有缓冲至可播放状态, 才能获取媒体文件的播放时长)
-      this.$store.commit('AudioPlayer/SET_DURATION', this.player.duration)
+      this.SET_DURATION(this.player.duration)
 
       // 播放
       if (this.playing && this.player.currentTime !== this.player.duration) {
@@ -99,7 +109,7 @@ export default {
 
     onTimeupdate () {
       // 当目前的播放位置已更改时触发
-      this.$store.commit('AudioPlayer/SET_CURRENT_TIME', this.player.currentTime)
+      this.SET_CURRENT_TIME(this.player.currentTime)
       if (this.sleepMode && this.sleepTime) {
         const currentTime = new Date()
         const currentHourStr = currentTime.getHours().toString().padStart(2, '0')
@@ -107,7 +117,7 @@ export default {
         const sleepHourStr = this.sleepTime.match(/\d+/g)[0]
         const sleepMinuteStr = this.sleepTime.match(/\d+/g)[1]
         if (currentHourStr === sleepHourStr && currentMinuteStr === sleepMinuteStr) {
-          this.$store.commit('AudioPlayer/PAUSE')
+          this.PAUSE()
         }
       }
     },
@@ -118,20 +128,20 @@ export default {
         case "all repeat":
           // 循环播放
           if (this.queueIndex === this.queue.length - 1) {
-            this.$store.commit('AudioPlayer/SET_TRACK', 0)
+            this.SET_TRACK(0)
           } else {
-            this.$store.commit('AudioPlayer/NEXT_TRACK')
+            this.NEXT_TRACK()
           }
           break
         case "repeat once":
           // 单曲循环
           this.player.currentTime = 0
-          this.$store.commit('AudioPlayer/PLAY')
+          this.PLAY()
           break
         case "shuffle": {
           // 随机播放
           const index = Math.floor(Math.random()*this.queue.length)
-          this.$store.commit('AudioPlayer/SET_TRACK', index)
+          this.SET_TRACK(index)
           if (index === this.queueIndex) {
             this.player.currentTime = 0
           }
@@ -140,9 +150,9 @@ export default {
         default:
           // 顺序播放
           if (this.queueIndex === this.queue.length - 1) {
-            this.$store.commit('AudioPlayer/PAUSE')
+            this.PAUSE()
           } else {
-            this.$store.commit('AudioPlayer/NEXT_TRACK')
+            this.NEXT_TRACK()
           }
       }
     },
@@ -167,7 +177,7 @@ export default {
     initLrcObj () {
         this.lrcObj = new Lyric({
           onPlay: (line, text) => {
-            this.$store.commit('AudioPlayer/SET_CURRENT_LYRIC', text);
+            this.SET_CURRENT_LYRIC(text);
           },
         })
     },
@@ -223,7 +233,7 @@ export default {
 
   mounted () {
     // 初始化音量
-    this.$store.commit('AudioPlayer/SET_VOLUME', this.player.volume);
+    this.SET_VOLUME(this.player.volume);
     this.initLrcObj();
     if (this.source) {
       this.loadLrcFile();
