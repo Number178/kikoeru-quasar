@@ -1,6 +1,6 @@
 <template>
   <div>
-      <q-dialog v-model="showReviewDialog">
+      <q-dialog v-model="showReviewDialog" @hide="closeDialog">
         <q-card>
           <q-card-section class="q-pb-sm">
             <div class="text-body1">我的评论</div>
