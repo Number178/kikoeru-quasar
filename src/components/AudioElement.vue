@@ -43,7 +43,9 @@ export default {
       'queueIndex',
       'playMode',
       'muted',
-      'volume'
+      'volume',
+      'sleepTime',
+      'sleepMode'
     ]),
 
     ...mapGetters('AudioPlayer', [
@@ -98,6 +100,16 @@ export default {
     onTimeupdate () {
       // 当目前的播放位置已更改时触发
       this.$store.commit('AudioPlayer/SET_CURRENT_TIME', this.player.currentTime)
+      if (this.sleepMode && this.sleepTime) {
+        const currentTime = new Date()
+        const currentHourStr = currentTime.getHours().toString().padStart(2, '0')
+        const currentMinuteStr = currentTime.getMinutes().toString().padStart(2, '0')
+        const sleepHourStr = this.sleepTime.match(/\d+/g)[0]
+        const sleepMinuteStr = this.sleepTime.match(/\d+/g)[1]
+        if (currentHourStr === sleepHourStr && currentMinuteStr === sleepMinuteStr) {
+          this.$store.commit('AudioPlayer/PAUSE')
+        }
+      }
     },
 
     onEnded () {

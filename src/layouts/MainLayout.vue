@@ -77,6 +77,24 @@
               </q-item-label>
             </q-item-section>
           </q-item>
+
+          <q-item 
+            clickable
+            v-ripple
+            exact
+            active-class="text-deep-purple text-weight-medium"
+            @click="showTimer = true"
+          >
+            <q-item-section avatar>
+              <q-icon name="bedtime" />
+            </q-item-section>
+
+            <q-item-section>
+              <q-item-label class="text-subtitle1">
+                睡眠模式
+              </q-item-label>
+            </q-item-section>
+          </q-item>
         </q-list>
 
         <q-list>
@@ -116,6 +134,8 @@
       </q-card>
     </q-dialog>
 
+    <SleepMode v-model="showTimer" />
+
     <q-page-container>
       <!-- <q-page padding> -->
         <router-view class="page-content" />
@@ -136,6 +156,7 @@
 import PlayerBar from 'components/PlayerBar'
 import AudioPlayer from 'components/AudioPlayer'
 import LyricsBar from 'components/LyricsBar'
+import SleepMode from 'components/SleepMode'
 
 export default {
   name: 'MainLayout',
@@ -144,6 +165,7 @@ export default {
     PlayerBar,
     AudioPlayer,
     LyricsBar,
+    SleepMode
   },
 
   data () {
@@ -153,6 +175,7 @@ export default {
       miniState: true,
       confirm: false,
       randId: null,
+      showTimer: false,
       links: [
         {
           title: '媒体库',
@@ -195,17 +218,17 @@ export default {
 
     randId () {
       this.$router.push(`/work/${this.randId}`)
-    }
+    },
   },
 
-  created () {
+  mounted () {
     this.initUser();
   },
 
   computed: {
     authEnabled: function () {
       return this.$store.state.User.auth;
-    }
+    },
   },
 
   methods: {
@@ -283,7 +306,7 @@ export default {
 
     isNotInMain () {
       let path = this.$router.currentRoute.path
-      return (path && path !=='/' && path !== '/favourites') ? true : false;
+      return path && path !=='/' && path !== '/favourites';
     },
   },
 }

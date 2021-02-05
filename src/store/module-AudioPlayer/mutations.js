@@ -114,6 +114,15 @@ const mutations = {
   },
   SET_CURRENT_LYRIC: (state, line) => {
     state.currentLyric = line
+  },
+  SET_SLEEP_TIMER: (state, time) => {
+    state.sleepTime = time
+    state.sleepMode = true
+  },
+
+  CLEAR_SLEEP_MODE: (state) => {
+    state.sleepTime = null
+    state.sleepMode = false
   }
 }
 

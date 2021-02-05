@@ -21,5 +21,7 @@ export default function () {
     muted: false,
     volume: 0, // 音量 (0.0-1.0)
     currentLyric: '',
+    sleepTime: null,
+    sleepMode: false
   }
 }
