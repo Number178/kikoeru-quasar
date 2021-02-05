@@ -4,6 +4,7 @@
       <div class="col-lg-3 col-sm-12 col-xs-12">
           <q-btn-toggle
             v-model="mode"
+            @input="changeMode"
             spread
             no-caps
             rounded
@@ -26,6 +27,7 @@
       <q-btn-toggle
         v-if="mode === 'progress'"
         v-model="progressFilter"
+        @input="changeProgressFilter"
         toggle-color="primary"
         color="white"
         text-color="black"
@@ -66,6 +68,17 @@ export default {
 
   components: {
     FavListItem
+  },
+
+  props: {
+    route: {
+      type: String,
+      default: 'review'
+    },
+    progress: {
+      type: String,
+      default: 'marked'
+    }
   },
 
   data() {
@@ -125,6 +138,11 @@ export default {
     }
   },
 
+  created() {
+    this.mode = this.route;
+    this.progressFilter = this.progress;
+  },
+
   mounted() {
     if (localStorage.sortByFavourites) {
       try {
@@ -140,15 +158,21 @@ export default {
       localStorage.sortByFavourites = JSON.stringify(newSortOptionSetting);
       this.reset();
     },
-    mode() {
-      this.reset();
-    },
-    progressFilter() {
-      this.reset();
-    }
   },
 
   methods: {
+    // Split two-way binding
+    changeMode(newMode) {
+      this.$router.push(`/favourites/${newMode}`);
+      this.reset();
+    },
+
+    // Split two-way binding
+    changeProgressFilter(newFilter) {
+      this.$router.push(`/favourites/progress/${newFilter}`);
+      this.reset();
+    },
+
     onLoad (index, done) {
       this.requestWorksQueue()
         .then(() => done())

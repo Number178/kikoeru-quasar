@@ -12,6 +12,12 @@ import Scanner from 'pages/Dashboard/Scanner'
 import Advanced from 'pages/Dashboard/Advanced'
 import UserManage from 'pages/Dashboard/UserManage'
 
+function prefixRoutes(prefix, routes) {
+  return routes.map((route) => {
+    route.path = prefix + '' + route.path;
+    return route;
+  });
+}
 
 const routes = [
   {
@@ -82,10 +88,45 @@ const routes = [
         props: { restrict: "va" },
         component: List
       },
-      {
-        path: 'favourites',
-        component: Favourites
-      }
+      ...prefixRoutes('favourites', [
+        {
+          path: '',
+          props: { route: 'review'},
+          component: Favourites,
+        },
+        {
+          path: '/review',
+          props: { route: 'review'},
+          component: Favourites,
+        },
+        ...prefixRoutes('/progress', [
+          {
+            path: '',
+            props: { route: 'progress', progress: 'marked'},
+            component: Favourites,
+          },
+          {
+            path: '/marked',
+            props: { route: 'progress', progress: 'marked'},
+            component: Favourites,
+          },
+          {
+            path: '/listening',
+            props: { route: 'progress', progress: 'listening'},
+            component: Favourites,
+          },
+          {
+            path: '/listened',
+            props: { route: 'progress', progress: 'listened'},
+            component: Favourites,
+          },
+          {
+            path: '/postponed',
+            props: { route: 'progress', progress: 'postponed'},
+            component: Favourites,
+          },
+        ])
+      ]),
     ],
     meta: {
       auth: true
