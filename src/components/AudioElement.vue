@@ -120,6 +120,9 @@ export default {
         if (currentHourStr === sleepHourStr && currentMinuteStr === sleepMinuteStr) {
           this.PAUSE()
           this.CLEAR_SLEEP_MODE()
+          // Persist sleep mode settings
+          this.$q.sessionStorage.set('sleepTime', null)
+          this.$q.sessionStorage.set('sleepMode', false)
         }
       }
     },

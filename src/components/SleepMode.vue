@@ -47,6 +47,16 @@ export default {
     ])
   },
 
+  mounted() {
+    try {
+      if (this.$q.sessionStorage.getItem('sleepMode')) {
+        this.SET_SLEEP_TIMER(this.$q.sessionStorage.getItem('sleepTime'));
+      }
+    } catch {
+      console.log('Web Storage API error');
+    }
+  },
+
   watch: {
     // v-model: showTimer from MainLayout
     value(visible) {
@@ -69,11 +79,24 @@ export default {
 
     setSleepTimer() {
       this.SET_SLEEP_TIMER(this.time);
+      // Persist sleep timer
+      try {
+        this.$q.sessionStorage.set('sleepTime', this.time);
+        this.$q.sessionStorage.set('sleepMode', true);
+      } catch {
+        console.log('Web Storage API error');
+      }
       this.showSuccNotif('已开启睡眠模式');
     },
 
     clearSleepTimer() {
       this.CLEAR_SLEEP_MODE();
+      try {
+        this.$q.sessionStorage.set('sleepTime', null);
+        this.$q.sessionStorage.set('sleepMode', false);
+      } catch {
+        console.log('Web Storage API error');
+      }
       this.showSuccNotif('已关闭睡眠模式');
     },
 
