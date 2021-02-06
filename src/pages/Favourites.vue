@@ -138,6 +138,11 @@ export default {
     }
   },
 
+  created() {
+    this.mode = this.route;
+    this.progressFilter = this.progress;
+  },
+
   mounted() {
     if (localStorage.sortByFavourites) {
       try {
@@ -153,11 +158,15 @@ export default {
       localStorage.sortByFavourites = JSON.stringify(newSortOptionSetting);
       this.reset();
     },
+
+    // Browser back and forth
     route() {
       this.mode = this.route;
+      this.reset();
     },
     progress() {
       this.progressFilter = this.progress;
+      this.reset();
     }
   },
 
