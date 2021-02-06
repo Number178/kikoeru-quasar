@@ -86,7 +86,7 @@ export default {
       } catch {
         console.log('Web Storage API error');
       }
-      this.showSuccNotif('已开启睡眠模式');
+      this.showSuccNotif(`将于${this.time}停止播放`);
     },
 
     clearSleepTimer() {
@@ -103,9 +103,9 @@ export default {
     showSuccNotif (message) {
       this.$q.notify({
         message,
-        color: 'positive',
-        icon: 'done',
-        timeout: 500
+        color: 'primary',
+        icon: 'bedtime',
+        timeout: 5000
       })
     },
   }
