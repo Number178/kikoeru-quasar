@@ -223,6 +223,7 @@ export default {
 
   mounted () {
     this.initUser();
+    this.checkUpdate();
   },
 
   computed: {
@@ -251,6 +252,34 @@ export default {
           } else {
             this.showErrNotif(error.message || error)
           }
+        })
+    },
+
+    checkUpdate () {
+      this.$axios.get('/api/version')
+        .then((res) => {
+          if (res.data.update_available && res.data.notifyUser) {
+            this.$q.notify({
+              message: 'GitHub上有新版本',
+              color: 'primary',
+              textColor: 'white',
+              icon: 'cloud_download',
+              timeout: 5000,
+              actions: [
+                { label: '好', color: 'white' },
+                { label: '查看', color: 'white', handler: () => {
+                    Object.assign(document.createElement('a'), {
+                      target: '_blank',
+                      href: 'https://github.com/umonaca/kikoeru-express/releases',
+                    }).click();
+                  }
+                }
+              ],
+            })
+          }
+        })
+        .catch((error) => {
+          console.error(error);
         })
     },
 

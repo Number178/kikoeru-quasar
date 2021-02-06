@@ -247,6 +247,25 @@
       </q-list>
     </q-card>
 
+    <q-card class="q-ma-md">
+      <q-toolbar>
+        <q-toolbar-title>其它设置</q-toolbar-title>
+      </q-toolbar>
+
+      <q-list>
+        <q-item>
+          <q-item-section>
+            <q-item-label>检查更新</q-item-label>
+            <q-item-label caption>打开网页时是否检查更新</q-item-label>
+          </q-item-section>
+
+          <q-item-section avatar>
+            <q-toggle v-model="config.checkUpdate" dense />
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </q-card>
+
     <div class="q-ma-lg row justify-end">
       <q-btn :loading="loading" label="保存" type="submit" color="primary" />
     </div>
