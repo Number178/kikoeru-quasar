@@ -263,6 +263,28 @@
             <q-toggle v-model="config.checkUpdate" dense />
           </q-item-section>
         </q-item>
+
+        <q-item>
+          <q-item-section>
+            <q-item-label>数据库使用默认路径</q-item-label>
+            <q-item-label caption>使用程序所在位置下的sqlite文件夹，并忽略databaseFolderDir设置（更改此设置需要重启程序）</q-item-label>
+          </q-item-section>
+
+          <q-item-section avatar>
+            <q-toggle v-model="config.dbUseDefaultPath" dense />
+          </q-item-section>
+        </q-item>
+
+        <q-item>
+          <q-item-section>
+            <q-item-label>封面使用默认路径</q-item-label>
+            <q-item-label caption>使用程序所在位置下的covers文件夹，并忽略封面文件夹路径设置</q-item-label>
+          </q-item-section>
+
+          <q-item-section avatar>
+            <q-toggle v-model="config.coverUseDefaultPath" dense />
+          </q-item-section>
+        </q-item>
       </q-list>
     </q-card>
 

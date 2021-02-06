@@ -63,7 +63,8 @@
           <q-toolbar-title>封面文件夹路径</q-toolbar-title>
         </q-toolbar>
 
-        <q-input outlined dense required v-model="config.coverFolderDir" class="q-pa-sm" />
+        <div v-if="config.coverUseDefaultPath" class="q-pa-md">已指定为默认路径，即程序所在位置下的covers文件夹。如需修改，请前往高级设置并取消“封面使用默认路径”。</div>
+        <q-input v-else outlined dense required v-model="config.coverFolderDir" class="q-pa-sm" />
       </q-card>
 
       <div class="q-ma-lg row justify-end">
