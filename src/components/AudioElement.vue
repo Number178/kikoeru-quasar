@@ -94,7 +94,8 @@ export default {
       'SET_TRACK',
       'NEXT_TRACK',
       'SET_CURRENT_LYRIC',
-      'SET_VOLUME'
+      'SET_VOLUME',
+      'CLEAR_SLEEP_MODE'
     ]),
 
     onCanplay () {
@@ -118,6 +119,7 @@ export default {
         const sleepMinuteStr = this.sleepTime.match(/\d+/g)[1]
         if (currentHourStr === sleepHourStr && currentMinuteStr === sleepMinuteStr) {
           this.PAUSE()
+          this.CLEAR_SLEEP_MODE()
         }
       }
     },
