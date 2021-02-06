@@ -157,9 +157,12 @@ import PlayerBar from 'components/PlayerBar'
 import AudioPlayer from 'components/AudioPlayer'
 import LyricsBar from 'components/LyricsBar'
 import SleepMode from 'components/SleepMode'
+import NotifyMixin from '../mixins/Notification.js'
 
 export default {
   name: 'MainLayout',
+
+  mixins: [NotifyMixin],
 
   components: {
     PlayerBar,
@@ -308,22 +311,6 @@ export default {
         })
     },
 
-    showWarnNotif (message) {
-      this.$q.notify({
-        message,
-        color: 'warning',
-        icon: 'warning',
-      })
-    },
-
-    showErrNotif (message) {
-      this.$q.notify({
-        message,
-        color: 'negative',
-        icon: 'bug_report'
-      })
-    },
-    
     logout () {
       this.$q.localStorage.set('jwt-token', '')
       this.$router.push('/login')

@@ -52,8 +52,12 @@
 </template>
 
 <script>
+import NotifyMixin from '../mixins/Notification.js'
+
 export default {
   name: 'DashboardLayout',
+
+  mixins: [NotifyMixin],
 
   data () {
     return {
@@ -103,25 +107,6 @@ export default {
       this.$socket.close()
       // 验证失败，跳转到登录页面
       this.$router.push('/login')
-    }
-  },
-
-  methods: {
-    showSuccNotif (message) {
-      this.$q.notify({
-        message,
-        color: 'positive',
-        icon: 'done',
-        timeout: 500
-      })
-    },
-
-    showWarnNotif (message) {
-      this.$q.notify({
-        message,
-        color: 'warning',
-        icon: 'warning',
-      })
     }
   },
 

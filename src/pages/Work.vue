@@ -10,9 +10,12 @@
 import WorkDetails from 'components/WorkDetails'
 // import WorkQueue from 'components/WorkQueue'
 import WorkTree from 'components/WorkTree'
+import NotifyMixin from '../mixins/Notification.js'
 
 export default {
   name: 'Work',
+
+  mixins: [NotifyMixin],
 
   components: {
     WorkDetails,
@@ -70,13 +73,6 @@ export default {
           }
         })
     },
-    showErrNotif (message) {
-      this.$q.notify({
-        message,
-        color: 'negative',
-        icon: 'bug_report'
-      })
-    }
   }
 }
 </script>

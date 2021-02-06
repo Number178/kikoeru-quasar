@@ -73,8 +73,12 @@
 </template>
 
 <script>
+import NotifyMixin from '../mixins/Notification.js'
+
 export default {
   name: 'WriteReview',
+
+  mixins: [NotifyMixin],
 
   props: {
     workid: {
@@ -167,23 +171,6 @@ export default {
           }
         })
     },
-
-    showSuccNotif (message) {
-      this.$q.notify({
-        message,
-        color: 'positive',
-        icon: 'done',
-        timeout: 500
-      })
-    },
-
-    showErrNotif (message) {
-      this.$q.notify({
-        message,
-        color: 'negative',
-        icon: 'bug_report'
-      })
-    }
   }
 
 }

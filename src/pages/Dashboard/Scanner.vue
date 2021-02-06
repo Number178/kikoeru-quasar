@@ -144,8 +144,12 @@
 </template>
 
 <script>
+import NotifyMixin from '../../mixins/Notification.js'
+
 export default {
   name: 'Scanner',
+
+  mixins: [NotifyMixin],
 
   data () {
     return {
@@ -209,14 +213,6 @@ export default {
     killScanProceess () {
       this.$socket.emit('KILL_SCAN_PROCESS')
     },
-
-    showErrNotif (message) {
-      this.$q.notify({
-        message,
-        color: 'negative',
-        icon: 'bug_report'
-      })
-    }
   },
 
   computed: {

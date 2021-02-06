@@ -62,9 +62,12 @@
 
 <script>
 import FavListItem from 'components/FavListItem'
+import NotifyMixin from '../mixins/Notification.js'
 
 export default {
   name: 'Favourites',
+
+  mixins: [NotifyMixin],
 
   components: {
     FavListItem
@@ -229,14 +232,6 @@ export default {
           }
           this.stopLoad = true
         })
-    },
-
-    showErrNotif (message) {
-      this.$q.notify({
-        message,
-        color: 'negative',
-        icon: 'bug_report'
-      })
     },
   }
 }

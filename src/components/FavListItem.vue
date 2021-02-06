@@ -84,10 +84,13 @@
 </template>
 
 <script>
-import  WriteReview from './WriteReview'
+import WriteReview from './WriteReview'
+import NotifyMixin from '../mixins/Notification.js'
 
 export default {
   name: 'FavListItem',
+
+  mixins: [NotifyMixin],
 
   components: {
     WriteReview
@@ -220,23 +223,6 @@ export default {
           }
         })
     },
-
-    showSuccNotif (message) {
-      this.$q.notify({
-        message,
-        color: 'positive',
-        icon: 'done',
-        timeout: 500
-      })
-    },
-
-    showErrNotif (message) {
-      this.$q.notify({
-        message,
-        color: 'negative',
-        icon: 'bug_report'
-      })
-    }
   }
 
 }

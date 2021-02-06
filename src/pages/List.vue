@@ -24,8 +24,12 @@
 </template>
 
 <script>
+import NotifyMixin from '../mixins/Notification.js'
+
 export default {
   name: 'List',
+
+  mixins: [NotifyMixin],
 
   props: {
     restrict: {
@@ -77,14 +81,6 @@ export default {
           }
         })
     },
-
-    showErrNotif (message) {
-      this.$q.notify({
-        message,
-        color: 'negative',
-        icon: 'bug_report'
-      })
-    }
   }
 }
 </script>

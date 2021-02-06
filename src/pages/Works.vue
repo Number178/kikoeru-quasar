@@ -103,9 +103,12 @@
 <script>
 import WorkCard from 'components/WorkCard'
 import WorkListItem from 'components/WorkListItem'
+import NotifyMixin from '../mixins/Notification.js'
 
 export default {
   name: 'Works',
+
+  mixins: [NotifyMixin],
 
   components: {
     WorkCard,
@@ -345,14 +348,6 @@ export default {
         .then(() => {
           this.stopLoad = false
         })
-    },
-
-    showErrNotif (message) {
-      this.$q.notify({
-        message,
-        color: 'negative',
-        icon: 'bug_report'
-      })
     },
   }
 }

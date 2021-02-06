@@ -108,9 +108,12 @@
 <script>
 // import WorkDetails from 'components/WorkDetails'
 import CoverSFW from 'components/CoverSFW'
+import NotifyMixin from '../mixins/Notification.js'
 
 export default {
   name: 'WorkCard',
+
+  mixins: [NotifyMixin],
 
   components: {
     CoverSFW,
@@ -207,23 +210,6 @@ export default {
           }
         })
     },
-
-    showSuccNotif (message) {
-        this.$q.notify({
-          message,
-          color: 'positive',
-          icon: 'done',
-          timeout: 500
-        })
-      },
-
-      showErrNotif (message) {
-        this.$q.notify({
-          message,
-          color: 'negative',
-          icon: 'bug_report'
-        })
-      }
   }
 }
 </script>
