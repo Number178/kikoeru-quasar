@@ -125,7 +125,12 @@ const routes = [
             props: { route: 'progress', progress: 'postponed'},
             component: Favourites,
           },
-        ])
+        ]),
+        {
+          path: '/folder',
+          props: { route: 'folder'},
+          component: Favourites,
+        },
       ]),
     ],
     meta: {
