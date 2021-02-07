@@ -267,7 +267,7 @@
         <q-item>
           <q-item-section>
             <q-item-label>数据库使用默认路径</q-item-label>
-            <q-item-label caption>使用程序所在位置下的sqlite文件夹，并忽略databaseFolderDir设置（更改此设置需要重启程序）</q-item-label>
+            <q-item-label caption>使用程序所在位置下的sqlite文件夹，并忽略databaseFolderDir设置（如无必要请勿修改，更改此设置需要重启程序）</q-item-label>
           </q-item-section>
 
           <q-item-section avatar>
