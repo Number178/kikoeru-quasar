@@ -43,7 +43,7 @@
 
     <div class="q-pt-md">
       <div class="q-px-sm q-py-md">
-        <q-infinite-scroll @load="onLoad" :offset="500" :disable="stopLoad" v-if="mode !=='folder'">
+        <q-infinite-scroll @load="onLoad" :offset="500" :disable="stopLoad" ref="scroll" v-if="mode !=='folder'">
           <q-list bordered separator class="shadow-2" v-if="works.length">
              <FavListItem v-for="work in works" :key="work.id" :workid="work.id" :metadata="work" @reset="reset()" :mode="mode"></FavListItem> 
           </q-list>
@@ -192,8 +192,11 @@ export default {
     },
 
     reset () {
+      // Freeze the scroller first
       this.stopLoad = true
       this.pagination = {}
+      // Manually fetch first page content before enable scroller
+      // Note: the internal API of the infinite scroller does not work well
       this.requestWorksQueue()
         .then(() => {
           this.stopLoad = false
