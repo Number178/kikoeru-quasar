@@ -83,7 +83,8 @@ module.exports = function (ctx) {
         })
       },
       modern: true,
-      sourceMap: true
+      sourceMap: true,
+      devtool: 'source-map'
     },
 
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
