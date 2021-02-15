@@ -280,6 +280,18 @@ export default {
               ],
             })
           }
+
+          if (res.data.lockFileExists) {
+            this.$q.notify ({
+              message: res.data.lockReason,
+              type: 'warning',
+              timeout: 60000,
+              actions: [
+                { label: '以后提醒我', color: 'black' },
+                { label: '前往扫描页', color: 'black', handler: () => this.$router.push('/admin/scanner')}
+              ],
+            })
+          }
         })
         .catch((error) => {
           console.error(error);
