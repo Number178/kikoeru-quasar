@@ -94,6 +94,7 @@ export default {
       'SET_DURATION',
       'SET_CURRENT_TIME',
       'PAUSE',
+      'PLAY',
       'SET_TRACK',
       'NEXT_TRACK',
       'SET_CURRENT_LYRIC',
