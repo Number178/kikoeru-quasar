@@ -48,7 +48,11 @@ export default {
       'muted',
       'volume',
       'sleepTime',
-      'sleepMode'
+      'sleepMode',
+      'rewindSeekTime',
+      'forwardSeekTime',
+      'rewindSeekMode',
+      'forwardSeekMode'
     ]),
 
     ...mapGetters('AudioPlayer', [
@@ -86,6 +90,18 @@ export default {
       
       // 调节音量
       this.player.volume = val
+    },
+    rewindSeekMode(rewind) {
+      if (rewind) {
+        this.player.rewind(this.rewindSeekTime);
+        this.SET_REWIND_SEEK_MODE(false);
+      }
+    },
+    forwardSeekMode(forward) {
+      if (forward) {
+        this.player.forward(this.forwardSeekTime);
+        this.SET_FORWARD_SEEK_MODE(false);
+      }
     }
   },
 
@@ -99,7 +115,9 @@ export default {
       'NEXT_TRACK',
       'SET_CURRENT_LYRIC',
       'SET_VOLUME',
-      'CLEAR_SLEEP_MODE'
+      'CLEAR_SLEEP_MODE',
+      'SET_REWIND_SEEK_MODE',
+      'SET_FORWARD_SEEK_MODE'
     ]),
 
     onCanplay () {
@@ -169,6 +187,9 @@ export default {
     onSeeked() {
       if (this.lrcAvailable) {
         this.lrcObj.play(this.player.currentTime * 1000);
+        if (!this.playing) {
+          this.lrcObj.pause();
+        }
       }
     },
 

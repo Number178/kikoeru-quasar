@@ -112,6 +112,18 @@ const mutations = {
     }
     state.volume = val
   },
+  SET_REWIND_SEEK_TIME: (state, value) => {
+    state.rewindSeekTime = value
+  },
+  SET_FORWARD_SEEK_TIME: (state, value) => {
+    state.forwardSeekTime = value
+  },
+  SET_REWIND_SEEK_MODE: (state, value) => {
+    state.rewindSeekMode = value
+  },
+  SET_FORWARD_SEEK_MODE: (state, value) => {
+    state.forwardSeekMode = value
+  },
   SET_CURRENT_LYRIC: (state, line) => {
     state.currentLyric = line
   },

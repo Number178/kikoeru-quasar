@@ -22,6 +22,10 @@ export default function () {
     volume: 0, // 音量 (0.0-1.0)
     currentLyric: '',
     sleepTime: null,
-    sleepMode: false
+    sleepMode: false,
+    rewindSeekTime: 5,
+    forwardSeekTime: 30,
+    rewindSeekMode: false,
+    forwardSeekMode: false
   }
 }
