@@ -112,10 +112,14 @@ export default {
 
   methods: {
     closeDialog() {
-      if (this.modified) {
-        this.$emit('closed', true);
-      } else {
-        this.$emit('closed', false);
+      // Do not emit anything if the second dialog is shown
+      // If the user clicks anywhere outside of the main dialog, emit 'closed'
+      if (!this.deleteConfirm) {
+        if (this.modified) {
+          this.$emit('closed', true);
+        } else {
+          this.$emit('closed', false);
+        }
       }
     },
 
