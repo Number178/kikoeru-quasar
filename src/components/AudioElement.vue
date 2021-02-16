@@ -37,7 +37,7 @@ export default {
     source () {
       // 从 LocalStorage 中读取 token
       const token = this.$q.localStorage.getItem('jwt-token') || ''
-      return this.currentPlayingFile.hash ? `/api/stream/${this.currentPlayingFile.hash}?token=${token}` : ""
+      return this.currentPlayingFile.hash ? `/api/media/stream/${this.currentPlayingFile.hash}?token=${token}` : ""
     },
 
     ...mapState('AudioPlayer', [
@@ -215,7 +215,7 @@ export default {
     loadLrcFile () {
       const token = this.$q.localStorage.getItem('jwt-token') || '';
       const fileHash = this.queue[this.queueIndex].hash;
-      const url = `/api/check-lrc/${fileHash}?token=${token}`;
+      const url = `/api/media/check-lrc/${fileHash}?token=${token}`;
 
       this.$axios.get(url)
         .then((response) => {
@@ -223,7 +223,7 @@ export default {
             // 有lrc歌词文件
             this.lrcAvailable = true;
             console.log('读入歌词');
-            const lrcUrl = `/api/stream/${response.data.hash}?token=${token}`;
+            const lrcUrl = `/api/media/stream/${response.data.hash}?token=${token}`;
             this.$axios.get(lrcUrl)
               .then(response => {
                 console.log('歌词读入成功');
