@@ -248,7 +248,7 @@ export default {
       'SET_FORWARD_SEEK_TIME'
     ]),
     initUser () {
-      this.$axios.get('/api/me')
+      this.$axios.get('/api/auth/me')
         .then((res) => {
           this.$store.commit('User/INIT', res.data.user)
           this.$store.commit('User/SET_AUTH', res.data.auth)

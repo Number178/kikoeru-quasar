@@ -30,7 +30,7 @@ export default {
 
   methods: {
     onSubmit () {
-      this.$axios.post('/api/me', {
+      this.$axios.post('/api/auth/me', {
         name: this.name,
         password: this.password
       })
