@@ -158,6 +158,7 @@ import AudioPlayer from 'components/AudioPlayer'
 import LyricsBar from 'components/LyricsBar'
 import SleepMode from 'components/SleepMode'
 import NotifyMixin from '../mixins/Notification.js'
+import { mapMutations } from 'vuex'
 
 export default {
   name: 'MainLayout',
@@ -210,7 +211,8 @@ export default {
           icon: 'tune',
           path: '/admin'
         },
-      ]
+      ],
+      sharedConfig: {}
     }
   },
 
@@ -222,11 +224,16 @@ export default {
     randId () {
       this.$router.push(`/work/${this.randId}`)
     },
+    sharedConfig (config) {
+      this.SET_REWIND_SEEK_TIME(config.rewindSeekTime);
+      this.SET_FORWARD_SEEK_TIME(config.forwardSeekTime);
+    }
   },
 
   mounted () {
     this.initUser();
     this.checkUpdate();
+    this.readSharedConfig();
   },
 
   computed: {
@@ -236,6 +243,10 @@ export default {
   },
 
   methods: {
+    ...mapMutations('AudioPlayer', [
+      'SET_REWIND_SEEK_TIME',
+      'SET_FORWARD_SEEK_TIME'
+    ]),
     initUser () {
       this.$axios.get('/api/me')
         .then((res) => {
@@ -295,6 +306,27 @@ export default {
         })
         .catch((error) => {
           console.error(error);
+        })
+    },
+
+    readSharedConfig(){
+      this.$axios.get('/api/config/shared')
+        .then((response) => {
+           this.sharedConfig = response.data.sharedConfig;
+        })
+        .catch((error) => {
+          if (error.response) {
+            // 请求已发出，但服务器响应的状态码不在 2xx 范围内
+            if (error.response.status === 401) {
+              this.showWarnNotif(error.response.data.error)
+              // 验证失败，跳转到登录页面
+              this.$router.push('/login')
+            } else {
+              this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)
+            }
+          } else {
+            this.showErrNotif(error.message || error)
+          }
         })
     },
 

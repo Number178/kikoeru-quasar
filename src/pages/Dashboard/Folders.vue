@@ -97,7 +97,7 @@ export default {
 
   methods: {
     requestConfig () {
-      this.$axios.get('/api/config')
+      this.$axios.get('/api/config/admin')
         .then((response) => {
           this.config = response.data.config
         })
@@ -115,7 +115,7 @@ export default {
 
     onSubmit () {
       this.loading = true
-      this.$axios.put('/api/config', {
+      this.$axios.put('/api/config/admin', {
         config: this.config
       })
         .then((response) => {

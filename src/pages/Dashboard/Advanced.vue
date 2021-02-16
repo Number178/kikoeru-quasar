@@ -2,6 +2,44 @@
   <q-form @submit="onSubmit">
     <q-card class="q-ma-md">
       <q-toolbar>
+        <q-toolbar-title>播放器设置</q-toolbar-title>
+      </q-toolbar>
+
+      <q-list>
+        <q-item style="height: 70px;">
+          <q-item-section>
+            <q-item-label>后退按钮跳跃秒数</q-item-label>
+            <q-item-label caption>播放时后退按钮跳跃秒数</q-item-label>
+          </q-item-section>
+
+          <q-item-section avatar>
+            <div class="q-gutter-sm">
+              <q-radio dense v-model="rewindSeekTime" val=5 label="5 秒" />
+              <q-radio dense v-model="rewindSeekTime" val=10 label="10 秒" />
+              <q-radio dense v-model="rewindSeekTime" val=30 label="30 秒" />
+            </div>
+          </q-item-section>
+        </q-item>
+
+        <q-item>
+          <q-item-section>
+            <q-item-label>前进按钮跳跃秒数</q-item-label>
+            <q-item-label caption>播放时前进按钮跳跃秒数</q-item-label>
+          </q-item-section>
+
+          <q-item-section avatar>
+            <div class="q-gutter-sm">
+              <q-radio dense v-model="forwardSeekTime" val="5" label="5 秒" />
+              <q-radio dense v-model="forwardSeekTime" val="10" label="10 秒" />
+              <q-radio dense v-model="forwardSeekTime" val="30" label="30 秒" />
+            </div>
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </q-card>
+
+    <q-card class="q-ma-md">
+      <q-toolbar>
         <q-toolbar-title>爬虫相关设置</q-toolbar-title>
       </q-toolbar>
 
@@ -140,7 +178,7 @@
       </q-toolbar>
 
       <q-list>
-        <q-item>
+        <q-item style="height: 70px;">
           <q-item-section>
             <q-item-label>最大递归扫描深度</q-item-label>
             <q-item-label caption>默认 2</q-item-label>
@@ -175,7 +213,7 @@
       </q-toolbar>
 
       <q-list>
-        <q-item>
+        <q-item style="height: 70px;">
           <q-item-section>
             <q-item-label>用户验证</q-item-label>
             <q-item-label caption>是否启用用户验证</q-item-label>
@@ -253,7 +291,7 @@
       </q-toolbar>
 
       <q-list>
-        <q-item>
+        <q-item style="height: 70px;">
           <q-item-section>
             <q-item-label>检查更新</q-item-label>
             <q-item-label caption>打开网页时是否检查更新</q-item-label>
@@ -305,15 +343,20 @@ export default {
   data () {
     return {
       config: {},
-      loading: false
+      loading: false,
+      rewindSeekTime: '5',
+      forwardSeekTime: '30'
     }
   },
 
   methods: {
     requestConfig () {
-      this.$axios.get('/api/config')
+      this.$axios.get('/api/config/admin')
         .then((response) => {
-          this.config = response.data.config
+          this.config = response.data.config;
+          // Integer => String
+          this.rewindSeekTime = this.config.rewindSeekTime.toString()
+          this.forwardSeekTime = this.config.forwardSeekTime.toString()
         })
         .catch((error) => {
           if (error.response) {
@@ -328,8 +371,12 @@ export default {
     },
 
     onSubmit () {
+      // String => Integer
+      this.config.rewindSeekTime = parseInt(this.rewindSeekTime)
+      this.config.forwardSeekTime = parseInt(this.forwardSeekTime)
+
       this.loading = true
-      this.$axios.put('/api/config', {
+      this.$axios.put('/api/config/admin', {
         config: this.config
       })
         .then((response) => {
