@@ -253,6 +253,17 @@
 
         <q-item>
           <q-item-section>
+            <q-item-label>屏蔽远程连接</q-item-label>
+            <q-item-label caption>只允许本地访问，默认为false。更改此设置需要重启程序</q-item-label>
+          </q-item-section>
+
+          <q-item-section avatar>
+            <q-toggle v-model="config.blockRemoteConnection" dense/>
+          </q-item-section>
+        </q-item>
+
+        <q-item>
+          <q-item-section>
             <q-item-label>token 过期时间</q-item-label>
             <q-item-label caption>默认 2592000 秒</q-item-label>
           </q-item-section>
