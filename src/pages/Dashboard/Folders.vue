@@ -100,6 +100,7 @@ export default {
       this.$axios.get('/api/config/admin')
         .then((response) => {
           this.config = response.data.config
+          this.rootFolder.path = response.data.config.voiceWorkDefaultPath
         })
         .catch((error) => {
           if (error.response) {
