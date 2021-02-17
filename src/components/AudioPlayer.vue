@@ -153,6 +153,15 @@ export default {
     }
   },
 
+  mounted () {
+    if (this.$q.localStorage.has('hideSeekButton')) {
+      this.hideSeekButton = this.$q.localStorage.getItem('hideSeekButton')
+    }
+    if (this.$q.localStorage.has('swapSeekButton')) {
+      this.swapSeekButton = this.$q.localStorage.getItem('swapSeekButton')
+    }
+  },
+
   watch: {
     queue (val) {
       this.queueCopy = val.concat()
@@ -167,6 +176,14 @@ export default {
       if (flag === false) {
         this.editCurrentPlayList = false
       }
+    },
+
+    hideSeekButton (option) {
+      this.$q.localStorage.set('hideSeekButton', option)
+    },
+
+    swapSeekButton (option) {
+      this.$q.localStorage.set('swapSeekButton', option)
     }
   },
 
