@@ -214,7 +214,7 @@ export default {
         params.filter = this.progressFilter;
       }
 
-      return this.$axios.get('/api/review/favourites', { params })
+      return this.$axios.get('/api/review', { params })
         .then((response) => {                  
           const works = response.data.works
           this.works = (params.page === 1) ? works.concat() : this.works.concat(works)
