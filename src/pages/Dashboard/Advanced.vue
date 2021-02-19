@@ -313,6 +313,17 @@
           </q-item-section>
         </q-item>
 
+        <q-item v-if="config.checkUpdate">
+          <q-item-section>
+            <q-item-label>检查测试版更新</q-item-label>
+            <q-item-label caption>是否检查测试版更新</q-item-label>
+          </q-item-section>
+
+          <q-item-section avatar>
+            <q-toggle v-model="config.checkBetaUpdate" dense />
+          </q-item-section>
+        </q-item>
+
         <q-item>
           <q-item-section>
             <q-item-label>数据库使用默认路径</q-item-label>
