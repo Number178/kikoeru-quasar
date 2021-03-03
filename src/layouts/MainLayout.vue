@@ -257,9 +257,12 @@ export default {
           if (error.response) {
             // 请求已发出，但服务器响应的状态码不在 2xx 范围内
             if (error.response.status === 401) {
-              this.showWarnNotif(error.response.data.error)
+              // this.showWarnNotif(error.response.data.error)
               // 验证失败，跳转到登录页面
-              this.$router.push('/login')
+              const path = this.$router.currentRoute.path
+              if (path !=='/login') {
+                this.$router.push('/login');
+              }
             } else {
               this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)
             }
@@ -318,9 +321,12 @@ export default {
           if (error.response) {
             // 请求已发出，但服务器响应的状态码不在 2xx 范围内
             if (error.response.status === 401) {
-              this.showWarnNotif(error.response.data.error)
+              // this.showWarnNotif(error.response.data.error)
               // 验证失败，跳转到登录页面
-              this.$router.push('/login')
+              const path = this.$router.currentRoute.path
+              if (path !=='/login') {
+                this.$router.push('/login');
+              }
             } else {
               this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)
             }
