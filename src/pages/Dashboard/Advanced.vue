@@ -298,6 +298,36 @@
 
     <q-card class="q-ma-md">
       <q-toolbar>
+        <q-toolbar-title>安全设置</q-toolbar-title>
+      </q-toolbar>
+
+      <q-list>
+        <q-item style="height: 70px;">
+          <q-item-section>
+            <q-item-label>生产环境</q-item-label>
+            <q-item-label caption>此设置无法在网页端修改，详情请查阅GitHub Wiki中关于配置文件的说明</q-item-label>
+          </q-item-section>
+
+          <q-item-section avatar>
+            <q-toggle v-model="config.production" dense disable />
+          </q-item-section>
+        </q-item>
+
+        <q-item>
+          <q-item-section>
+            <q-item-label>启用不安全的路由</q-item-label>
+            <q-item-label caption>某些功能（例如打开文件夹窗口）需要打开此选项。默认关闭，请勿在不安全的网络环境中使用。必须开启用户验证才能使用。Docker版或生产环境此设置无效</q-item-label>
+          </q-item-section>
+
+          <q-item-section avatar>
+            <q-toggle v-model="config.enableUnsafeRoutes" dense :disable="config.production || !config.auth" />
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </q-card>
+
+    <q-card class="q-ma-md">
+      <q-toolbar>
         <q-toolbar-title>其它设置</q-toolbar-title>
       </q-toolbar>
 
