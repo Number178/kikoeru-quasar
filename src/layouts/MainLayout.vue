@@ -114,6 +114,7 @@
               <q-item-label class="text-subtitle1">
                 登出
               </q-item-label>
+              <q-item-label caption lines="2">{{ userName }}</q-item-label>
             </q-item-section>
           </q-item>
         </q-list>
@@ -158,7 +159,7 @@ import AudioPlayer from 'components/AudioPlayer'
 import LyricsBar from 'components/LyricsBar'
 import SleepMode from 'components/SleepMode'
 import NotifyMixin from '../mixins/Notification.js'
-import { mapMutations } from 'vuex'
+import { mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'MainLayout',
@@ -240,6 +241,9 @@ export default {
     authEnabled: function () {
       return this.$store.state.User.auth;
     },
+    ...mapState('User', {
+      userName: 'name'
+    })
   },
 
   methods: {
