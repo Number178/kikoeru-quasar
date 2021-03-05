@@ -122,7 +122,8 @@ module.exports = function (ctx) {
           /manifest\.json$/
         ],
         navigateFallbackBlacklist: [
-          /^\/api\/.*$/
+          /^\/api\/.*$/,
+          /^\/media\/.*$/
         ],
         importWorkboxFrom: 'local'
       }, // only for GenerateSW
