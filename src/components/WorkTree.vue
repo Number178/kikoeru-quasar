@@ -176,7 +176,8 @@ export default {
 
     download (file) {
       const token = this.$q.localStorage.getItem('jwt-token') || '';
-      const url = `/api/media/download/${file.hash}?token=${token}`;
+      // Fallback to old API for an old backend 
+      const url = file.mediaDownloadUrl ? `${file.mediaDownloadUrl}?token=${token}` : `/api/media/download/${file.hash}?token=${token}`;
       const link = document.createElement('a');
       link.href = url;
       link.target="_blank";
@@ -185,7 +186,8 @@ export default {
 
     openFile (file) {
       const token = this.$q.localStorage.getItem('jwt-token') || '';
-      const url = `/api/media/stream/${file.hash}?token=${token}`;
+      // Fallback to old API for an old backend 
+      const url = file.mediaStreamUrl ? `${file.mediaStreamUrl}?token=${token}` : `/api/media/stream/${file.hash}?token=${token}`;
       const link = document.createElement('a');
       link.href = url;
       link.target="_blank";

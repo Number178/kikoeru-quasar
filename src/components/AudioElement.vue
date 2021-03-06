@@ -37,7 +37,15 @@ export default {
     source () {
       // 从 LocalStorage 中读取 token
       const token = this.$q.localStorage.getItem('jwt-token') || ''
-      return this.currentPlayingFile.hash ? `/api/media/stream/${this.currentPlayingFile.hash}?token=${token}` : ""
+      // New API
+      if (this.currentPlayingFile.mediaStreamUrl) {
+        return `${this.currentPlayingFile.mediaStreamUrl}?token=${token}`
+      } else if (this.currentPlayingFile.hash) {
+        // Fallback to be compatible with old backend
+        return `/api/media/stream/${this.currentPlayingFile.hash}?token=${token}`
+      } else {
+        return ""
+      }
     },
 
     ...mapState('AudioPlayer', [
