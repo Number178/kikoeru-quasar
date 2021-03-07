@@ -79,7 +79,7 @@
         </div>
         
         <q-list v-if="listMode" bordered separator class="shadow-2">
-          <WorkListItem v-for="work in works" :key="work.id" :workid="work.id" :showLabel="showLabel && windowWidth > 700" />
+          <WorkListItem v-for="work in works" :key="work.id" :metadata="work" :showLabel="showLabel && windowWidth > 700" />
         </q-list>
 
         <div v-else class="row q-col-gutter-x-md q-col-gutter-y-lg">
