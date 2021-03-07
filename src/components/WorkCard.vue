@@ -144,23 +144,23 @@ export default {
     }
   },
 
+  // TODO: Refactor with Vuex?
+  mounted() {
+    if (this.metadata.userRating) {
+      this.userMarked = true;
+      this.rating = this.metadata.userRating;
+    } else {
+      this.userMarked = false;
+      this.rating = this.metadata.rate_average_2dp || 0;
+    }
+
+    // 极个别作品没有标签
+    if (this.metadata.tags && this.metadata.tags[0].name === null) {
+      this.showTags = false;
+    }
+  },
+
   watch: {
-    // TODO: Refactor with Vuex
-    metadata (newMetaData) {
-      if (newMetaData.userRating) {
-        this.userMarked = true;
-        this.rating = newMetaData.userRating;
-      } else {
-        this.userMarked = false;
-        this.rating = newMetaData.rate_average_2dp || 0;
-      }
-
-      // 极个别作品没有标签
-      if (newMetaData.tags && newMetaData.tags[0].name === null) {
-        this.showTags = false;
-      }
-    },
-
     rating (newRating, oldRating) {
       if (oldRating) {
         const submitPayload = {
