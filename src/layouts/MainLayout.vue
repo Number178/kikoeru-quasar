@@ -4,7 +4,7 @@
       <q-toolbar>
         <q-btn flat dense round @click="drawerOpen = !drawerOpen" icon="menu" aria-label="Menu" />
 
-        <q-btn flat size="md" icon="arrow_back_ios" @click="back()" v-if="isNotInMain()"/>
+        <q-btn flat size="md" icon="arrow_back_ios" @click="back()" v-if="isNotAtHomePage"/>
 
         <q-toolbar-title class="gt-xs">
           <router-link :to="'/'" class="text-white">
@@ -240,11 +240,14 @@ export default {
   },
 
   computed: {
-    authEnabled: function () {
-      return this.$store.state.User.auth;
+    isNotAtHomePage () {
+      const path = this.$route.path
+      return path && path !=='/' && path !=='/works' && path !== '/favourites';
     },
+
     ...mapState('User', {
-      userName: 'name'
+      userName: 'name',
+      authEnabled: 'auth'
     })
   },
 
@@ -374,12 +377,7 @@ export default {
 
     back () {
       this.$router.go(-1)
-    },
-
-    isNotInMain () {
-      let path = this.$router.currentRoute.path
-      return path && path !=='/' && path !== '/favourites';
-    },
+    }
   },
 }
 </script>
