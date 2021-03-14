@@ -121,7 +121,6 @@ export default {
 
   data () {
     return {
-      url: this.getApiUrl(this.$route.query),
       listMode: false,
       showLabel: true,
       detailMode: false,
@@ -227,24 +226,33 @@ export default {
   },
 
   computed: {
-    //
+    url () {
+      const query = this.$route.query
+      if (query.circleId) {
+        return `/api/circle/${this.$route.query.circleId}`
+      } else if (query.tagId) {
+        return `/api/tag/${this.$route.query.tagId}`
+      } else if (query.vaId) {
+        return `/api/va/${this.$route.query.vaId}`
+      } else if (query.keyword) {
+        return `/api/search/${query.keyword}`
+      } else {
+        return '/api/works'
+      }
+    }
+  },
+
+  // keep-alive hooks
+  // <keep-alive /> is set in MainLayout
+  activated () {
+    this.stopLoad = false
+  },
+
+  deactivated () {
+    this.stopLoad = true
   },
 
   watch: {
-    '$route.path' (path) {
-      if (path !== '/works') {
-        this.stopLoad = true
-      } else {
-        this.stopLoad = false
-      }
-    },
-
-    '$route.query' (query) {
-      if (this.$route.path === '/works') {
-        this.url = this.getApiUrl(query)
-      }
-    },
-
     url () {
       this.reset()
     },
@@ -269,20 +277,6 @@ export default {
   },
 
   methods: {
-    getApiUrl (query) {
-      if (query.circleId) {
-        return `/api/circle/${this.$route.query.circleId}`
-      } else if (query.tagId) {
-        return `/api/tag/${this.$route.query.tagId}`
-      } else if (query.vaId) {
-        return `/api/va/${this.$route.query.vaId}`
-      } else if (query.keyword) {
-        return `/api/search/${query.keyword}`
-      } else {
-        return '/api/works'
-      }
-    },
-
     onLoad (index, done) {
       this.requestWorksQueue()
         .then(() => done())
