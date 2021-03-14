@@ -119,7 +119,8 @@ module.exports = function (ctx) {
         skipWaiting: true,
         clientsClaim: true,
         exclude: [
-          /manifest\.json$/
+          /manifest\.json$/,
+          /.*.js.map$/
         ],
         navigateFallbackBlacklist: [
           /^\/api\/.*$/,
