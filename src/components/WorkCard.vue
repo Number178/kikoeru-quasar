@@ -12,11 +12,11 @@
         {{ metadata.title }}
       </router-link>
     </div>
-    
+
     <!-- 社团 -->
     <div class="q-ml-sm q-mt-sm q-mb-xs text-subtitle1 text-weight-regular ellipsis">
-      <router-link :to="`/circle/${metadata.circle.id}`" class="text-grey">
-        {{ metadata.circle.name }} 
+      <router-link :to="`/works?circleId=${metadata.circle.id}`" class="text-grey">
+        {{ metadata.circle.name }}
       </router-link>
     </div>
 
@@ -49,7 +49,7 @@
             />
 
             <div class="col q-mx-sm">({{ rate.count }})</div>
-          </div>            
+          </div>
         </q-tooltip>
       </div>
 
@@ -70,18 +70,18 @@
         <a class="text-blue" :href="`https://www.dlsite.com/home/work/=/product_id/RJ${String(metadata.id).padStart(6,'0')}.html`" rel="noreferrer noopener" target="_blank">DLsite</a>
       </div>
     </div>
-    
+
     <!-- 价格&售出数 -->
     <div v-show="metadata.title">
       <span class="q-mx-sm text-weight-medium text-h6 text-red">{{ metadata.price }} 日元</span>
       售出数: {{ metadata.dl_count }}
     </div>
-    
+
     <!-- 标签 -->
     <div class="q-ma-xs" v-if="showTags">
       <router-link
         v-for="(tag, index) in metadata.tags"
-        :to="`/tag/${tag.id}`"
+        :to="`/works?tagId=${tag.id}`"
         :key=index
       >
         <q-chip size="md" class="shadow-2">
@@ -94,7 +94,7 @@
     <div class="q-mx-xs q-my-sm">
       <router-link
         v-for="(va, index) in metadata.vas"
-        :to="`/va/${va.id}`"
+        :to="`/works?vaId=${va.id}`"
         :key=index
       >
         <q-chip square size="md" class="shadow-2" color="teal" text-color="white">
@@ -102,7 +102,7 @@
         </q-chip>
       </router-link>
     </div>
-  </q-card>   
+  </q-card>
 </template>
 
 <script>

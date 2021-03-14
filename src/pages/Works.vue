@@ -6,7 +6,7 @@
         ({{pagination.totalCount}})
       </span>
     </div>
-    
+
     <div :class="`row justify-center ${listMode ? 'list' : 'q-mx-md'}`">
       <q-infinite-scroll @load="onLoad" :offset="250" :disable="stopLoad" style="max-width: 1680px;" class="col">
         <div v-show="works.length" class="row justify-between q-mb-md q-mr-sm">
@@ -77,17 +77,17 @@
           />
 
         </div>
-        
+
         <q-list v-if="listMode" bordered separator class="shadow-2">
           <WorkListItem v-for="work in works" :key="work.id" :metadata="work" :showLabel="showLabel && windowWidth > 700" />
         </q-list>
 
         <div v-else class="row q-col-gutter-x-md q-col-gutter-y-lg">
           <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" :class="{'work-card': detailMode}" v-for="work in works" :key="work.id">
-            <WorkCard :metadata="work" class="fit"/> 
-          </div> 
+            <WorkCard :metadata="work" class="fit"/>
+          </div>
         </div>
-        
+
         <div v-show="stopLoad" class="q-mt-lg q-mb-xl text-h6 text-bold text-center">END</div>
 
         <template v-slot:loading>
@@ -116,13 +116,12 @@ export default {
   },
 
   props: {
-    restrict: {
-      type: String
-    }
+    //
   },
 
   data () {
     return {
+      url: this.getApiUrl(this.$route.query),
       listMode: false,
       showLabel: true,
       detailMode: false,
@@ -228,18 +227,24 @@ export default {
   },
 
   computed: {
-    url () {
-      if (this.$route.params.keyword) {
-        return `/api/search/${this.$route.params.keyword}`
-      } else if (this.$route.params.id) {
-        return `/api/${this.restrict}/${this.$route.params.id}`
-      } else {
-        return '/api/works'
-      }
-    }
+    //
   },
 
   watch: {
+    '$route.path' (path) {
+      if (path !== '/works') {
+        this.stopLoad = true
+      } else {
+        this.stopLoad = false
+      }
+    },
+
+    '$route.query' (query) {
+      if (this.$route.path === '/works') {
+        this.url = this.getApiUrl(query)
+      }
+    },
+
     url () {
       this.reset()
     },
@@ -264,6 +269,20 @@ export default {
   },
 
   methods: {
+    getApiUrl (query) {
+      if (query.circleId) {
+        return `/api/circle/${this.$route.query.circleId}`
+      } else if (query.tagId) {
+        return `/api/tag/${this.$route.query.tagId}`
+      } else if (query.vaId) {
+        return `/api/va/${this.$route.query.vaId}`
+      } else if (query.keyword) {
+        return `/api/search/${query.keyword}`
+      } else {
+        return '/api/works'
+      }
+    },
+
     onLoad (index, done) {
       this.requestWorksQueue()
         .then(() => done())
@@ -301,14 +320,25 @@ export default {
     },
 
     refreshPageTitle () {
-      if (this.$route.params.id) {
-        const url = `/api/get-name/${this.restrict}/${this.$route.params.id}`
+      if (this.$route.query.circleId || this.$route.query.tagId || this.$route.query.vaId) {
+        let url = '', restrict = ''
+        if (this.$route.query.circleId) {
+          restrict = 'circle'
+          url = `/api/get-name/${restrict}/${this.$route.query.circleId}`
+        } else if (this.$route.query.tagId) {
+          restrict = 'tag'
+          url = `/api/get-name/${restrict}/${this.$route.query.tagId}`
+        } else {
+          restrict = 'va'
+          url = `/api/get-name/${restrict}/${this.$route.query.vaId}`
+        }
+
         this.$axios.get(url)
           .then((response) => {
             const name = response.data
             let pageTitle
 
-            switch (this.restrict) {
+            switch (restrict) {
               case 'tag':
                 pageTitle = 'Works tagged with '
                 break
@@ -318,7 +348,7 @@ export default {
               case 'circle':
                 pageTitle = 'Works by '
                 break
-            }    
+            }
             pageTitle += name || ''
 
             this.pageTitle = pageTitle
@@ -333,11 +363,11 @@ export default {
               this.showErrNotif(error.message || error)
             }
           })
-      } else if (this.$route.params.keyword) {
-        this.pageTitle = `Search by ${this.$route.params.keyword}`
+      } else if (this.$route.query.keyword) {
+        this.pageTitle = `Search by ${this.$route.query.keyword}`
       } else {
         this.pageTitle = 'All works'
-      } 
+      }
     },
 
     reset () {
@@ -360,7 +390,7 @@ export default {
       padding: 0px 20px;
     }
   }
-  
+
   .work-card {
     // 宽度 > $breakpoint-xl-min
     @media (min-width: $breakpoint-md-min) {

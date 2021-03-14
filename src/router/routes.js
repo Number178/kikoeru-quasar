@@ -48,30 +48,18 @@ const routes = [
     children: [
       {
         path: '',
+        redirect: {
+          name: 'works'
+        }
+      },
+      {
+        path: 'works',
+        name: 'works',
         component: Works
       },
       {
         path: 'work/:id',
         component: Work
-      },
-      {
-        path: 'search/:keyword?',
-        component: Works
-      },
-      {
-        path: 'circle/:id',
-        props: { restrict: "circle" },
-        component: Works
-      },
-      {
-        path: 'tag/:id',
-        props: { restrict: "tag" },
-        component: Works
-      },
-      {
-        path: 'va/:id',
-        props: { restrict: "va" },
-        component: Works
       },
       {
         path: 'circles',

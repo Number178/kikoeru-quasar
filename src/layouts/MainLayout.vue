@@ -11,7 +11,7 @@
             Kikoeru
           </router-link>
         </q-toolbar-title>
-        
+
         <q-input dark dense rounded standout v-model="keyword" debounce="500" input-class="text-right" class="q-mr-sm">
           <template v-slot:append>
             <q-icon v-if="keyword === ''" name="search" />
@@ -20,7 +20,7 @@
         </q-input>
 
       </q-toolbar>
-      
+
       <AudioPlayer />
     </q-header>
 
@@ -39,7 +39,7 @@
     >
       <q-scroll-area class="fit">
         <q-list>
-          <q-item 
+          <q-item
             clickable
             v-ripple
             exact
@@ -60,7 +60,7 @@
             </q-item-section>
           </q-item>
 
-          <q-item 
+          <q-item
             clickable
             v-ripple
             exact
@@ -78,7 +78,7 @@
             </q-item-section>
           </q-item>
 
-          <q-item 
+          <q-item
             clickable
             v-ripple
             exact
@@ -98,7 +98,7 @@
         </q-list>
 
         <q-list>
-          <q-item 
+          <q-item
             clickable
             v-ripple
             exact
@@ -139,7 +139,9 @@
 
     <q-page-container>
       <!-- <q-page padding> -->
-        <router-view class="page-content" />
+        <keep-alive include="Works">
+          <router-view />
+        </keep-alive>
       <!-- </q-page> -->
         <q-page-scroller position="bottom-right" :scroll-offset="150" :offset="[18, 18]">
           <q-btn fab icon="keyboard_arrow_up" color="accent" />
@@ -219,7 +221,7 @@ export default {
 
   watch: {
     keyword () {
-      this.$router.push(`/search/${this.keyword}`)
+      this.$router.push(this.keyword ? `/works?keyword=${this.keyword}` : `/works`)
     },
 
     randId () {
