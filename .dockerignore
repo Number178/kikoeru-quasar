@@ -1,0 +1,14 @@
+# Build artifact
+dist
+.quasar
+node_modules
+
+# VS Code
+.vscode
+
+# Document
+docs
+
+# Nginx config test
+cert
+nginx

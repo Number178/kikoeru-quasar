@@ -34,3 +34,7 @@ yarn-error.log*
 
 # Visual Studio Code
 .vscode/
+
+# Nginx config for dev
+/cert
+/nginx

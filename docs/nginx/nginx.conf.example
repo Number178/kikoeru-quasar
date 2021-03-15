@@ -1,0 +1,87 @@
+upstream backend {
+    server 127.0.0.1:8888;
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name kikoeru.com;
+    root /var/www;
+    # If you are using Let's Encrypt
+    location /.well-known/acme-challenge/ { allow all; }
+    # Redirect to HTTPS
+    location / { return 301 https://$host$request_uri; }
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name kikoeru.com;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!MEDIUM:!LOW:!aNULL:!NULL:!SHA;
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:10m;
+
+    ssl_certificate     /etc/letsencrypt/live/kikoeru.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/kikoeru.com/privkey.pem;
+
+    sendfile on;
+    
+    root /var/www;
+    index index.html;
+    
+    # HSTS
+    add_header Strict-Transport-Security "max-age=31536000";
+
+    location / {
+        # fall back to SPA
+        try_files $uri /index.html;
+    }
+
+    location /api/ {
+        proxy_set_header Host $host;	    
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_pass http://backend;
+        proxy_cache off;
+
+        tcp_nodelay on;
+    }
+
+    location /media/stream/ {
+	  # Location to your storage folder on your disk
+        alias /storage/;
+        add_header Strict-Transport-Security "max-age=31536000";
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
+    }
+
+    location /media/download/ {
+	  # Location to your storage folder on your disk
+        alias /storage/;
+        add_header Strict-Transport-Security "max-age=31536000";
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        add_header Content-Disposition 'attachment';
+        try_files $uri =404;
+    }
+
+    location /covers/ {
+	  # Location to your covers folder on your disk
+        alias /covers/;
+        add_header Strict-Transport-Security "max-age=31536000";
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
+    }
+
+    location /socket.io {
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_http_version 1.1;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+        proxy_pass http://backend;
+    }
+}
