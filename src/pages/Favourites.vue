@@ -91,7 +91,7 @@ export default {
       progressFilter: 'marked',
       works: [],
       stopLoad: false,
-      pagination: {},
+      pagination: { currentPage:1, pageSize:12, totalCount:0 },
       sortBy: {
           label: '按照标记时间排序',
           order: 'updated_at',

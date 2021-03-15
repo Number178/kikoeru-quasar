@@ -115,10 +115,6 @@ export default {
     WorkListItem
   },
 
-  props: {
-    //
-  },
-
   data () {
     return {
       listMode: false,
@@ -128,7 +124,7 @@ export default {
       works: [],
       pageTitle: '',
       page: 1,
-      pagination: {},
+      pagination: { currentPage:1, pageSize:12, totalCount:0 },
       windowWidth: window.innerWidth,
       seed: 7, // random sort
       sortOption: {
