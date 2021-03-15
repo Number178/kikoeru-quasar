@@ -63,17 +63,17 @@ const routes = [
       },
       {
         path: 'circles',
-        props: { restrict: "circle" },
+        props: { restrict: "circles" },
         component: List
       },
       {
         path: 'tags',
-        props: { restrict: "tag" },
+        props: { restrict: "tags" },
         component: List
       },
       {
         path: 'vas',
-        props: { restrict: "va" },
+        props: { restrict: "vas" },
         component: List
       },
       ...prefixRoutes('favourites', [

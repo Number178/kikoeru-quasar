@@ -15,7 +15,7 @@
 
         <div class="row justify-center q-gutter-sm">
           <div class="col-auto" v-for="item in (keyword ? filteredItems : items)" :key="item.id">
-            <q-btn no-caps rounded color="primary" :label="`${item.name} (${item.count})`" :to="`/${restrict}/${item.id}`" />
+            <q-btn no-caps rounded color="primary" :label="`${item.name} (${item.count})`" :to="`/works?${queryField}=${item.id}`" />
           </div>
         </div>
       </div>
@@ -50,7 +50,20 @@ export default {
 
   computed: {
     url () {
-      return `/api/${this.restrict}s/`
+      return `/api/${this.restrict}/`
+    },
+
+    queryField () {
+      switch (this.restrict) {
+        case 'circles':
+          return 'circleId'
+        case 'tags':
+          return 'tagId'
+        case 'vas':
+          return 'vaId'
+        default:
+          return 'circleId'
+      }
     },
 
     filteredItems () {

@@ -9,13 +9,13 @@
 
       <q-item-section class="q-gutter-y-xs column items-start" top v-on:click.self="showReviewDialog = true">
         <q-item-label lines="2" class="text-body2">
-          <router-link :to="`/circle/${metadata.circle.id}`" class="col-auto text-black">
+          <router-link :to="`/work/${metadata.id}`" class="col-auto text-black">
             {{metadata.title}}
           </router-link>
         </q-item-label>
 
         <div class="row q-gutter-x-sm col-auto" >
-          <router-link :to="`/circle/${metadata.circle.id}`" class="col-auto text-grey">
+          <router-link :to="`/works?circleId=${metadata.circle.id}`" class="col-auto text-grey">
             {{metadata.circle.name}}
           </router-link>
 
@@ -26,7 +26,7 @@
           <router-link
             v-for="(va, index) in metadata.vas"
             :key=index
-            :to="`/va/${va.id}`"
+            :to="`/works?vaId=${va.id}`"
             class="col-auto text-primary"
           >
             {{ va.name }}
