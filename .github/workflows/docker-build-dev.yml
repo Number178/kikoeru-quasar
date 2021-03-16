@@ -1,0 +1,64 @@
+name: Build development image
+
+on:
+  push:
+    branches:
+      - unstable
+
+jobs:
+  # Push image to GitHub Packages.
+  # See also https://docs.docker.com/docker-hub/builds/
+  push-to-dockerhub:
+    name: Publish development image to Docker Hub
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1 
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: muveex/kikoeru-quasar:dev
+
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
+  
+  build:
+    name: Build and upload SPA and PWA artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+  
+      - name: Use Node.js 14
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install -g @quasar/cli && npm ci
+
+      - name: Build SPA and PWA
+        run: quasar build && quasar build -m pwa
+
+      - name: 'Upload artifact: SPA'
+        uses: actions/upload-artifact@v2
+        with:
+          name: SPA
+          path: dist/spa
+  
+      - name: 'Upload artifact: PWA'
+        uses: actions/upload-artifact@v2
+        with:
+          name: PWA
+          path: dist/pwa
