@@ -10,7 +10,7 @@
 FROM node:14 as build-stage
 WORKDIR /frontend
 COPY package*.json ./
-RUN npm install -g @quasar/cli && npm install
+RUN npm install -g @quasar/cli && npm ci
 COPY . .
 RUN quasar build && quasar build -m pwa
 
