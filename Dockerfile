@@ -9,10 +9,10 @@
 # Build SPA and PWA
 FROM node:14 as build-stage
 WORKDIR /frontend
-RUN npm install -g @quasar/cli
 COPY package*.json ./
 RUN npm ci
 COPY . .
+RUN npm install -g @quasar/cli
 RUN quasar build && quasar build -m pwa
 
 # We only need the build artifact
