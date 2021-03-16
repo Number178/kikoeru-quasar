@@ -2,6 +2,8 @@
 
 A self-hosted web media player for listening to your DLsite voice works.
 
+[![unstable build status](https://github.com/umonaca/kikoeru-quasar/actions/workflows/docker-build-dev.yml/badge.svg)](https://github.com/umonaca/kikoeru-quasar/actions)
+
 ## Install the dependencies
 ```bash
 npm install
