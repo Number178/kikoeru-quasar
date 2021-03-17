@@ -11,11 +11,11 @@
     "test": "node_modules/.bin/eslint ."
   },
   "dependencies": {
-    "@quasar/extras": "^1.9.14",
+    "@quasar/extras": "^1.9.19",
     "axios": "^0.21.1",
     "lrc-file-parser": "^1.0.5",
     "plyr": "^3.6.3",
-    "quasar": "^1.15.0",
+    "quasar": "^1.15.5",
     "vue-moveable": "^1.8.10",
     "vue-plyr": "^6.0.4",
     "vue-slider-component": "^3.2.11",
