@@ -1,0 +1,66 @@
+name: Build SPA and PWA artifacts
+
+on:
+  push:
+    branches-ignore:
+      - "dependabot/**"
+    tags:
+      - v*
+
+  pull_request:
+
+jobs:
+  build:
+    name: Build and upload SPA and PWA artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+  
+      - name: Use Node.js 14
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install -g @quasar/cli && npm ci
+
+      - name: Build SPA and PWA
+        run: quasar build && quasar build -m pwa
+        
+      # Convert to a valid filename
+      # refs/tags/v1.2.3 => v1.2.3
+      # refs/heads/unstable => unstable
+      # refs/heads/feature/foo => foo
+      # refs/pull/421/merge => merge
+      - name: Get branch or tag name
+        id: source_name
+        run: echo ::set-output name=SOURCE_NAME::${GITHUB_REF##*/}
+
+      - name: 'Upload artifact: SPA'
+        uses: actions/upload-artifact@v2
+        with:
+          name: SPA-${{ steps.source_name.outputs.SOURCE_NAME }}
+          path: dist/spa/
+
+      - name: 'Upload artifact: PWA'
+        uses: actions/upload-artifact@v2
+        with:
+          name: PWA-${{ steps.source_name.outputs.SOURCE_NAME }}
+          path: dist/pwa/
+
+      - name: Create Gzips for release
+        if: startsWith(github.ref, 'refs/tags/')
+        run: cd dist/ && tar -czvf spa-${GITHUB_REF##*/}.tar.gz spa/ && tar -czvf pwa-${GITHUB_REF##*/}.tar.gz pwa/
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          draft: true
+          files: |
+            dist/spa-${{ steps.source_name.outputs.SOURCE_NAME }}.tar.gz
+            dist/pwa-${{ steps.source_name.outputs.SOURCE_NAME }}.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
