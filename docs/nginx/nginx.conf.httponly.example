@@ -59,4 +59,9 @@ server {
         proxy_set_header Host $host;
         proxy_pass http://backend;
     }
+
+    location = /service-worker.js {
+      expires off;
+      add_header Cache-Control no-cache;
+    }
 }
