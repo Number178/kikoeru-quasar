@@ -12,9 +12,6 @@ jobs:
     name: Publish docker images to Docker Hub
     runs-on: ubuntu-18.04
 
-    strategy:
-      fail-fast: false
-
     steps:
       - name: Login to DockerHub
         uses: docker/login-action@v1 
@@ -50,6 +47,7 @@ jobs:
         run: echo ::set-output name=SOURCE_NAME::${GITHUB_REF##*/}
 
       - name: Build and push
+        if: contains(fromJson('["refs/heads/unstable", "refs/heads/stable"]'), github.ref)
         uses: docker/build-push-action@v2
         with:
           platforms: linux/amd64,linux/arm64,linux/arm/v7
