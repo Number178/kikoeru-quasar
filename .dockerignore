@@ -12,3 +12,8 @@ docs
 # Nginx config test
 cert
 nginx
+
+# GitHub
+.github
+
+*.md`
