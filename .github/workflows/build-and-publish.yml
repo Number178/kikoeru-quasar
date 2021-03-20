@@ -66,7 +66,7 @@ jobs:
 
   build-and-push:
     name: Publish docker images to Docker Hub
-    if: contains(fromJson('["refs/heads/unstable", "refs/tags/"]'), github.ref)
+    if: contains(fromJson('["refs/heads/unstable", "refs/tags/", "refs/heads/stable"]'), github.ref)
     # Note: we don't have any unit tests yet
     # Only ESLint is available, which is integrated into quasar.conf.js
     # Prevent execution of docker job if the linter fails
