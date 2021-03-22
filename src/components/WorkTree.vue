@@ -17,7 +17,7 @@
           v-ripple
           v-for="(item, index) in fatherFolder"
           :key="index"
-          :active="item.type === 'file' && currentPlayingFile.hash === item.hash"
+          :active="item.type === 'audio' && currentPlayingFile.hash === item.hash"
           active-class="text-white bg-teal"
           @click="onClickItem(item)"
           class="non-selectable"
@@ -37,7 +37,7 @@
 
           <!-- 上下文菜单 -->
           <q-menu
-            v-if="item.type === 'file' || item.type === 'text' || item.type === 'image' || item.type === 'other'"
+            v-if="item.type === 'audio' || item.type === 'text' || item.type === 'image' || item.type === 'other'"
             touch-position
             context-menu
             auto-close
@@ -45,11 +45,11 @@
             transition-hide="jump-up"
           >
             <q-list separator>
-              <q-item clickable @click="addToQueue(item)" v-if="item.type === 'file'">
+              <q-item clickable @click="addToQueue(item)" v-if="item.type === 'audio'">
                 <q-item-section>添加到播放列表</q-item-section>
               </q-item>
 
-              <q-item clickable @click="playNext(item)" v-if="item.type === 'file'">
+              <q-item clickable @click="playNext(item)" v-if="item.type === 'audio'">
                 <q-item-section>下一曲播放</q-item-section>
               </q-item>
 
@@ -102,7 +102,7 @@ export default {
     queue () {
       const queue = []
       this.fatherFolder.forEach(item => {
-        if (item.type === 'file') {
+        if (item.type === 'audio') {
           queue.push(item)
         }
       })
@@ -128,7 +128,7 @@ export default {
       const initialPath = []
       let fatherFolder = this.tree.concat()
       while (fatherFolder.length === 1) {
-        if (fatherFolder[0].type === 'file') {
+        if (fatherFolder[0].type === 'audio') {
           break
         }
         initialPath.push(fatherFolder[0].title)
