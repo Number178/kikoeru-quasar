@@ -26,6 +26,7 @@
             <q-icon size="34px" v-if="item.type === 'folder'" color="amber" name="folder" />
             <q-icon size="34px" v-else-if="item.type === 'text'" color="info" name="description" />
             <q-icon size="34px" v-else-if="item.type === 'image'" color="orange" name="photo" />
+            <q-icon size="34px" v-else-if="item.type === 'other'" color="info" name="description" />
             <q-btn v-else round dense color="primary" :icon="playIcon(item.hash)" @click="onClickPlayButton(item.hash)" />
           </q-item-section>
 
@@ -36,7 +37,7 @@
 
           <!-- 上下文菜单 -->
           <q-menu
-            v-if="item.type === 'file' || item.type === 'text' || item.type === 'image'"
+            v-if="item.type === 'file' || item.type === 'text' || item.type === 'image' || item.type === 'other'"
             touch-position
             context-menu
             auto-close
@@ -145,6 +146,8 @@ export default {
         this.path.push(item.title);
       } else if (item.type === 'text' || item.type === 'image') {
         this.openFile(item);
+      } else if (item.type === 'other') {
+        this.download(item);
       } else if (this.currentPlayingFile.hash !== item.hash) {
         this.$store.commit('AudioPlayer/SET_QUEUE', {
           queue: this.queue.concat(),
