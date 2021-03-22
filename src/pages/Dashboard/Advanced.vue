@@ -216,11 +216,11 @@
         <q-item style="height: 70px;">
           <q-item-section>
             <q-item-label>用户验证</q-item-label>
-            <q-item-label caption>是否启用用户验证</q-item-label>
+            <q-item-label caption>是否启用用户验证（生产环境下无法修改此设置）</q-item-label>
           </q-item-section>
 
           <q-item-section avatar>
-            <q-toggle v-model="config.auth" dense />
+            <q-toggle v-model="config.auth" dense :disable="config.production" />
           </q-item-section>
         </q-item>
 
