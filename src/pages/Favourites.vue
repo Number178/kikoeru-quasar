@@ -91,7 +91,7 @@ export default {
       progressFilter: 'marked',
       works: [],
       stopLoad: false,
-      pagination: { currentPage:1, pageSize:12, totalCount:0 },
+      pagination: { currentPage:0, pageSize:12, totalCount:0 },
       sortBy: {
           label: '按照标记时间排序',
           order: 'updated_at',
@@ -195,7 +195,7 @@ export default {
     reset () {
       // Freeze the scroller first
       this.stopLoad = true
-      this.pagination = {}
+      this.pagination = { currentPage:0, pageSize:12, totalCount:0 }
       // Manually fetch first page content before enable scroller
       // Note: the internal API of the infinite scroller does not work well
       this.requestWorksQueue()

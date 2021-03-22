@@ -124,7 +124,7 @@ export default {
       works: [],
       pageTitle: '',
       page: 1,
-      pagination: { currentPage:1, pageSize:12, totalCount:0 },
+      pagination: { currentPage:0, pageSize:12, totalCount:0 },
       windowWidth: window.innerWidth,
       seed: 7, // random sort
       sortOption: {
@@ -363,7 +363,7 @@ export default {
     reset () {
       this.stopLoad = true
       this.refreshPageTitle()
-      this.pagination = {}
+      this.pagination = { currentPage:0, pageSize:12, totalCount:0 }
       this.requestWorksQueue()
         .then(() => {
           this.stopLoad = false
