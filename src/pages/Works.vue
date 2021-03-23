@@ -225,11 +225,11 @@ export default {
     url () {
       const query = this.$route.query
       if (query.circleId) {
-        return `/api/circle/${this.$route.query.circleId}`
+        return `/api/circles/${this.$route.query.circleId}/works`
       } else if (query.tagId) {
-        return `/api/tag/${this.$route.query.tagId}`
+        return `/api/tags/${this.$route.query.tagId}/works`
       } else if (query.vaId) {
-        return `/api/va/${this.$route.query.vaId}`
+        return `/api/vas/${this.$route.query.vaId}/works`
       } else if (query.keyword) {
         return `/api/search/${query.keyword}`
       } else {
@@ -313,29 +313,29 @@ export default {
       if (this.$route.query.circleId || this.$route.query.tagId || this.$route.query.vaId) {
         let url = '', restrict = ''
         if (this.$route.query.circleId) {
-          restrict = 'circle'
-          url = `/api/get-name/${restrict}/${this.$route.query.circleId}`
+          restrict = 'circles'
+          url = `/api/${restrict}/${this.$route.query.circleId}`
         } else if (this.$route.query.tagId) {
-          restrict = 'tag'
-          url = `/api/get-name/${restrict}/${this.$route.query.tagId}`
+          restrict = 'tags'
+          url = `/api/${restrict}/${this.$route.query.tagId}`
         } else {
-          restrict = 'va'
-          url = `/api/get-name/${restrict}/${this.$route.query.vaId}`
+          restrict = 'vas'
+          url = `/api/${restrict}/${this.$route.query.vaId}`
         }
 
         this.$axios.get(url)
           .then((response) => {
-            const name = response.data
+            const name = response.data.name
             let pageTitle
 
             switch (restrict) {
-              case 'tag':
+              case 'tags':
                 pageTitle = 'Works tagged with '
                 break
-              case 'va':
+              case 'vas':
                 pageTitle = 'Works voiced by '
                 break
-              case 'circle':
+              case 'circles':
                 pageTitle = 'Works by '
                 break
             }
