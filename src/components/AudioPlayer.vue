@@ -45,11 +45,14 @@
         </div>
 
         <!-- 进度条控件 -->
-        <div class="row items-center q-mx-sm" style="height: 40px">
+        <div class="row items-center q-mx-sm q-my-sm" style="height: 40px">
           <div class="col-auto">{{ formatSeconds(currentTime) }}</div>
           <AudioElement class="col" />
           <div class="col-auto">{{ formatSeconds(duration) }}</div>
         </div>
+
+        <!-- Place holder for iOS -->
+        <div style="height: 5px" v-if="$q.platform.is.ios" />
 
         <q-item style="height: 55px; padding: 0px 15px;" class="text-center non-selectable">
           <q-item-section>
@@ -57,6 +60,9 @@
             <q-item-label caption lines="1">{{ currentPlayingFile.workTitle }}</q-item-label>
           </q-item-section>
         </q-item>
+
+        <!-- Place holder for iOS -->
+        <div  style="height: 10px" v-if="$q.platform.is.ios" />
 
         <!-- 播放按钮控件 -->
         <div class="row justify-around" style="height: 65px">
@@ -68,7 +74,8 @@
         </div>
 
         <!-- 音量控件 -->
-        <div class="row items-center q-mx-lg" style="height: 50px">
+        <!-- HTML5 volume in iOS is read-only -->
+        <div class="row items-center q-mx-lg" style="height: 50px" v-if="!$q.platform.is.ios">
           <q-icon name="volume_down" size="sm" class="col-auto" />
           <vue-slider 
             v-model="volume"
