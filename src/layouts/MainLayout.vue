@@ -1,7 +1,7 @@
 <template>
   <q-layout view="hHh Lpr lFf" class="bg-grey-3">
     <q-header class="shadow-4">
-      <q-toolbar>
+      <q-toolbar class="row justify-between">
         <q-btn flat dense round @click="drawerOpen = !drawerOpen" icon="menu" aria-label="Menu" />
 
         <q-btn flat size="md" icon="arrow_back_ios" @click="back()" v-if="isNotAtHomePage"/>
