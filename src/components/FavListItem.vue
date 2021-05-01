@@ -157,11 +157,11 @@ export default {
     },
 
     processReview (modified) {
-      this.showReviewDialog = false;
       if (modified) {
         this.calledFromChild = true;
         this.$emit('reset');
       }
+      this.showReviewDialog = false;
     },
 
     setRating (newRating) {
