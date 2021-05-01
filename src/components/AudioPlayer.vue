@@ -18,12 +18,22 @@
                   隐藏封面按钮
                 </q-item-section>
               </q-item>
+              
               <q-item clickable v-ripple @click="swapSeekButton = !swapSeekButton">
                 <q-item-section avatar>
                   <q-icon :name="swapSeekButton ? 'done' : ''" />
                 </q-item-section>
                 <q-item-section>
                   交换进度按钮与切换按钮
+                </q-item-section>
+              </q-item>
+              
+              <q-item clickable v-ripple @click="openWorkDetail()" v-close-popup>
+                <q-item-section avatar>
+                  <!-- placeholder -->
+                </q-item-section>
+                <q-item-section>
+                  打开作品详情
                 </q-item-section>
               </q-item>
             </q-menu>
@@ -195,6 +205,11 @@ export default {
       return hash ? `/api/cover/${hash.split('/')[0]}?token=${token}` : ""
     },
 
+    workDetailUrl () {
+      const hash = this.currentPlayingFile.hash
+      return hash ? `/work/${hash.split('/')[0]}` : ""
+    },
+
     volume: {
       get () {
         return this.$store.state.AudioPlayer.volume
@@ -345,6 +360,15 @@ export default {
 
     emptyQueue () {
       this.EMPTY_QUEUE()
+    },
+
+    openWorkDetail () {
+      if (this.workDetailUrl && this.$route.path !== this.workDetailUrl) {
+        this.$router.push(this.workDetailUrl)
+      }
+      if (this.$q.screen.lt.sm) {
+          this.toggleHide()
+      }
     }
   }
 }
