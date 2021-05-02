@@ -109,6 +109,11 @@ const routes = [
             component: Favourites,
           },
           {
+            path: '/replay',
+            props: { route: 'progress', progress: 'replay'},
+            component: Favourites,
+          },
+          {
             path: '/postponed',
             props: { route: 'progress', progress: 'postponed'},
             component: Favourites,

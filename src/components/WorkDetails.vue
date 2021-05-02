@@ -134,6 +134,14 @@
               <q-item-label>听过</q-item-label>
             </q-item-section>
           </q-item>
+          <q-item clickable @click="setProgress('replay')" class="q-pa-xs">
+            <q-item-section avatar>
+              <q-avatar icon="headset" v-show="progress === 'replay'" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>重听</q-item-label>
+            </q-item-section>
+          </q-item>
           <q-item clickable @click="setProgress('postponed')" class="q-pa-xs">
             <q-item-section avatar>
               <q-avatar icon="headset" v-show="progress === 'postponed'" />
