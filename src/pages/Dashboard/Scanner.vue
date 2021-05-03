@@ -1,21 +1,35 @@
 <template>
   <div>
-    <div class="row q-my-sm">
-      <q-btn
-        class="col q-ml-md q-mr-sm"
-        color="teal"
-        label="扫描本地音声库"
-        :disable="state === 'running' || !(loggedIn || $socket.connected)"
-        @click="performScan()"
-      />
+    <div class="row q-ma-sm">
+      <div class="col-xs-6 col-sm-4 row q-pa-sm">
+        <q-btn
+          class="col"
+          color="teal"
+          label="扫描本地音声库"
+          :disable="state === 'running' || !(loggedIn || $socket.connected)"
+          @click="performScan()"
+        />
+      </div>
 
-      <q-btn
-        class="col q-ml-sm q-mr-md"
-        color="negative"
-        label="终止扫描进程"
-        :disable="state !== 'running' || !(loggedIn || $socket.connected)"
-        @click="killScanProceess()"
-      />
+      <div class="col-xs-6 col-sm-4 row q-pa-sm">
+        <q-btn
+          class="col"
+          color="primary"
+          label="刷新音声库信息"
+          :disable="state === 'running' || !(loggedIn || $socket.connected)"
+          @click="performUpdate()"
+        />
+      </div>
+
+      <div class="col-xs-12 col-sm-4 row q-pa-sm">
+        <q-btn
+          class="col"
+          color="negative"
+          label="终止扫描进程"
+          :disable="state !== 'running' || !(loggedIn || $socket.connected)"
+          @click="killScanProceess()"
+        />
+      </div>
     </div>
 
     <q-card v-show="state" class="q-ma-md">
@@ -210,6 +224,15 @@ export default {
       this.$socket.emit('PERFORM_SCAN')
     },
 
+    performUpdate () {
+      this.tasks = []
+      this.failedTasks = []
+      this.mainLogs = []
+      this.results = []
+      this.state = 'running'
+      this.$socket.emit('PERFORM_UPDATE')
+    },
+
     killScanProceess () {
       this.$socket.emit('KILL_SCAN_PROCESS')
     },
@@ -223,7 +246,7 @@ export default {
         } else if (res.result === 'updated') {
           return { level: 'info', message: `[RJ${res.rjcode}] 更新成功! Updated: ${res.count}` }
         } else {
-          return { level: 'error', message: `[RJ${res.rjcode}] 添加失败! Failed: ${res.count}` }
+          return { level: 'error', message: `[RJ${res.rjcode}] 处理失败! Failed: ${res.count}` }
         }
       })
       return this.mainLogs.concat(resultLogs)
