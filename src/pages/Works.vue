@@ -55,14 +55,14 @@
             ]"
             style="width: 85px;"
             class="col-auto"
-            v-if="windowWidth > 700 && listMode"
+            v-if="$q.screen.width > 700 && listMode"
           />
 
           <q-btn-toggle
             dense
             spread
             rounded
-            :disable="windowWidth < 1120"
+            :disable="$q.screen.width < 1120"
             v-model="detailMode"
             toggle-color="primary"
             color="white"
@@ -73,13 +73,13 @@
             ]"
             style="width: 85px;"
             class="col-auto"
-            v-if="windowWidth > 700 && !listMode"
+            v-if="$q.screen.width > 700 && !listMode"
           />
 
         </div>
 
         <q-list v-if="listMode" bordered separator class="shadow-2">
-          <WorkListItem v-for="work in works" :key="work.id" :metadata="work" :showLabel="showLabel && windowWidth > 700" />
+          <WorkListItem v-for="work in works" :key="work.id" :metadata="work" :showLabel="showLabel && $q.screen.width > 700" />
         </q-list>
 
         <div v-else class="row q-col-gutter-x-md q-col-gutter-y-lg">
@@ -125,7 +125,6 @@ export default {
       pageTitle: '',
       page: 1,
       pagination: { currentPage:0, pageSize:12, totalCount:0 },
-      windowWidth: window.innerWidth,
       seed: 7, // random sort
       sortOption: {
         label: '按照发售日期新到老的顺序',
