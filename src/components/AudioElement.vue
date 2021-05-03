@@ -242,10 +242,7 @@ export default {
             // 无歌词文件
             this.lrcAvailable = false;
             this.lrcObj.setLyric('');
-            let dom_lyric = document.getElementById('lyric');
-            if (dom_lyric) {
-              dom_lyric.innerHTML = '';
-            }
+            this.SET_CURRENT_LYRIC('');
           }
         })
         .catch((error) => {
