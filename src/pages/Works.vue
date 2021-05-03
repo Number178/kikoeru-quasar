@@ -83,8 +83,8 @@
         </q-list>
 
         <div v-else class="row q-col-gutter-x-md q-col-gutter-y-lg">
-          <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" :class="{'work-card': detailMode}" v-for="work in works" :key="work.id">
-            <WorkCard :metadata="work" class="fit"/>
+          <div class="col-xs-12 col-sm-6 col-md-4" :class="detailMode ? 'col-lg-3 col-xl-3': 'col-lg-2 col-xl-2'" v-for="work in works" :key="work.id">
+            <WorkCard :metadata="work" :thumbnailMode="!detailMode" class="fit"/>
           </div>
         </div>
 
