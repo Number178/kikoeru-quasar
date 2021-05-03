@@ -119,7 +119,7 @@ export default {
     return {
       listMode: false,
       showLabel: true,
-      detailMode: false,
+      detailMode: true,
       stopLoad: false,
       works: [],
       pageTitle: '',
