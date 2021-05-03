@@ -19,9 +19,10 @@
             <q-btn-toggle
               v-model="progress"
               no-caps
-              class="my-custom-toggle q-mx-md"
+              :class="$q.screen.lt.sm ? 'my-custom-toggle q-mx-none q-mt-sm' : 'my-custom-toggle q-mx-md'"
               rounded
               unelevated
+              :padding="$q.screen.width < 400 ? 'sm': ''"
               toggle-color="primary"
               color="white"
               text-color="primary"
