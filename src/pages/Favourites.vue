@@ -19,9 +19,19 @@
             ]"
           />
       </div>
-      <div class="col-auto gt-sm">
-        <q-select dense rounded outlined v-model="sortBy" :options="sortOptions" bg-color="white" />
+      <div class="col-auto gt-sm row">
+        <q-select dense rounded outlined v-model="sortBy" :options="sortOptions" bg-color="white" class="q-mx-sm"/>
+        <q-btn
+          :disable="sortButtonDisabled"
+          dense
+          rounded
+          color="white"
+          :text-color="sortButtonDisabled? 'grey': 'black'"
+          :icon="direction? 'arrow_downward' : 'arrow_upward'"
+          @click="switchSortMode" 
+        />
       </div>
+
     </div>
     <div class="q-pt-md q-px-sm">
       <q-btn-toggle
@@ -86,6 +96,16 @@ export default {
     }
   },
 
+  computed: {
+    direction () {
+      return this.sortMode === 'desc'
+    },
+
+    sortButtonDisabled () {
+      return this.sortBy.order === 'allage' || this.sortBy.order === 'nsfw'
+    }
+  },
+
   data() {
     return {
       mode: 'review',
@@ -93,51 +113,39 @@ export default {
       works: [],
       stopLoad: false,
       pagination: { currentPage:0, pageSize:12, totalCount:0 },
+      sortMode: 'desc',
       sortBy: {
-          label: '按照标记时间排序',
-          order: 'updated_at',
-          sort: 'desc'
+          label: '标记时间',
+          order: 'updated_at'
         },
       sortOptions: [
         {
-          label: '按照标记时间排序',
-          order: 'updated_at',
-          sort: 'desc'
+          label: '标记时间',
+          order: 'updated_at'
         },
         {
-          label: '按照评价排序',
-          order: 'userRating',
-          sort: 'desc'
+          label: '评价',
+          order: 'userRating'
         },
         {
-          label: '按照新作优先顺序',
-          order: 'release',
-          sort: 'desc'
+          label: '发布时间',
+          order: 'release'
         },
         {
-          label: '按照旧作优先顺序',
-          order: 'release',
-          sort: 'asc'
+          label: '评论数量',
+          order: 'review_count'
         },
         {
-          label: '按照评论多到少的顺序',
-          order: 'review_count',
-          sort: 'desc'
+          label: '售出数量',
+          order: 'dl_count'
         },
         {
-          label: '按照售出数量多到少的顺序',
-          order: 'dl_count',
-          sort: 'desc'
+          label: '全年龄新作',
+          order: 'allage'
         },
         {
-          label: '按照全年龄新作优先的顺序',
-          order: 'nsfw',
-          sort: 'asc'
-        },
-        {
-          label: '按照18禁新作优先的顺序',
-          order: 'nsfw',
-          sort: 'desc'
+          label: '18禁新作',
+          order: 'nsfw'
         }
       ]
     }
@@ -161,6 +169,10 @@ export default {
   watch: {
     sortBy(newSortOptionSetting) {
       localStorage.sortByFavourites = JSON.stringify(newSortOptionSetting);
+      this.reset();
+    },
+
+    sortMode() {
       this.reset();
     },
 
@@ -188,6 +200,14 @@ export default {
       this.reset();
     },
 
+    switchSortMode() {
+      if(this.sortMode ==='desc') {
+        this.sortMode = 'asc'
+      } else {
+        this.sortMode = 'desc'
+      }
+    },
+
     onLoad (index, done) {
       this.requestWorksQueue()
         .then(() => done())
@@ -208,8 +228,18 @@ export default {
     requestWorksQueue () {
       const params = {
         order: this.sortBy.order,
-        sort: this.sortBy.sort,
+        sort: this.sortMode,
         page: this.pagination.currentPage + 1 || 1
+      }
+
+      if (this.sortBy.order === 'allage') {
+        params.order = 'nsfw'
+        params.sort = 'asc'
+      }
+
+      if (this.sortBy.order === 'nsfw') {
+        params.order = 'nsfw'
+        params.sort = 'desc'
       }
 
       if (this.mode === 'progress') {
