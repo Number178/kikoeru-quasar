@@ -171,6 +171,7 @@ export default {
         case "repeat once":
           // 单曲循环
           this.player.currentTime = 0
+          this.player.play()
           this.PLAY()
           break
         case "shuffle": {
