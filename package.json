@@ -1,6 +1,6 @@
 {
   "name": "kikoeru-quasar",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "A self-hosted web media player for listening to your DLsite voice works.",
   "productName": "Kikoeru",
   "cordovaId": "org.cordova.quasar.kikoeru",
