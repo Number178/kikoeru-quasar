@@ -1,10 +1,14 @@
-<template> 
-  <vue-plyr ref="plyr"
-    :emit="['canplay', 'timeupdate', 'ended', 'seeked']"
+<template>
+  <vue-plyr
+    ref="plyr"
+    :emit="['canplay', 'timeupdate', 'ended', 'seeked', 'playing', 'waiting', 'pause']"
     @canplay="onCanplay()"
     @timeupdate="onTimeupdate()"
     @ended="onEnded()"
     @seeked="onSeeked()"
+    @playing="playLrc(true)"
+    @waiting="playLrc(false)"
+    @pause="playLrc(false)"
   >
     <audio crossorigin="anonymous" >
       <source v-if="source" :src="source" />
@@ -69,16 +73,17 @@ export default {
   },
 
   watch: {
-    playing (flag) {  
+    playing (flag) {
       if (this.player.duration) {
         // 缓冲至可播放状态
         flag ? this.player.play() : this.player.pause()
       }
-      this.playLrc(flag);
+      // this.playLrc(flag);
     },
 
+    // watch source -> media.load() -> canPlay -> player.play()
     source (url) {
-      if (url) {   
+      if (url) {
         // 加载新音频/视频文件
         this.player.media.load();
         this.loadLrcFile();
@@ -95,7 +100,7 @@ export default {
       if (val < 0 || val > 1) {
         return
       }
-      
+
       // 调节音量
       this.player.volume = val
     },
@@ -135,7 +140,7 @@ export default {
       // 播放
       if (this.playing && this.player.currentTime !== this.player.duration) {
         this.player.play()
-      } 
+      }
     },
 
     onTimeupdate () {
@@ -193,12 +198,12 @@ export default {
     },
 
     onSeeked() {
-      if (this.lrcAvailable) {
-        this.lrcObj.play(this.player.currentTime * 1000);
-        if (!this.playing) {
-          this.lrcObj.pause();
-        }
-      }
+      // if (this.lrcAvailable) {
+      //   this.lrcObj.play(this.player.currentTime * 1000);
+      //   if (!this.playing) {
+      //     this.lrcObj.pause();
+      //   }
+      // }
     },
 
 
