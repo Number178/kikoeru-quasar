@@ -6,9 +6,9 @@
     @timeupdate="onTimeupdate()"
     @ended="onEnded()"
     @seeked="onSeeked()"
-    @playing="playLrc(true)"
-    @waiting="playLrc(false)"
-    @pause="playLrc(false)"
+    @playing="onPlaying()"
+    @waiting="onWaiting()"
+    @pause="onPause()"
   >
     <audio crossorigin="anonymous" >
       <source v-if="source" :src="source" />
@@ -119,6 +119,30 @@ export default {
   },
 
   methods: {
+    /**
+     * 当 外部暂停（线控暂停、软件切换）、用户控制暂停、seek 时会触发本事件
+     */
+    onPause() {
+      // console.log('onPause')
+      this.playLrc(false)
+      this.PAUSE()
+    },
+    /**
+     * 当播放器真正开始播放时会触发本事件
+     */
+    onPlaying() {
+      // console.log('playing')
+      this.playLrc(true)
+      this.PLAY()
+    },
+    /**
+     * 当播放器缓冲区空，被迫暂停加载时会触发本事件
+     */
+    onWaiting() {
+      // console.log('waiting')
+      this.playLrc(false)
+      this.PLAY()
+    },
     ...mapMutations('AudioPlayer', [
       'SET_DURATION',
       'SET_CURRENT_TIME',
