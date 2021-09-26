@@ -28,7 +28,6 @@
     "lrc-file-parser": "^1.0.7",
     "plyr": "^3.6.7",
     "quasar": "^1.15.12",
-    "vue-moveable": "^1.8.10",
     "vue-plyr": "^6.0.4",
     "vue-slider-component": "^3.2.11",
     "vue-socket.io": "^3.0.10",
