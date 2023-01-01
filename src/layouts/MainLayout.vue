@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="hHh Lpr lFf" class="bg-grey-3">
+  <q-layout view="hHh Lpr lFf" class="">
     <q-header class="shadow-4">
       <q-toolbar class="row justify-between">
         <q-btn flat dense round @click="drawerOpen = !drawerOpen" icon="menu" aria-label="Menu" />
@@ -35,7 +35,7 @@
       :width="230"
       :breakpoint="500"
       bordered
-      content-class="bg-grey-1"
+      content-class=""
     >
       <q-scroll-area class="fit">
         <q-list>
@@ -86,12 +86,30 @@
             @click="showTimer = true"
           >
             <q-item-section avatar>
-              <q-icon name="bedtime" />
+              <q-icon name="timer" />
             </q-item-section>
 
             <q-item-section>
               <q-item-label class="text-subtitle1">
-                睡眠模式
+                睡眠定时
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item
+            clickable
+            v-ripple
+            exact
+            active-class="text-deep-purple text-weight-medium"
+            @click="toggleDarkMode"
+          >
+            <q-item-section avatar>
+              <q-icon name="dark_mode" />
+            </q-item-section>
+
+            <q-item-section>
+              <q-item-label class="text-subtitle1">
+                夜间模式
               </q-item-label>
             </q-item-section>
           </q-item>
@@ -162,6 +180,7 @@ import LyricsBar from 'components/LyricsBar'
 import SleepMode from 'components/SleepMode'
 import NotifyMixin from '../mixins/Notification.js'
 import { mapMutations, mapState } from 'vuex'
+import { Dark } from 'quasar'
 
 export default {
   name: 'MainLayout',
@@ -377,6 +396,11 @@ export default {
 
     back () {
       this.$router.go(-1)
+    },
+
+    toggleDarkMode() {
+      console.log("toggleDarkMode called")
+      Dark.toggle();
     }
   },
 }

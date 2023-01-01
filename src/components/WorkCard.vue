@@ -9,7 +9,7 @@
     <div v-if="!thumbnailMode">
       <!-- 标题 -->
       <div class="q-mx-sm text-h6 text-weight-regular ellipsis-2-lines">
-        <router-link :to="`/work/${metadata.id}`" class="text-black">
+        <router-link :to="`/work/${metadata.id}`" class="text-primary">
           {{ metadata.title }}
         </router-link>
       </div>

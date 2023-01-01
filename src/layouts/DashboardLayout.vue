@@ -19,7 +19,7 @@
       :width="200"
       :breakpoint="500"
       bordered
-      content-class="bg-grey-3"
+      content-class=""
     >
       <div class="column justify-between fit">
         <q-list padding class="col-auto">

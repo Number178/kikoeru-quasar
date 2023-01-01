@@ -53,8 +53,11 @@ module.exports = function (ctx) {
       plugins: [
         'LocalStorage',
         'SessionStorage',
-        'Notify'
-      ]
+        'Notify',
+      ],
+      config: {
+        dark: 'auto',
+      },
     },
 
     // https://quasar.dev/quasar-cli/cli-documentation/supporting-ie
@@ -95,12 +98,13 @@ module.exports = function (ctx) {
       proxy: {
         // https://webpack.js.org/configuration/dev-server/#devserverproxy
         // proxy all requests starting with /api to http://localhost:8888
-        '/api': 'http://localhost:8888',
+        // '/api': 'http://localhost:8888',
+        '/api': 'http://192.168.5.234:8888',
         '/socket.io': {
-          target: 'http://localhost:8888',
+          target: 'http://192.168.5.234:8888',
           ws: true
         },
-        '/workbox': 'http://localhost:8888',
+        '/workbox': 'http://192.168.5.234:8888',
       }
     },
 

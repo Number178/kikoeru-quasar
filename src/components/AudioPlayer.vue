@@ -2,7 +2,7 @@
   <div>
     <!-- 播放器 -->
     <q-slide-transition>
-      <q-card square v-show="currentPlayingFile.hash && !hide" class="fixed-bottom-right bg-white text-black audio-player" @mousewheel.prevent @touchmove.prevent>
+      <q-card square v-show="currentPlayingFile.hash && !hide" class="fixed-bottom-right text-secondary audio-player" @mousewheel.prevent @touchmove.prevent>
         <!-- 音声封面 -->
         <div class="bg-dark row items-center albumart">
           <q-img contain transition="fade" :src="coverUrl" :ratio="4/3" />
@@ -56,7 +56,7 @@
 
         <q-item style="height: 55px; padding: 0px 15px;" class="text-center non-selectable">
           <q-item-section>
-            <q-item-label lines="2" class="text-bold">{{ currentPlayingFile.title }}</q-item-label>
+            <q-item-label class="text-bold">{{ currentPlayingFile.title }}</q-item-label>
             <q-item-label caption lines="1">{{ currentPlayingFile.workTitle }}</q-item-label>
           </q-item-section>
         </q-item>
@@ -120,7 +120,7 @@
               :active="queueIndex === index"
               active-class="text-white bg-teal"
               class="non-selectable"
-              style="height: 48px; padding: 0px 10px;"
+              style="padding: 0px 10px;"
               @click="onClickTrack(index)"
             >
               <q-item-section side v-show="editCurrentPlayList">
@@ -132,7 +132,7 @@
               </q-item-section>
 
               <q-item-section>
-                <q-item-label lines="1">{{ track.title }}</q-item-label>
+                <q-item-label>{{ track.title }}</q-item-label>
                 <q-item-label caption lines="1">{{ track.workTitle }}</q-item-label>
               </q-item-section>
 

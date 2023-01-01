@@ -15,7 +15,7 @@
             dense
             rounded
             outlined
-            bg-color="white"
+            bg-color=""
             transition-show="scale"
             transition-hide="scale"
             v-model="sortOption"
@@ -186,6 +186,11 @@ export default {
           label: '按照全年龄新作优先的顺序',
           order: 'nsfw',
           sort: 'asc'
+        },
+        {
+          label: '按照作品最新添的顺序',
+          order: 'created_at',
+          sort: 'desc'
         },
         {
           label: '随机排序',

@@ -2,11 +2,11 @@
   <div class="q-ma-md " style="">
     <q-breadcrumbs gutter="xs" v-if="path.length">
       <q-breadcrumbs-el   >
-        <q-btn no-caps flat dense size="md" icon="folder" style="height: 30px;" @click="path = []">ROOT</q-btn>
+        <q-btn no-caps flat dense size="md" icon="folder" @click="path = []">ROOT</q-btn>
       </q-breadcrumbs-el>
       
       <q-breadcrumbs-el v-for="(folderName, index) in path"  :key="index"  class="cursor-pointer" >
-        <q-btn no-caps flat dense size="md" icon="folder" style="height: 30px;" @click="onClickBreadcrumb(index)">{{folderName}}</q-btn>
+        <q-btn no-caps flat dense size="md" icon="folder" @click="onClickBreadcrumb(index)">{{folderName}}</q-btn>
       </q-breadcrumbs-el>
     </q-breadcrumbs>
 
@@ -31,7 +31,7 @@
           </q-item-section>
 
           <q-item-section>
-            <q-item-label lines="2">{{ item.title }}</q-item-label>
+            <q-item-label>{{ item.title }}</q-item-label>
             <q-item-label v-if="item.children" caption lines="1">{{ `${item.children.length} 项目` }}</q-item-label>
           </q-item-section>
 

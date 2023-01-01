@@ -9,7 +9,7 @@
 
       <q-item-section class="q-gutter-y-xs column items-start" top v-on:click.self="showReviewDialog = true">
         <q-item-label lines="2" class="text-body2">
-          <router-link :to="`/work/${metadata.id}`" class="col-auto text-black">
+          <router-link :to="`/work/${metadata.id}`" class="col-auto text-secondary">
             {{metadata.title}}
           </router-link>
         </q-item-label>

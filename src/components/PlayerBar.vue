@@ -1,6 +1,6 @@
 <template>
   <q-slide-transition class="bordered elevated">
-    <div v-show="currentPlayingFile.hash && hide" class="row bg-white text-black">
+    <div v-show="currentPlayingFile.hash && hide" class="row text-dark">
       <q-item clickable v-ripple @click="toggleHide()" style="padding: 0px 5px;" class="col non-selectable">
         <q-item-section avatar>
           <q-img transition="fade" :src="samCoverUrl" style="height: 50px; width: 50px" class="rounded-borders" />

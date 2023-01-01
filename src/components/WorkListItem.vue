@@ -8,7 +8,7 @@
 
     <q-item-section>
       <q-item-label lines="2" class="text">
-        <router-link :to="`/work/${metadata.id}`" class="text-black">
+        <router-link :to="`/work/${metadata.id}`" class="text-secondary">
           {{ metadata.title }}
         </router-link>
       </q-item-label>

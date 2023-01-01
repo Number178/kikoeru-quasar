@@ -8,7 +8,7 @@
       <div class="q-px-sm q-py-none">
         <!-- 标题 -->
         <div class="text-h6 text-weight-regular">
-          <router-link :to="`/work/${metadata.id}`" class="text-black">
+          <router-link :to="`/work/${metadata.id}`" class="text-secondary">
             {{metadata.title}}
           </router-link>
         </div>
