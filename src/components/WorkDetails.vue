@@ -66,7 +66,7 @@
 
           <!-- DLsite链接 -->
           <div class="col-auto">
-            <q-icon name="launch" size="xs" /><a class="text-blue" :href="`https://www.dlsite.com/home/work/=/product_id/RJ${String(metadata.id).padStart(6,'0')}.html`" rel="noreferrer noopener" target="_blank">DLsite</a>
+            <q-icon name="launch" size="xs" /><a class="text-blue" :href="`https://www.dlsite.com/home/work/=/product_id/RJ${dlsiteCode}.html`" rel="noreferrer noopener" target="_blank">DLsite</a>
           </div>
         </div>
       </div>
@@ -198,6 +198,14 @@ export default {
         return (a.review_point > b.review_point) ? -1 : 1;
       }
       return this.metadata.rate_count_detail.slice().sort(compare);
+    },
+    
+    dlsiteCode() {
+      let c = String(this.metadata.id);
+      c = this.metadata.id > 1000000 
+        ? c.padStart(8,'0')  // 8位RJ番号
+        : c.padStart(6,'0'); // 6位RJ番号
+      return c;
     }
   },
 
