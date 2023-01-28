@@ -21,6 +21,70 @@ import Lyric from 'lrc-file-parser'
 import { mapState, mapGetters, mapMutations } from 'vuex'
 import NotifyMixin from '../mixins/Notification.js'
 
+function convert_srt_vtt_to_lrc(text) {
+  let lines = text.split("\n").map(l => l.trim())
+  let isVtt = lines[0] == 'WEBVTT';
+  if (isVtt) {
+    lines = lines.slice(1)
+  }
+
+  const timeParseRe = /(\d*):(\d*):(\d*)\.(\d*)\s*-->\s*[\d:.]*/
+
+  const parsingUnit = []; // [([minute, seconds, millseconds], '文字\n文字'), (), ..., ()]
+  let i = 0;
+  while(i < lines.length) {
+    // stop unit and push when lastText is not empty
+    if (
+      lines[i] == '' 
+      || /^\d*$/.test(lines[i])  // parse srt文件的序号
+    ) {
+      i++;
+      continue;
+    }
+
+    // srt:
+    // 1
+    // 00:01:22.343 --> 00:03:22:344
+    // 字幕，字幕
+    // 
+    // 2
+    // ...
+
+    if (timeParseRe.test(lines[i])) {
+      const [_, h, m, s, ms] = timeParseRe.exec(lines[i]).map(x => parseInt(x));
+      let texts = [];
+      i++;
+      while(i < lines.length && lines[i] != "") {
+        texts.push(lines[i])
+        i++;
+      }
+      parsingUnit.push([
+        [h, m, s, ms],
+        texts.join(' '),
+      ]);
+    }
+  } // parse srt vtt 完成
+
+  function padding(n, len) {
+    n = Math.ceil(n);
+    let s = `${n}`;
+    let pad = len - s.length;
+    if (pad > 0) {
+      for (let i = 0; i < pad; ++i) {
+        s = "0" + s;
+      }
+    }
+    return s;
+  }
+
+  function formatLrcTime([h, m, s, ms]) {
+    return padding(h * m, 2) + ":" + padding(m, 2) + ":" + padding(s, 2) + "." + padding(ms, 3);
+  }
+
+  const lrcContent = parsingUnit.map(([time, text]) => `[${formatLrcTime(time)}] ${text}`).join("\n");
+  return lrcContent;
+}
+
 export default {
   name: 'AudioElement',
 
@@ -262,9 +326,14 @@ export default {
             this.lrcAvailable = true;
             console.log('读入歌词');
             const lrcUrl = `/api/media/stream/${response.data.hash}?token=${token}`;
+            const lyricExtension = response.data.lyricExtension;
             this.$axios.get(lrcUrl)
               .then(response => {
                 console.log('歌词读入成功');
+                console.log('srt convert to lrc');
+                if (lyricExtension == ".srt" || lyricExtension == ".vtt") {
+                  response.data = convert_srt_vtt_to_lrc(response.data);
+                }
                 this.lrcObj.setLyric(response.data);
                 this.lrcObj.play(this.player.currentTime * 1000);
               });
