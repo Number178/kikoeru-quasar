@@ -53,6 +53,10 @@
                 <q-item-section>下一曲播放</q-item-section>
               </q-item>
 
+              <q-item clickable @click="setVisualPlayerCover(item)" v-if="item.type === 'image'">
+                <q-item-section>设置为可视化封面</q-item-section>
+              </q-item>
+
               <q-item clickable @click="download(item)">
                 <q-item-section>下载文件</q-item-section>
               </q-item>
@@ -81,6 +85,10 @@ export default {
       type: Array,
       required: true,
     },
+    metadata: {
+      type: Object,
+      required: true,
+    }
   },
 
   watch: {
@@ -150,6 +158,7 @@ export default {
         this.download(item);
       } else if (this.currentPlayingFile.hash !== item.hash) {
         this.$store.commit('AudioPlayer/SET_QUEUE', {
+          workId: this.metadata.id,
           queue: this.queue.concat(),
           index: this.queue.findIndex(file => file.hash === item.hash),
           resetPlaying: true
@@ -162,6 +171,7 @@ export default {
         this.$store.commit('AudioPlayer/TOGGLE_PLAYING')
       } else {
         this.$store.commit('AudioPlayer/SET_QUEUE', {
+          workId: this.metadata.id,
           queue: this.queue.concat(),
           index: this.queue.findIndex(file => file.hash === hash),
           resetPlaying: true
@@ -187,6 +197,11 @@ export default {
       link.click();
     },
 
+    setVisualPlayerCover (imgFile) {
+      const urlWithoutToken = imgFile.mediaDownloadUrl ? `${imgFile.mediaDownloadUrl}` : `/api/media/download/${imgFile.hash}`;
+      this.$store.commit('AudioPlayer/SET_VISUAL_PLAYER_COVER_URL', urlWithoutToken);
+    },
+
     openFile (file) {
       const token = this.$q.localStorage.getItem('jwt-token') || '';
       // Fallback to old API for an old backend 
@@ -195,7 +210,7 @@ export default {
       link.href = url;
       link.target="_blank";
       link.click();
-    }
+    },
   }
 }
 </script>

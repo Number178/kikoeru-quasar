@@ -26,6 +26,12 @@ export default function () {
     rewindSeekTime: 5,
     forwardSeekTime: 30,
     rewindSeekMode: false,
-    forwardSeekMode: false
+    forwardSeekMode: false,
+
+    visualPlayerCoverUrl: '', // 可视化播放器的封面图
+    playWorkId: 0, // 当前播放作品的id
+
+    // audioElement: null, // 全局audio标签对象
+    // audioAnalyzerData: null, // 解析音频信息，可视化展示
   }
 }

@@ -1,3 +1,6 @@
+import { LocalStorage } from 'quasar'
+import getters from './getters'
+
 const mutations = {
   TOGGLE_HIDE (state) {
     state.hide = !state.hide
@@ -44,6 +47,20 @@ const mutations = {
     if (payload.resetPlaying) {
       state.playing = true
     }    
+
+    const workId = payload.workId
+    // 设置workId，然后配置封面，从浏览器本地Storage查找是否曾经手动配置过封面，
+    // 如果没有则使用默认的封面路径
+    if (workId !== state.playWorkId) {
+      const localStorageName = `visual_cover_${workId}`
+      let coverUrl = LocalStorage.getItem(localStorageName)
+      if (!coverUrl) {
+        const hash = getters.currentPlayingFile(state).hash
+        coverUrl = `/api/cover/${hash.split('/')[0]}`
+      }
+      state.visualPlayerCoverUrl = coverUrl
+    }
+    state.playWorkId = workId
   },
   EMPTY_QUEUE: (state) => {
     state.playing = false
@@ -135,7 +152,17 @@ const mutations = {
   CLEAR_SLEEP_MODE: (state) => {
     state.sleepTime = null
     state.sleepMode = false
-  }
+  },
+
+  SET_VISUAL_PLAYER_COVER_URL: (state, value) => {
+    const localStorageName = `visual_cover_${state.playWorkId}`
+    state.visualPlayerCoverUrl = value
+    LocalStorage.set(localStorageName, state.visualPlayerCoverUrl)
+  },
+
+  // SET_AUDIO_ELEMENT: (state, value) => {
+  //   state.audioElement = value
+  // }
 }
 
 export default mutations

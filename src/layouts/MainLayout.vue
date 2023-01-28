@@ -209,6 +209,11 @@ export default {
           path: '/'
         },
         {
+          title: '大图模式',
+          icon: 'play_circle',
+          path: '/fullScreenPlayer'
+        },
+        {
           title: '我的收藏',
           icon: 'favorite',
           path: '/favourites'
