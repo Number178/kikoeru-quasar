@@ -1,6 +1,7 @@
 import { LocalStorage } from 'quasar'
 
 export const SWAP_SEEK_BUTTON_KEY = 'swap_seek_button'
+export const ENABLE_VISUALIZER_KEY = 'swap_seek_button'
 
 export default function () {
   return {
@@ -33,10 +34,11 @@ export default function () {
     forwardSeekMode: false,
     swapSeekButton: LocalStorage.has(SWAP_SEEK_BUTTON_KEY) && LocalStorage.getItem(SWAP_SEEK_BUTTON_KEY), // 交换进度按钮与切换按钮
 
+    enableVisualizer: LocalStorage.has(ENABLE_VISUALIZER_KEY) && LocalStorage.getItem(ENABLE_VISUALIZER_KEY), // 是否开启音频可视化
     visualPlayerCoverUrl: '', // 可视化播放器的封面图
     playWorkId: 0, // 当前播放作品的id
 
-    // audioElement: null, // 全局audio标签对象
+    audioAnalyser: null, // 全局 audio 音频解析对象
     // audioAnalyzerData: null, // 解析音频信息，可视化展示
   }
 }

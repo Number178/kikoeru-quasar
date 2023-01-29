@@ -36,6 +36,15 @@
                   打开作品详情
                 </q-item-section>
               </q-item>
+              
+              <q-item clickable v-ripple @click="toggleEnableVisualizer">
+                <q-item-section avatar>
+                  <q-icon :name="enableVisualizer ? 'done' : ''" />
+                </q-item-section>
+                <q-item-section>
+                  开启音频可视化（需要刷新页面）
+                </q-item-section>
+              </q-item>
             </q-menu>
           </q-btn>
           <div class="row absolute q-pl-md q-pr-md col-12 justify-between">
@@ -277,7 +286,8 @@ export default {
       'playMode',
       'rewindSeekTime',
       'forwardSeekTime',
-      'swapSeekButton'
+      'swapSeekButton',
+      'enableVisualizer'
     ]),
     
     ...mapGetters('AudioPlayer', [
@@ -295,14 +305,15 @@ export default {
       setVolume: 'SET_VOLUME',
       rewind: 'SET_REWIND_SEEK_MODE',
       forward: 'SET_FORWARD_SEEK_MODE',
-      toggleSwapSeekButton: 'TOGGLE_SWAP_SEEK_BUTTON'
+      toggleSwapSeekButton: 'TOGGLE_SWAP_SEEK_BUTTON',
+      toggleEnableVisualizer: 'TOGGLE_ENABLE_VISUALIZER'
     }),
     ...mapMutations('AudioPlayer', [
       'SET_TRACK',
       'SET_QUEUE',
       'REMOVE_FROM_QUEUE',
       'EMPTY_QUEUE',
-      'SET_VOLUME'
+      'SET_VOLUME',
     ]),
 
     formatSeconds (seconds) {

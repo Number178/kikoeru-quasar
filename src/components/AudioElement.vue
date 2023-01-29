@@ -128,7 +128,8 @@ export default {
       'rewindSeekTime',
       'forwardSeekTime',
       'rewindSeekMode',
-      'forwardSeekMode'
+      'forwardSeekMode',
+      'enableVisualizer'
     ]),
 
     ...mapGetters('AudioPlayer', [
@@ -218,7 +219,8 @@ export default {
       'SET_VOLUME',
       'CLEAR_SLEEP_MODE',
       'SET_REWIND_SEEK_MODE',
-      'SET_FORWARD_SEEK_MODE'
+      'SET_FORWARD_SEEK_MODE',
+      'SET_AUDIO_ANALYSER'
     ]),
 
     onCanplay () {
@@ -361,6 +363,28 @@ export default {
   mounted () {
     // 初始化音量
     this.SET_VOLUME(this.player.volume);
+
+    const initAudio = () => {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const analyser = {
+        left: audioCtx.createAnalyser(),
+        right: audioCtx.createAnalyser(),
+      };
+
+      const audioSrc = audioCtx.createMediaElementSource(this.player.media);
+      const splitter = audioCtx.createChannelSplitter(2);
+      audioSrc.connect(splitter);
+      splitter.connect(analyser.left, 0);
+      splitter.connect(analyser.right, 1);
+      audioSrc.connect(audioCtx.destination)
+      this.SET_AUDIO_ANALYSER(analyser)
+      document.removeEventListener('click', initAudio);
+    }
+
+    if (this.enableVisualizer) {
+      document.addEventListener('click', initAudio);
+    }
+
     this.initLrcObj();
     if (this.source) {
       this.loadLrcFile();
