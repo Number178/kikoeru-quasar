@@ -12,15 +12,16 @@
         </q-item-section>
       </q-item>
 
-      <q-btn flat size="lg" icon="skip_previous" @click="previousTrack()" style="height: 60px; width: 60px" class="col-auto gt-sm"/>
+      <q-btn flat size="lg" :icon="swapSeekButton ? rewindIcon : 'skip_previous'" @click="swapSeekButton ? rewind(true) : previousTrack()" style="height: 60px; width: 60px" class="col-auto gt-sm"/>
       <q-btn flat size="lg" :icon="playingIcon" @click="togglePlaying()" style="height: 60px; width: 60px" class="col-auto" />
-      <q-btn flat size="lg" icon="skip_next" @click="nextTrack()" style="height: 60px; width: 60px" class="col-auto gt-sm"/>
+      <q-btn flat size="lg" :icon="swapSeekButton ? forwardIcon : 'skip_next'" @click="swapSeekButton ? forward(true) : nextTrack()" style="height: 60px; width: 60px" class="col-auto gt-sm"/>
+      <div class="simple-progress" :style="progressBarStyle"></div>
     </div>
   </q-slide-transition>
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
+import { mapState, mapGetters, mapMutations } from 'vuex'
 
 export default {
   name: 'PlayerBar',
@@ -37,32 +38,76 @@ export default {
       return this.playing ? "pause" : "play_arrow"
     },
 
+    progressBarStyle() {
+      let percent = (this.currentTime / this.duration) * 100;
+      return {
+        width: `${percent.toFixed(5)}%`,
+      }
+    },
+
     ...mapState('AudioPlayer', [
       'hide',
-      'playing'
+      'playing',
+      'currentTime',
+      'duration',
+      'swapSeekButton',
+      'rewindSeekTime',
+      'forwardSeekTime'
     ]),
 
     ...mapGetters('AudioPlayer', [
       'currentPlayingFile'
-    ])
+    ]),
+
+
+    rewindIcon () {
+      switch (this.rewindSeekTime) {
+        case 5:
+          return 'replay_5'
+        case 10:
+          return 'replay_10'
+        case 30:
+          return 'replay_30'
+        default:
+          return 'replay_5'
+      }
+    },
+
+    forwardIcon () {
+      switch (this.forwardSeekTime) {
+        case 5:
+          return 'forward_5'
+        case 10:
+          return 'forward_10'
+        case 30:
+          return 'forward_30'
+        default:
+          return 'forward_5'
+      }
+    }
   },
 
   methods: {
-    toggleHide () {
-      this.$store.commit('AudioPlayer/TOGGLE_HIDE')
-    },
-
-    togglePlaying () {
-      this.$store.commit('AudioPlayer/TOGGLE_PLAYING')
-    },
-
-    nextTrack () {
-      this.$store.commit('AudioPlayer/NEXT_TRACK')
-    },
-
-    previousTrack () {
-      this.$store.commit('AudioPlayer/PREVIOUS_TRACK')
-    },
+    ...mapMutations('AudioPlayer', {
+      toggleHide: 'TOGGLE_HIDE',
+      togglePlaying: 'TOGGLE_PLAYING',
+      nextTrack: 'NEXT_TRACK',
+      previousTrack: 'PREVIOUS_TRACK',
+      // changePlayMode: 'CHANGE_PLAY_MODE',
+      // setVolume: 'SET_VOLUME',
+      rewind: 'SET_REWIND_SEEK_MODE',
+      forward: 'SET_FORWARD_SEEK_MODE'
+    }),
   }
 }
 </script>
+<style scoped>
+.simple-progress {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 4px;
+  /* width: 100%; */
+  background-color: var(--q-color-positive);
+}
+</style>

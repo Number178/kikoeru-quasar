@@ -19,7 +19,7 @@
                 </q-item-section>
               </q-item>
               
-              <q-item clickable v-ripple @click="swapSeekButton = !swapSeekButton">
+              <q-item clickable v-ripple @click="toggleSwapSeekButton">
                 <q-item-section avatar>
                   <q-icon :name="swapSeekButton ? 'done' : ''" />
                 </q-item-section>
@@ -166,16 +166,12 @@ export default {
       editCurrentPlayList: false,
       queueCopy: [],
       hideSeekButton: false,
-      swapSeekButton: false
     }
   },
 
   mounted () {
     if (this.$q.localStorage.has('hideSeekButton')) {
       this.hideSeekButton = this.$q.localStorage.getItem('hideSeekButton')
-    }
-    if (this.$q.localStorage.has('swapSeekButton')) {
-      this.swapSeekButton = this.$q.localStorage.getItem('swapSeekButton')
     }
   },
 
@@ -198,10 +194,6 @@ export default {
     hideSeekButton (option) {
       this.$q.localStorage.set('hideSeekButton', option)
     },
-
-    swapSeekButton (option) {
-      this.$q.localStorage.set('swapSeekButton', option)
-    }
   },
 
   computed: {
@@ -284,7 +276,8 @@ export default {
       'queueIndex',
       'playMode',
       'rewindSeekTime',
-      'forwardSeekTime'
+      'forwardSeekTime',
+      'swapSeekButton'
     ]),
     
     ...mapGetters('AudioPlayer', [
@@ -301,7 +294,8 @@ export default {
       changePlayMode: 'CHANGE_PLAY_MODE',
       setVolume: 'SET_VOLUME',
       rewind: 'SET_REWIND_SEEK_MODE',
-      forward: 'SET_FORWARD_SEEK_MODE'
+      forward: 'SET_FORWARD_SEEK_MODE',
+      toggleSwapSeekButton: 'TOGGLE_SWAP_SEEK_BUTTON'
     }),
     ...mapMutations('AudioPlayer', [
       'SET_TRACK',

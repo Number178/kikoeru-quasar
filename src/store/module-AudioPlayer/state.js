@@ -1,3 +1,7 @@
+import { LocalStorage } from 'quasar'
+
+export const SWAP_SEEK_BUTTON_KEY = 'swap_seek_button'
+
 export default function () {
   return {
     hide: false,
@@ -27,6 +31,7 @@ export default function () {
     forwardSeekTime: 30,
     rewindSeekMode: false,
     forwardSeekMode: false,
+    swapSeekButton: LocalStorage.has(SWAP_SEEK_BUTTON_KEY) && LocalStorage.getItem(SWAP_SEEK_BUTTON_KEY), // 交换进度按钮与切换按钮
 
     visualPlayerCoverUrl: '', // 可视化播放器的封面图
     playWorkId: 0, // 当前播放作品的id

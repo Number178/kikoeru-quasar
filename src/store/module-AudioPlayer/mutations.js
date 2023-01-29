@@ -1,5 +1,6 @@
 import { LocalStorage } from 'quasar'
 import getters from './getters'
+import { SWAP_SEEK_BUTTON_KEY } from './state'
 
 const mutations = {
   TOGGLE_HIDE (state) {
@@ -163,6 +164,11 @@ const mutations = {
   // SET_AUDIO_ELEMENT: (state, value) => {
   //   state.audioElement = value
   // }
+  
+  TOGGLE_SWAP_SEEK_BUTTON: (state) => {
+    state.swapSeekButton = !state.swapSeekButton
+    LocalStorage.set(SWAP_SEEK_BUTTON_KEY, state.swapSeekButton)
+  }
 }
 
 export default mutations
