@@ -293,6 +293,7 @@ export default {
       //     this.lrcObj.pause();
       //   }
       // }
+      this.playLrc(this.playing);
     },
 
 
