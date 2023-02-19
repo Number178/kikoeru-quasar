@@ -155,7 +155,7 @@
 
     <SleepMode v-model="showTimer" />
 
-    <q-page-container>
+    <q-page-container class="page-container-style">
       <!-- <q-page padding> -->
         <keep-alive include="Works">
           <router-view />
@@ -420,4 +420,13 @@ export default {
     justify-content: space-between;
     height: 100%;
   }
+
+// 中心主要页面的尺寸样式
+.page-container-style {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+}
 </style>
