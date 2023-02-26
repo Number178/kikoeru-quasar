@@ -1,14 +1,23 @@
 <template>
-  <div class="container" ref="container" @click="clickOnContainer">
+  <div class="container" ref="container" @dblclick="clickOnContainer">
     <div class="img-blur-background" :style="containerStyle"></div>
     <q-img contain :src="coverUrl" class="constrain-height"/>
     <canvas class="visualizer" ref="visualizer" width="1000" height="1000"></canvas>
     <div class="simple-progress" :style="progressBarStyle"></div>
+    <div class="footer">
+      <LyricsBar v-if="isInFullScreen" />
+    </div>
+    <div v-if="isInFullScreen" class="current-playing-info">
+      <div class="text-h6 text-weight-bolder">
+        {{ title }}
+      </div>
+    </div>
   </div>
 </template>
    
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
+import LyricsBar from 'components/LyricsBar'
 
 // direction: 'left' / 'right'
 function fillFrequencyData(canvasWidth, canvasHeight, dataArray, canvasCtx, direction) {
@@ -23,29 +32,34 @@ function fillFrequencyData(canvasWidth, canvasHeight, dataArray, canvasCtx, dire
   // frequency count is allways even
   function mapBarIndexToFrequencyIndex(barIdx) {
     return barIdx % 2 == 0 
-      ? (len / 2 - barIdx / 2)
-      : (len / 2 + (barIdx - 1) / 2 + 1);
+      ? (len / 2 - barIdx / 2 - 1)
+      : (len / 2 + (barIdx - 1) / 2);
   }
 
   const barHeight = canvasHeight / len;
+  const minimalBarWidth = 4;
 
   canvasCtx.fillStyle = "rgb(140, 20, 252, 0.4)";
   for (let i = 0; i < len; ++i) {
     const frequencyIdx = mapBarIndexToFrequencyIndex(i);
     let x,y,w,h;
-    const barWidth = maxBarWidthPercent * canvasWidth * (dataArray[i] / 255);
+    const barWidth = Math.max(minimalBarWidth, maxBarWidthPercent * canvasWidth * (dataArray[i] / 255));
     x = barCenterX - barWidth * 0.5;
     y = frequencyIdx * barHeight;
     w = barWidth;
     h = barHeight - 2;
     canvasCtx.fillRect(x, y, w, h);
   }
-  canvasCtx.fillStyle = "rgb(140, 20, 252, 0.1)";
-  canvasCtx.fillRect(barCenterX - 1, 0, 2, canvasHeight)
+  // canvasCtx.fillStyle = "rgb(140, 20, 252, 0.1)";
+  // canvasCtx.fillRect(barCenterX - 1, 0, 2, canvasHeight)
 }
 
 export default {
   name: "FullScreenPlayer",
+
+  components: {
+    LyricsBar
+  },
 
   data () {
     return {
@@ -62,7 +76,11 @@ export default {
       } else {
         this.$refs.container.requestFullscreen();
       }
-      this.isInFullScreen = !this.isInFullScreen;
+    },
+
+    // triggerred when fullscreen state changed
+    onFullscreenChange() {
+      this.isInFullScreen = document.fullscreenElement !== null;
     },
 
     audioElementInit() {
@@ -79,14 +97,16 @@ export default {
 
       const setAnalyser = (analyser) => {
         analyser.fftSize = 128;
-        analyser.minDecibels = -61;
+        analyser.minDecibels = -81;
         analyser.maxDecibels = -11;
 
         // 平滑参数 [0,1]，数字越大实际变化的越平滑
         if (this.$q.platform.is.ios) {
           analyser.smoothingTimeConstant = 0.8; 
+        } else if (this.$q.platform.is.android) {
+          analyser.smoothingTimeConstant = 0.71; 
         } else {
-          analyser.smoothingTimeConstant = 0.95;
+          analyser.smoothingTimeConstant = 0.82;
         }
       }
       function getAnalyserArray(analyser) {
@@ -181,7 +201,18 @@ export default {
       'audioAnalyser',
       'currentTime',
       'duration',
-    ])
+      'queue',
+      'queueIndex'
+    ]),
+
+    ...mapGetters('AudioPlayer', [
+      'currentPlayingFile'
+    ]),
+
+    title() {
+      const org = this.currentPlayingFile.title;
+      return org.substring(0, org.lastIndexOf("."));
+    }
   },
 
   watch: {
@@ -191,9 +222,11 @@ export default {
   },
   mounted() {
     this.audioElementInit();
+    this.$refs.container.addEventListener("fullscreenchange", this.onFullscreenChange)
   },
   destroyed() {
     this.stopper.stop = false;
+    this.$refs.container.removeEventListener("fullscreenchange", this.onFullscreenChange)
   }
 }
 </script>
@@ -235,8 +268,24 @@ export default {
   position: absolute;
   left: 0;
   bottom: 0;
-  height: 4px;
+  height: 2px;
   /* width: 100%; */
   background-color: var(--q-color-positive);
 }
+
+.footer {
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+}
+
+.current-playing-info {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  color: white;
+  text-shadow: 1px 1px 0px rgb(82, 82, 82);
+}
+
 </style>

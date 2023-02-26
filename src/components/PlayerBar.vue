@@ -106,7 +106,7 @@ export default {
   position: absolute;
   left: 0;
   top: 0;
-  height: 4px;
+  height: 2px;
   /* width: 100%; */
   background-color: var(--q-color-positive);
 }
