@@ -19,12 +19,223 @@
 import { mapState, mapGetters } from 'vuex'
 import LyricsBar from 'components/LyricsBar'
 
+
+class Vec {
+  static toVec(number_or_vec) {
+    if (number_or_vec instanceof Array) {
+      return number_or_vec;
+    } else {
+      return [number_or_vec, number_or_vec]
+    }
+  }
+
+  static add(p1, p2) {
+    const [x1, y1] = Vec.toVec(p1);
+    const [x2, y2] = Vec.toVec(p2);
+    return [x1 + x2, y1 + y2];
+  }
+
+  static sub(p1, p2) {
+    const [x1, y1] = Vec.toVec(p1);
+    const [x2, y2] = Vec.toVec(p2);
+    return [x1 - x2, y1 - y2];
+  }
+
+  static mul(p1, p2) {
+    const [x1, y1] = Vec.toVec(p1);
+    const [x2, y2] = Vec.toVec(p2);
+    return [x1 * x2, y1 * y2];
+  }
+}
+
+function factorial(x) {
+  x = Math.floor(x);
+  if (factorial.memo.has(x)) return factorial.memo.get(x);
+
+  let result;
+  if (x <= 1) {
+    result = 1;
+  } else {
+    result = x * factorial(x - 1);
+  } 
+  factorial.memo[x] = result;
+  return result;
+}
+factorial.memo = new Map();
+
+class RandomMotionRoutine {
+  // num_sample_point 随机采样点数量
+  // interval_mills 动画周期时间
+  // contain_square 运动正方形区域边长
+  constructor(num_sample_point, interval_mills, contain_square) {
+    this.num_sample_point = num_sample_point;
+    this.interval_mills = interval_mills;
+    this.last_mills = 0;
+    this.played_mills = 0;
+    this.contain_square = contain_square
+    this.points = [];
+    for (let i = 0; i < num_sample_point; ++i) {
+      this.points.push([
+        Math.random(),
+        Math.random(),
+      ]);
+    }
+    const firstPoint = this.points[0];
+    const secondPoint = this.points[1];
+    const diff = Vec.sub(firstPoint, secondPoint);
+    const smoothEndPoint = Vec.add(firstPoint, diff);
+    this.points.push(smoothEndPoint); // smooth and loop to the start
+    this.points.push(firstPoint); // close the curve with first point
+  }
+
+  // 多阶贝塞尔曲线计算公式参考：https://www.zhihu.com/question/29565629
+  berzierSample(t) {
+    // console.log("sample animation progress = ", t);
+    let lastPoint = [0, 0];
+    const n = this.points.length - 1;
+    for (let i = 0; i <= n; ++i) {
+      lastPoint = Vec.add(lastPoint, Vec.mul(this.points[i], this.term(i, n, t)));
+    }
+    return lastPoint;
+  }
+
+  term(i, n, t) {
+    return factorial(n) / (factorial(i) * factorial(n - i)) * Math.pow(t, i) * Math.pow(1 - t, n-i);
+  }
+
+  animate(mills) {
+    this.played_mills += mills - this.last_mills;
+    if (this.played_mills > this.interval_mills) this.played_mills = 0;
+    this.last_mills = mills;
+
+    const progress = this.played_mills / this.interval_mills;
+    // const dp = this.sampleAnimation(progress);
+    const dp = this.berzierSample(progress);
+
+    return Vec.mul(dp, this.contain_square);
+  }
+
+  sampleAnimation(t) {
+    let layer = this.points;
+    while(layer.length > 1) {
+      layer = layer.slice(0, layer.length - 1).map((value, idx) => {
+        return Vec.add(Vec.mul(value, t), Vec.mul(1 - t, layer[idx]));
+      });
+    }
+    return layer[0];
+  }
+}
+
+class HaloManager {
+  constructor() {
+    //                                        
+    //                                        
+    //          _________                       
+    //         /         \                   
+    //        /           \                   
+    //       /    ______   \                     
+    //      /   /       \   \                  
+    //     /   /         \   |                  
+    //    |   |     c1    |  |               
+    //    |   |           |  |                
+    //    \    \         /   /                   
+    //     \    \_______/   /                
+    //      \              /
+    //       \            /                    
+    //        \__________/                              
+    //                                        
+    //                                        
+
+    // center is located in [1.0, 1.0] coordinate
+    this.relative_center_inner_list = []; // [[x1, y1], [x2, y2], [x3, y3], ...]
+
+    // radius is scaled acrooding to minimal length of
+    // this.center_outter_list = []; // [[x1, y1], [x2, y2], [x3, y3], ...]
+    this.inner_radius_list = []; // [r1, r2, r3, ...]
+    this.outter_radius_list = []; // [r1, r2, r3, ...]
+    this.motion_routine_list = [];
+    this.is_data_dirty = true; // 上述三个属性是否发生变化，如果变化，则需要在update函数中重新计算radial gradient
+
+    this.radial_gradient_list = []; // [CanvasGradient1, CanvasGradient2, ...] // created on update method
+    this.absolute_center_inner_list = []; // 更新后的canvas上绘制圆形的绝对坐标地址
+
+    this.last_canvas_width = 0;
+    this.last_canvas_height = 0;
+  }
+
+  // relative_x/y is located in [0.0, 1.0]
+  addHalo(relative_x, relative_y, radius, interval_mills) {
+    this.relative_center_inner_list.push([relative_x, relative_y]);
+    this.absolute_center_inner_list.push([0,0]);
+    this.inner_radius_list.push(0);
+    this.outter_radius_list.push(radius);
+    this.motion_routine_list.push(new RandomMotionRoutine(10, interval_mills, 0.1));
+    this.is_data_dirty = true;
+  }
+
+  absolutePoint(relative_point) {
+    return [relative_point[0] * this.last_canvas_width, relative_point[1] * this.last_canvas_height];
+  }
+
+  // raf当中更新光晕运动
+  // 目前这里不做任何位置更新
+  update(mills_time, canvas_ctx) {
+    if (this.last_canvas_height != canvas_ctx.canvas.height) {
+      this.last_canvas_height = canvas_ctx.canvas.height;
+      this.is_data_dirty = true;
+    }
+    if (this.last_canvas_width != canvas_ctx.canvas.width) {
+      this.last_canvas_width = canvas_ctx.canvas.width;
+      this.is_data_dirty = true;
+    }
+
+    for (let i = 0; i < this.relative_center_inner_list.length; ++i) {
+      const rp = this.relative_center_inner_list[i];
+      const dp = this.motion_routine_list[i].animate(mills_time);
+      const ap = this.absolutePoint(Vec.add(rp, dp));
+      const inner_radius = this.inner_radius_list[i];
+      const outter_radius = this.outter_radius_list[i];
+
+      const gradient = canvas_ctx.createRadialGradient(ap[0], ap[1], inner_radius, ap[0], ap[1], outter_radius);
+      // Add three color stops
+
+      gradient.addColorStop(0.0, "rgba(255,255,255,0.0)");
+      gradient.addColorStop(0.7, "rgba(255,255,255,0.1)");
+      gradient.addColorStop(0.9, "rgba(255,255,255,0.2)");
+      gradient.addColorStop(1.0, "rgba(255,255,255,0.0)");
+      this.radial_gradient_list[i] = gradient;
+      this.absolute_center_inner_list[i] = ap;
+    }
+    this.is_data_dirty = false
+  }
+
+  // 在canvas当中绘制
+  draw(canvas_ctx) {
+    for (let i = 0; i < this.relative_center_inner_list.length; ++i) {
+      const ap = this.absolute_center_inner_list[i];
+      const inner_radius = this.inner_radius_list[i];
+      const outter_radius = this.outter_radius_list[i];
+      const gradient = this.radial_gradient_list[i];
+
+      canvas_ctx.fillStyle = gradient;
+      canvas_ctx.beginPath();
+      canvas_ctx.arc(ap[0], ap[1], outter_radius, 0, 2 * Math.PI, true);
+      canvas_ctx.fill();
+      // console.log("circle absolute position = ", ap);
+    }
+  }
+}
+
+// dataArray: frequency data from analyser node
 // direction: 'left' / 'right'
-function fillFrequencyData(canvasWidth, canvasHeight, dataArray, canvasCtx, direction) {
+// halos: list of drawing halo
+function fillFrequencyData(dataArray, canvasCtx, direction, halos) {
   const len = dataArray.length;
 
-  const maxBarWidthPercent = 0.20;
-  const offsetBarPerent = 0.30;
+  const canvasWidth = canvasCtx.canvas.width;
+  const canvasHeight = canvasCtx.canvas.height;
+  const maxBarWidthPercent = 0.30;
+  const offsetBarPerent = 0.20;
   const barCenterX = direction == 'left' 
     ? canvasWidth * offsetBarPerent
     : canvasWidth - canvasWidth * offsetBarPerent;
@@ -63,9 +274,11 @@ export default {
 
   data () {
     return {
+      workid: this.$route.params.id,
       counter: 0,
       stopper: { stop: false },
       isInFullScreen: false,
+      haloManager: null,
     }
   },
 
@@ -83,45 +296,63 @@ export default {
       this.isInFullScreen = document.fullscreenElement !== null;
     },
 
+    setAnalyser(analyser) {
+      analyser.fftSize = 128;
+      analyser.minDecibels = -81;
+      analyser.maxDecibels = -11;
+
+      // 平滑参数 [0,1]，数字越大实际变化的越平滑
+      if (this.$q.platform.is.ios) {
+        analyser.smoothingTimeConstant = 0.8; 
+      } else if (this.$q.platform.is.android) {
+        analyser.smoothingTimeConstant = 0.71; 
+      } else {
+        analyser.smoothingTimeConstant = 0.82;
+      }
+      return analyser;
+    },
+
+    getAnalyserArray(analyser) {
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      dataArray.fill(255, 0, bufferLength);
+      analyser.getByteFrequencyData(dataArray);
+      return dataArray;
+    },
+
+    initHaloManager() {
+      this.haloManager = new HaloManager();
+
+      // bottom halos
+      const bottomHalos = 8;
+      for (let i = 0; i < bottomHalos; ++i) {
+        const rx = Math.random();
+        const ry = 0.1 * Math.random() + 0.85;
+        const random_radius = 10 + 200 * Math.random();
+        const mills_interval = 100 * (60 + 60 * Math.random());
+        this.haloManager.addHalo(rx, ry, random_radius, mills_interval);
+      }
+
+      const middleHalos = 10;
+      for (let i = 0; i < bottomHalos; ++i) {
+        const rx = Math.random();
+        const ry = 0.8 * Math.random();
+        const random_radius = 10 + 100 * Math.random();
+        const mills_interval = 100 * (40 + 60 * Math.random());
+        this.haloManager.addHalo(rx, ry, random_radius, mills_interval);
+      }
+    },
+
     audioElementInit() {
       // console.log("audio element = ", this.audioElement);
       // const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
       // const analyser = audioCtx.createAnalyser();
-      const analyser = this.audioAnalyser;
-      this.stopper.stop = true;
-      const newStopper = { stop: false };
-      this.stopper = newStopper;
+      if (!this.audioAnalyser) return;
+      this.initHaloManager();
 
-      if (!analyser) return;
-
-      const setAnalyser = (analyser) => {
-        analyser.fftSize = 128;
-        analyser.minDecibels = -81;
-        analyser.maxDecibels = -11;
-
-        // 平滑参数 [0,1]，数字越大实际变化的越平滑
-        if (this.$q.platform.is.ios) {
-          analyser.smoothingTimeConstant = 0.8; 
-        } else if (this.$q.platform.is.android) {
-          analyser.smoothingTimeConstant = 0.71; 
-        } else {
-          analyser.smoothingTimeConstant = 0.82;
-        }
-      }
-      function getAnalyserArray(analyser) {
-        const bufferLength = analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-        dataArray.fill(255, 0, bufferLength);
-        analyser.getByteFrequencyData(dataArray);
-        return dataArray;
-      }
-
-      setAnalyser(analyser.left);
-      setAnalyser(analyser.right);
-
-      const leftDataArray = getAnalyserArray(analyser.left);
-      const rightDataArray = getAnalyserArray(analyser.right);
+      const leftDataArray = this.getAnalyserArray(this.setAnalyser(this.audioAnalyser.left));
+      const rightDataArray = this.getAnalyserArray(this.setAnalyser(this.audioAnalyser.right));
       
       // // Connect the source to be analysed
       // // source.connect(analyser);
@@ -129,48 +360,36 @@ export default {
 
       const canvas = this.$refs.visualizer;
       const canvasCtx = canvas.getContext("2d");
-      const WIDTH = canvas.width;
-      const HEIGHT = canvas.height;
       // draw an oscilloscope of the current audio source
       canvasCtx.font="80px Arial";
 
       let count = 0
-      function draw() {
-        if (newStopper.stop) return false;
+      const draw = (millsTime) => {
+        if (this.stopper.stop) return false;
+
+        // sync canvas inner drawing size with client element size
+        if (canvasCtx.canvas.width !== canvasCtx.canvas.clientWidth) {
+          canvasCtx.canvas.width = canvasCtx.canvas.clientWidth;
+        }
+        if (canvasCtx.canvas.height !== canvasCtx.canvas.clientHeight) {
+          canvasCtx.canvas.height = canvasCtx.canvas.clientHeight;
+        }
 
         requestAnimationFrame(draw);
-        analyser.left.getByteFrequencyData(leftDataArray);
-        analyser.right.getByteFrequencyData(rightDataArray);
+        this.audioAnalyser.left.getByteFrequencyData(leftDataArray);
+        this.audioAnalyser.right.getByteFrequencyData(rightDataArray);
 
         count = (count + 1) % 20
 
         canvasCtx.fillStyle = "rgba(0, 0, 0, 1)";
-        canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+        canvasCtx.clearRect(0, 0, canvasCtx.canvas.width, canvasCtx.canvas.height);
 
-        fillFrequencyData(WIDTH, HEIGHT, leftDataArray, canvasCtx, 'left');
-        fillFrequencyData(WIDTH, HEIGHT, rightDataArray, canvasCtx, 'right');
-
-        // // canvasCtx.fillStyle = "rgb(128, 128, 128)"
-        // // canvasCtx.fillText(`1testing ${dataArray[0]}`, 40, 40)
-        // // canvasCtx.fillText(`count: ${count}, ${analyser}`, 40, 80)
-        // let barWidth = (WIDTH / bufferLength) * 2.5;
-        // let barHeight;
-        // let x = 0;
-        // for (let i = 0; i < bufferLength; i++) {
-        //   barHeight = dataArray[i];
-        
-        //   canvasCtx.fillStyle = "rgb(140, 20, 252, 0.2)";
-        //   canvasCtx.fillRect(
-        //     x,
-        //     HEIGHT - barHeight / 2,
-        //     barWidth,
-        //     barHeight / 2
-        //   );
-        
-        //   x += barWidth + 1;
-        // }
+        fillFrequencyData(leftDataArray, canvasCtx, 'left');
+        fillFrequencyData(rightDataArray, canvasCtx, 'right');
+        this.haloManager.update(millsTime, canvasCtx);
+        this.haloManager.draw(canvasCtx);
       }
-      draw();
+      requestAnimationFrame(draw);
     }
   },
 
@@ -202,7 +421,8 @@ export default {
       'currentTime',
       'duration',
       'queue',
-      'queueIndex'
+      'queueIndex',
+      'playWorkId',
     ]),
 
     ...mapGetters('AudioPlayer', [
@@ -220,11 +440,20 @@ export default {
       this.audioElementInit();
     }
   },
+  created() {
+    // console.log("full screen rounter workid = ", this.workid)
+    
+    if (this.workid !== undefined && this.playWorkId === 0) {
+      // url 有workid，但是当前没有播放对应的作品
+      // 则强制跳转到对应的作品详细页面
+      this.$router.push(`/work/${this.workid}`);
+    }
+  },
   mounted() {
     this.audioElementInit();
     this.$refs.container.addEventListener("fullscreenchange", this.onFullscreenChange)
   },
-  destroyed() {
+  beforeDestroy() {
     this.stopper.stop = false;
     this.$refs.container.removeEventListener("fullscreenchange", this.onFullscreenChange)
   }

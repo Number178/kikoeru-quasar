@@ -45,7 +45,7 @@
             exact
             :to="link.path"
             active-class="text-deep-purple text-weight-medium"
-            v-for="(link, index) in links"
+            v-for="(link, index) in getLinks()"
             :key="index"
             @click="miniState = true"
           >
@@ -155,7 +155,7 @@
 
     <SleepMode v-model="showTimer" />
 
-    <q-page-container class="page-container-style">
+    <q-page-container :class="{'page-container-style': isFullScreenPage}">
       <!-- <q-page padding> -->
         <keep-alive include="Works">
           <router-view />
@@ -181,6 +181,7 @@ import SleepMode from 'components/SleepMode'
 import NotifyMixin from '../mixins/Notification.js'
 import { mapMutations, mapState } from 'vuex'
 import { Dark } from 'quasar'
+import { truncate } from 'fs'
 
 export default {
   name: 'MainLayout',
@@ -269,10 +270,19 @@ export default {
       return path && path !=='/' && path !=='/works' && path !== '/favourites';
     },
 
+    isFullScreenPage() {
+      const path = this.$route.path
+      return path && path.startsWith('/fullScreenPlayer');
+    },
+
     ...mapState('User', {
       userName: 'name',
       authEnabled: 'auth'
-    })
+    }),
+    
+    ...mapState('AudioPlayer', [
+      'playWorkId',
+    ]),
   },
 
   methods: {
@@ -406,7 +416,22 @@ export default {
     toggleDarkMode() {
       console.log("toggleDarkMode called")
       Dark.toggle();
-    }
+    },
+
+    getLinks() {
+      return this.links.filter(link => {
+        if (link.path === '/fullScreenPlayer' && this.playWorkId == 0)
+          return false;
+        return true;
+      }).map(link => {
+        if (link.path === '/fullScreenPlayer') {
+          link = {...link}; // copy
+          link.path += `/${this.playWorkId}`;
+        }
+        return link;
+      });
+
+    },
   },
 }
 </script>
@@ -428,6 +453,6 @@ export default {
   right: 0;
   bottom: 0;
   top: 0;
-  overflow-y: auto;
+  /* overflow-y: auto; */
 }
 </style>

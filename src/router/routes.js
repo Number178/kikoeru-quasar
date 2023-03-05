@@ -78,7 +78,7 @@ const routes = [
         component: List
       },
       {
-        path: 'fullScreenPlayer',
+        path: 'fullScreenPlayer/:id?',
         component: FullScreenPlayer
       },
       ...prefixRoutes('favourites', [

@@ -1,5 +1,5 @@
 <template>
-  <q-item clickable class="row bg-white">
+  <q-item clickable class="row">
       <q-item-section class="col-auto" top> 
         <router-link :to="`/work/${metadata.id}`">
           <q-img transition="fade" :src="coverUrl" style="height: 120px; width: 160px;" />
