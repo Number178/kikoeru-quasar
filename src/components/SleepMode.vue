@@ -5,7 +5,7 @@
           <q-time
             v-model="time"
             now-btn
-            :dark="sleepMode"
+            :dark="isDarkModeOn"
           />
         </div>
 
@@ -44,7 +44,11 @@ export default {
     ...mapState('AudioPlayer', [
       'sleepTime',
       'sleepMode'
-    ])
+    ]),
+
+    isDarkModeOn() {
+      return this.$q.dark.isActive;
+    }
   },
 
   mounted() {

@@ -63,6 +63,25 @@ function factorial(x) {
 }
 factorial.memo = new Map();
 
+class NUBRCurveSample {
+  constructor(samplePoints) {
+    this.points = samplePoints;
+  }
+  // 多阶贝塞尔曲线计算公式参考：https://www.zhihu.com/question/29565629
+  sample(t) {
+    // console.log("sample animation progress = ", t);
+    let accu = [0, 0];
+    const n = this.points.length - 1;
+    for (let i = 0; i <= n; ++i) {
+      accu = Vec.add(accu, Vec.mul(this.points[i], this.term(i, n, t)));
+    }
+    return accu;
+  }
+  term(i, n, t) {
+    return factorial(n) / (factorial(i) * factorial(n - i)) * Math.pow(t, i) * Math.pow(1 - t, n-i);
+  }
+}
+
 class RandomMotionRoutine {
   // num_sample_point 随机采样点数量
   // interval_mills 动画周期时间
@@ -73,34 +92,21 @@ class RandomMotionRoutine {
     this.last_mills = 0;
     this.played_mills = 0;
     this.contain_square = contain_square
-    this.points = [];
+
+    const points = [];
     for (let i = 0; i < num_sample_point; ++i) {
-      this.points.push([
+      points.push([
         Math.random(),
         Math.random(),
       ]);
     }
-    const firstPoint = this.points[0];
-    const secondPoint = this.points[1];
+    const firstPoint = points[0];
+    const secondPoint = points[1];
     const diff = Vec.sub(firstPoint, secondPoint);
     const smoothEndPoint = Vec.add(firstPoint, diff);
-    this.points.push(smoothEndPoint); // smooth and loop to the start
-    this.points.push(firstPoint); // close the curve with first point
-  }
-
-  // 多阶贝塞尔曲线计算公式参考：https://www.zhihu.com/question/29565629
-  berzierSample(t) {
-    // console.log("sample animation progress = ", t);
-    let lastPoint = [0, 0];
-    const n = this.points.length - 1;
-    for (let i = 0; i <= n; ++i) {
-      lastPoint = Vec.add(lastPoint, Vec.mul(this.points[i], this.term(i, n, t)));
-    }
-    return lastPoint;
-  }
-
-  term(i, n, t) {
-    return factorial(n) / (factorial(i) * factorial(n - i)) * Math.pow(t, i) * Math.pow(1 - t, n-i);
+    points.push(smoothEndPoint); // smooth and loop to the start
+    points.push(firstPoint); // close the curve with first point
+    this.curveSample = new NUBRCurveSample(points);
   }
 
   animate(mills) {
@@ -110,19 +116,9 @@ class RandomMotionRoutine {
 
     const progress = this.played_mills / this.interval_mills;
     // const dp = this.sampleAnimation(progress);
-    const dp = this.berzierSample(progress);
+    const dp = this.curveSample.sample(progress);
 
     return Vec.mul(dp, this.contain_square);
-  }
-
-  sampleAnimation(t) {
-    let layer = this.points;
-    while(layer.length > 1) {
-      layer = layer.slice(0, layer.length - 1).map((value, idx) => {
-        return Vec.add(Vec.mul(value, t), Vec.mul(1 - t, layer[idx]));
-      });
-    }
-    return layer[0];
   }
 }
 
@@ -235,35 +231,125 @@ function fillFrequencyData(dataArray, canvasCtx, direction, halos) {
   const canvasWidth = canvasCtx.canvas.width;
   const canvasHeight = canvasCtx.canvas.height;
   const maxBarWidthPercent = 0.30;
+  const maxBarWidth = Math.round(maxBarWidthPercent * canvasWidth);
   const offsetBarPerent = 0.20;
-  const barCenterX = direction == 'left' 
+  const barCenterX = Math.round(direction == 'left' 
     ? canvasWidth * offsetBarPerent
-    : canvasWidth - canvasWidth * offsetBarPerent;
+    : canvasWidth - canvasWidth * offsetBarPerent);
 
   // frequency count is allways even
-  function mapBarIndexToFrequencyIndex(barIdx) {
-    return barIdx % 2 == 0 
-      ? (len / 2 - barIdx / 2 - 1)
-      : (len / 2 + (barIdx - 1) / 2);
+  function mapFrequencyIndexToBarIndex(freqIdx) {
+    return freqIdx % 2 == 0 
+      ? (len / 2 - freqIdx / 2 - 1)
+      : (len / 2 + (freqIdx - 1) / 2);
   }
 
-  const barHeight = canvasHeight / len;
-  const minimalBarWidth = 4;
+  function mapBarIdxToFrequencyIndex(barIdx) {
+    return barIdx < len / 2
+      ? len - 2 * barIdx - 1
+      : 2 * barIdx - len;
+  }
 
-  canvasCtx.fillStyle = "rgb(140, 20, 252, 0.4)";
+  const barGap = canvasHeight / len;
+  const barHeight = barGap / 2;
+  const minimalBarWidth = barHeight;
+  const isCanvasResized =
+    fillFrequencyData.gradient[direction].w != canvasWidth
+    || fillFrequencyData.gradient[direction].h != canvasHeight;
+  // 渐变对象更新
+  if (isCanvasResized) {
+    const startX = barCenterX - maxBarWidth * 0.5;
+    const endX = startX + maxBarWidth;
+    const gradient = canvasCtx.createLinearGradient(
+      // x    y, 只关心水平渐变，不关心垂直方向
+      startX, 0,
+      endX,   0,
+    );
+
+    gradient.addColorStop(0.3, "rgba(255,  42, 73, 0.5)");
+    gradient.addColorStop(0.5, "rgba(140,  20, 252, 0.6)");
+    gradient.addColorStop(0.7, "rgba(255,  42, 73, 0.5)");
+    fillFrequencyData.gradient[direction].grad = gradient;
+    fillFrequencyData.gradient[direction].w = canvasWidth;
+    fillFrequencyData.gradient[direction].h = canvasHeight;
+    const curve = fillFrequencyData.gradient[direction].curve;
+    curve.points = Array(dataArray.length + 2).fill(0).map(() => [0, 0]);
+    curve.points[0] = [barCenterX, 0]
+    curve.points[curve.points.length - 1] = [barCenterX, canvasHeight]
+  }
+
+  // 绘制矩形
+  canvasCtx.fillStyle = fillFrequencyData.gradient[direction].grad;
+  canvasCtx.lineJoin = "round";
+  canvasCtx.lineWidth = 3;
+  canvasCtx.shadowColor = 'rgb(255, 42, 73)';
+  canvasCtx.shadowBlur = 10;
+  // for (let i = 0; i < len; ++i) {
+  //   const barIdx = mapFrequencyIndexToBarIndex(i);
+  //   let x,y,w,h;
+  //   const barWidth = Math.max(minimalBarWidth, maxBarWidth * (dataArray[i] / 255));
+  //   x = barCenterX - barWidth * 0.5;
+  //   y = barIdx * barGap;
+  //   w = barWidth;
+  //   h = barHeight;
+  //   canvasCtx.fillRect(x, y, w, h);
+  // }
+
+  // 绘制波形图
+  let lastY = 0;
+  let bumpDir = direction == 'left' ? 1 : -1; // or -1, 1 bump to right, -1 means bump to left
+  canvasCtx.strokeStyle = fillFrequencyData.gradient[direction].grad;
+  canvasCtx.beginPath();
+  canvasCtx.moveTo(barCenterX, lastY);
+  // smooth(dataArray);
   for (let i = 0; i < len; ++i) {
-    const frequencyIdx = mapBarIndexToFrequencyIndex(i);
-    let x,y,w,h;
-    const barWidth = Math.max(minimalBarWidth, maxBarWidthPercent * canvasWidth * (dataArray[i] / 255));
-    x = barCenterX - barWidth * 0.5;
-    y = frequencyIdx * barHeight;
-    w = barWidth;
-    h = barHeight - 2;
-    canvasCtx.fillRect(x, y, w, h);
+    // draw from bar[0] to bar[len]
+    const freqIdx = mapBarIdxToFrequencyIndex(i);
+    let freq = dataArray[freqIdx];
+    const barWidth = Math.floor(maxBarWidth * freq / 255);
+
+    // 绘制并保证和sen
+    const deltaY = barWidth * (0.5 * barGap) / maxBarWidth;
+    const cpx = barCenterX + bumpDir * barWidth;
+    const cpy1 = lastY + deltaY;
+    const cyp2 = lastY + barGap - deltaY;
+    canvasCtx.bezierCurveTo(cpx, cpy1, cpx, cyp2, barCenterX, lastY + barGap);
+
+    // 每一个波柱用两个bezier绘制，效果不是很好
+    // const bumpX = barCenterX + bumpDir * barWidth;
+    // const quadY = barGap / 4;
+    // canvasCtx.bezierCurveTo(
+    //   barCenterX, lastY + quadY,
+    //   bumpX, lastY + quadY,
+    //   bumpX, lastY + quadY + quadY
+    // )
+    // canvasCtx.bezierCurveTo(
+    //   bumpX, lastY + quadY + quadY + quadY,
+    //   barCenterX, lastY + quadY + quadY + quadY,
+    //   barCenterX, lastY + barGap,
+    // )
+    lastY += barGap;
+    bumpDir *= -1;
   }
-  // canvasCtx.fillStyle = "rgb(140, 20, 252, 0.1)";
-  // canvasCtx.fillRect(barCenterX - 1, 0, 2, canvasHeight)
+  canvasCtx.moveTo(barCenterX, canvasHeight);
+  canvasCtx.stroke();
+  canvasCtx.shadowBlur = 0;
 }
+// 存储可视化条的渐变对象
+fillFrequencyData.gradient = {
+  'left': {
+    w: 0,
+    h: 0,
+    grad: null,
+    curve: new NUBRCurveSample([]),
+  },
+  'right': {
+    w: 0,
+    h: 0,
+    grad: null,
+    curve: new NUBRCurveSample([]),
+  },
+};
 
 export default {
   name: "FullScreenPlayer",
@@ -297,7 +383,7 @@ export default {
     },
 
     setAnalyser(analyser) {
-      analyser.fftSize = 128;
+      analyser.fftSize = 256;
       analyser.minDecibels = -81;
       analyser.maxDecibels = -11;
 
@@ -375,7 +461,6 @@ export default {
           canvasCtx.canvas.height = canvasCtx.canvas.clientHeight;
         }
 
-        requestAnimationFrame(draw);
         this.audioAnalyser.left.getByteFrequencyData(leftDataArray);
         this.audioAnalyser.right.getByteFrequencyData(rightDataArray);
 
@@ -388,6 +473,7 @@ export default {
         fillFrequencyData(rightDataArray, canvasCtx, 'right');
         this.haloManager.update(millsTime, canvasCtx);
         this.haloManager.draw(canvasCtx);
+        requestAnimationFrame(draw);
       }
       requestAnimationFrame(draw);
     }
