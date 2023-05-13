@@ -28,40 +28,44 @@ function convert_srt_vtt_to_lrc(text) {
     lines = lines.slice(1)
   }
 
-  const timeParseRe = /(\d*):(\d*):(\d*)\.(\d*)\s*-->\s*[\d:.]*/
+  const timeParseRe = /(\d*):(\d*):(\d*)(\.|,)(\d*)\s*-->\s*[\d:.]*/
 
   const parsingUnit = []; // [([minute, seconds, millseconds], '文字\n文字'), (), ..., ()]
   let i = 0;
   while(i < lines.length) {
-    // stop unit and push when lastText is not empty
-    if (
-      lines[i] == '' 
-      || /^\d*$/.test(lines[i])  // parse srt文件的序号
-    ) {
-      i++;
-      continue;
-    }
 
-    // srt:
+    // 注意 srt 和 vtt 字幕的毫秒区分符号一个是`,'另一个是`.
+    // audio.srt be like
     // 1
-    // 00:01:22.343 --> 00:03:22:344
+    // 00:01:22,343 --> 00:03:22,344
     // 字幕，字幕
     // 
     // 2
     // ...
 
-    if (timeParseRe.test(lines[i])) {
-      const [_, h, m, s, ms] = timeParseRe.exec(lines[i]).map(x => parseInt(x));
-      let texts = [];
-      i++;
-      while(i < lines.length && lines[i] != "") {
-        texts.push(lines[i])
+    // audio.vtt be like
+    // WEBVTT
+    // 
+    // 1
+    // 00:01:22.343 --> 00:03:22.344
+    // 字幕，字幕
+    // 
+    // 2
+    // ...
+
+    if (/^\d*$/.test(lines[i++])) { /* parse 序号 */
+      if (timeParseRe.test(lines[i])) { /* parse 时间戳 */
+        const [_/* whole string */ , h, m, s, _mill_sep /* ignore */, ms] = timeParseRe.exec(lines[i]).map(x => parseInt(x));
+        let texts = [];
         i++;
+        while(i < lines.length && lines[i] != "") { /* parse 文字，直到空行 */
+          texts.push(lines[i++]);
+        }
+        parsingUnit.push([
+          [h, m, s, ms],
+          texts.join(' '),
+        ]);
       }
-      parsingUnit.push([
-        [h, m, s, ms],
-        texts.join(' '),
-      ]);
     }
   } // parse srt vtt 完成
 
