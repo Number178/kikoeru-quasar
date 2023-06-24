@@ -15,8 +15,8 @@
         <q-item
           clickable
           v-ripple
-          v-for="(item, index) in fatherFolder"
-          :key="index"
+          v-for="item in fatherFolder"
+          :key="item.hash"
           :active="item.type === 'audio' && currentPlayingFile.hash === item.hash"
           active-class="text-white bg-teal"
           @click="onClickItem(item)"
@@ -25,7 +25,8 @@
           <q-item-section avatar>
             <q-icon size="34px" v-if="item.type === 'folder'" color="amber" name="folder" />
             <q-icon size="34px" v-else-if="item.type === 'text'" color="info" name="description" />
-            <q-icon size="34px" v-else-if="item.type === 'image'" color="orange" name="photo" />
+            <!--<q-icon size="34px" v-else-if="item.type === 'image'" color="orange" name="photo" />-->
+            <q-img width="34px" height="34px" v-else-if="item.type === 'image'" :src="imgSrc(item)" contain :ratio="1/1"  name="thumbnail" />
             <q-icon size="34px" v-else-if="item.type === 'other'" color="info" name="description" />
             <q-btn v-else round dense color="primary" :icon="playIcon(item.hash)" @click="onClickPlayButton(item.hash)" />
           </q-item-section>
@@ -211,6 +212,13 @@ export default {
       link.target="_blank";
       link.click();
     },
+
+    imgSrc (imgItem) {
+      const token = this.$q.localStorage.getItem('jwt-token') || '';
+      const url = `/api/media/small-img/${imgItem.hash}?token=${token}`;
+      console.log('imgSrc called for ', imgItem.title);
+      return url;
+    }
   }
 }
 </script>
