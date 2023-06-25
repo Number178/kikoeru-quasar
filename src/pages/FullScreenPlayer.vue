@@ -1,7 +1,12 @@
 <template>
   <div class="container" ref="container" @dblclick="clickOnContainer">
     <div class="img-blur-background" :style="containerStyle"></div>
-    <q-img contain :src="coverUrl" class="constrain-height"/>
+    <q-img contain 
+      :src="coverUrl"
+      class="constrain-height"
+      img-class="scale-animation"
+      :img-style="{'animation-play-state': playing ? 'running' : 'paused'}"
+    />
     <canvas class="visualizer" ref="visualizer" width="1000" height="1000"></canvas>
     <div class="simple-progress" :style="progressBarStyle"></div>
     <div class="footer">
@@ -491,6 +496,7 @@ export default {
     containerStyle() {
       return {
         'background-image': `url("${this.coverUrl}")`,
+        'backdrop-filter': `url("${this.coverUrl}") blur(2px)`
       }
     },
 
@@ -509,6 +515,7 @@ export default {
       'queue',
       'queueIndex',
       'playWorkId',
+      'playing'
     ]),
 
     ...mapGetters('AudioPlayer', [
@@ -529,10 +536,20 @@ export default {
   created() {
     // console.log("full screen rounter workid = ", this.workid)
     
-    if (this.workid !== undefined && this.playWorkId === 0) {
+    if (this.workid === undefined && this.playWorkId !== 0) {
+      // url 没有workid，但是当前正在播放对应的作品
+      // 给当前网页跳转到包含作品id的当前页面上
+      this.$router.push(`/fullScreenPlayer/${this.playWorkId}`);
+    } else if (this.workid !== undefined && this.playWorkId === 0) {
       // url 有workid，但是当前没有播放对应的作品
       // 则强制跳转到对应的作品详细页面
       this.$router.push(`/work/${this.workid}`);
+    } else if (this.workid === undefined && this.playWorkId === 0) {
+      this.$q.notify({
+        message: "当前没有播放任何作品，请先播放一个作品然后打开可视化页面",
+        color: "negative",
+      });
+      this.$router.push(`/works`);
     }
   },
   mounted() {
@@ -563,7 +580,7 @@ export default {
   height: 100%;
   background-position: 50% 50%;
   background-size: cover;
-  filter: blur(4px);
+  filter: blur(4px) brightness(0.8);
 }
 
 .constrain-height {
@@ -603,4 +620,22 @@ export default {
   text-shadow: 1px 1px 0px rgb(82, 82, 82);
 }
 
+</style>
+
+<style>
+
+.scale-animation {
+  animation-name: bump-shrink;
+  animation-duration: 9s;
+  animation-iteration-count: infinite;
+  border-radius: 0px;
+  transform-origin: center;
+
+}
+
+@keyframes bump-shrink {
+  0% {transform: scale(1.0);}
+  50% {transform: scale(1.08);}
+  100% {transform: scale(1.0);}
+}
 </style>
