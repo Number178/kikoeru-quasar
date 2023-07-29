@@ -7,7 +7,7 @@
       </q-item-section>
 
 
-      <q-item-section class="q-gutter-y-xs column items-start" top v-on:click.self="showReviewDialog = true">
+      <q-item-section class="q-gutter-y-xs column items-start" top v-on:click.self="showReviewDialog = true && mode != 'histroy' ">
         <q-item-label lines="2" class="text-body2">
           <router-link :to="`/work/${metadata.id}`" class="col-auto text-secondary">
             {{metadata.title}}
@@ -55,6 +55,30 @@
             </q-card-section>
           </q-card>
         </q-item-label>
+
+        <div v-if="mode === 'histroy'" class="full-width">
+          <div class="full-width">
+            <q-btn color="primary" label="从历史播放"  class="full-width" @click="playHistroy(metadata.id, metadata.state)"/>
+          </div>
+
+          <!--
+          <div>
+            <span class="text-accent">历史：</span>
+              <q-badge color="blue">
+                {{ metadata.play_updated_at }}
+              </q-badge>
+          </div>
+          -->
+
+          <div>
+            <span class="text-accent">进度：</span>
+            <q-badge color="purple">{{ metadata.state.index+1 }} / {{ metadata.state.queue.length }}</q-badge>
+            <q-badge color="blue">{{ humanReadableSeconds(metadata.state.seconds) }}</q-badge>
+            <span class="text-grey">
+              {{ metadata.state.queue[metadata.state.index].title }}
+            </span>
+          </div>
+        </div>
 
         <q-item-label class="q-pt-xs" v-if="mode === 'progress'">
           <q-btn-toggle
@@ -142,6 +166,18 @@ export default {
   },
 
   methods: {
+    humanReadableSeconds(seconds) {
+      const hour = Math.floor(seconds / 3600)
+      const minute = Math.floor(seconds / 60)
+      const sec = Math.floor(seconds) % 60
+
+      let str = ""
+      if (hour > 0) str += `${hour}小时`
+      if (minute > 0) str += `${minute}分钟`
+      str += `${sec}秒`
+      return str
+    },
+
     setMetadata () {
       if (this.metadata.userRating) {
         this.rating = this.metadata.userRating;
@@ -224,6 +260,17 @@ export default {
           }
         })
     },
+
+    playHistroy(workId, histroyState) {
+      this.$store.commit('AudioPlayer/SET_QUEUE', {
+        workId: workId,
+        queue: histroyState.queue,
+        index: histroyState.index,
+        resetPlaying: false,
+        resumeHistroySeconds: histroyState.seconds,
+      })
+      // this.$store.commit('AudioPlayer/SET_RESUME_HISTROY_SECONDS', histroyState.seconds)
+    }
   }
 
 }

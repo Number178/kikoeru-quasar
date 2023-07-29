@@ -54,6 +54,7 @@ module.exports = function (ctx) {
         'LocalStorage',
         'SessionStorage',
         'Notify',
+        'Dialog',
       ],
       config: {
         dark: 'auto',
@@ -98,14 +99,23 @@ module.exports = function (ctx) {
       proxy: {
         // https://webpack.js.org/configuration/dev-server/#devserverproxy
         // proxy all requests starting with /api to http://localhost:8888
-        // '/api': 'http://localhost:8888',
-        '/api': 'http://192.168.5.234:8888',
+        '/api': 'http://localhost:8888',
         '/socket.io': {
-          target: 'http://192.168.5.234:8888',
+          target: 'http://localhost:8888',
           ws: true
         },
-        '/workbox': 'http://192.168.5.234:8888',
-      }
+        '/workbox': 'http://localhost:8888',
+      },
+      // proxy: {
+      //   // https://webpack.js.org/configuration/dev-server/#devserverproxy
+      //   // proxy all requests starting with /api to http://localhost:8888
+      //   '/api': 'http://10.6.10.9:30148',
+      //   '/socket.io': {
+      //     target: 'http://10.6.10.9:30148',
+      //     ws: true
+      //   },
+      //   '/workbox': 'http://10.6.10.9:30148',
+      // }
     },
 
     // animations: 'all', // --- includes all animations

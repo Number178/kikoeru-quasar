@@ -155,6 +155,8 @@
 
       <q-btn dense @click="showReviewDialog = true" color="cyan q-mt-sm shadow-4 q-mx-xs q-px-sm" label="写评论" />
 
+      <q-btn v-if="metadata.state && playWorkId !== metadata.id" dense @click="resumeThisHistroy" color="cyan q-mt-sm shadow-4 q-mx-xs q-px-sm" label="播放此作品的历史记录" />
+
       <WriteReview v-if="showReviewDialog" @closed="processReview" :workid="metadata.id" :metadata="metadata"></WriteReview>
     </div>
   </div>
@@ -164,6 +166,7 @@
 import CoverSFW from 'components/CoverSFW'
 import WriteReview from './WriteReview'
 import NotifyMixin from '../mixins/Notification.js'
+import { mapState } from 'vuex'
 
 export default {
   name: 'WorkDetails',
@@ -206,7 +209,12 @@ export default {
         ? c.padStart(8,'0')  // 8位RJ番号
         : c.padStart(6,'0'); // 6位RJ番号
       return c;
-    }
+    },
+
+    ...mapState('AudioPlayer', [
+      'playing',
+      'playWorkId'
+    ]),
   },
 
   watch: {
@@ -287,6 +295,10 @@ export default {
     processReview () {
       this.showReviewDialog = false;
     },
+
+    resumeThisHistroy() {
+      this.$emit("resumeHistroy")
+    }
   }
 }
 </script>

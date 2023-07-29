@@ -121,7 +121,7 @@ export default {
   watch: {
     tree () {
       this.initPath()
-    }
+    },
   },
 
   computed: {
@@ -296,7 +296,6 @@ export default {
       const length = this.preview_img_list.length;
       this.preview_img_idx = (length +this.preview_img_idx + (next ? 1 : -1) ) % length;
     },
-
-  }
+  },
 }
 </script>

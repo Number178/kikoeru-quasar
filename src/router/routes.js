@@ -84,7 +84,7 @@ const routes = [
       ...prefixRoutes('favourites', [
         {
           path: '',
-          props: { route: 'review'},
+          props: { route: 'histroy'},
           component: Favourites,
         },
         {
@@ -127,6 +127,11 @@ const routes = [
         {
           path: '/folder',
           props: { route: 'folder'},
+          component: Favourites,
+        },
+        {
+          path: '/histroy',
+          props: { route: 'histroy'},
           component: Favourites,
         },
       ]),

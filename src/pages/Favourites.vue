@@ -13,13 +13,14 @@
             class="text-bold"
             text-color="black"
             :options="[
+              {label: '播放历史', value: 'histroy'},
               {label: '我的评价', value: 'review'},
               {label: '我的进度', value: 'progress'},
-              {label: '分类整理', value: 'folder'}
+              {label: '分类整理', value: 'folder'},
             ]"
           />
       </div>
-      <div class="col-auto gt-sm row">
+      <div v-if="mode != 'histroy'" class="col-auto gt-sm row">
         <q-select dense rounded outlined v-model="sortBy" :options="sortOptions" bg-color="white" class="q-mx-sm"/>
         <q-btn
           :disable="sortButtonDisabled"
@@ -108,7 +109,7 @@ export default {
 
   data() {
     return {
-      mode: 'review',
+      mode: 'histroy',
       progressFilter: 'marked',
       works: [],
       stopLoad: false,
@@ -246,7 +247,8 @@ export default {
         params.filter = this.progressFilter;
       }
 
-      return this.$axios.get('/api/review', { params })
+      const requestUrl = this.mode == 'histroy' ? "/api/histroy" : 'api/review'
+      return this.$axios.get(requestUrl, { params })
         .then((response) => {                  
           const works = response.data.works
           this.works = (params.page === 1) ? works.concat() : this.works.concat(works)

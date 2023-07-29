@@ -167,7 +167,9 @@
     </q-page-container>
 
     <q-footer class="q-pa-none">
-      <LyricsBar />
+      <!--<PIPLyrics v-if="enablePIPLyrics && !isQueueEmpty" />-->
+      <PIPLyrics />
+      <LyricsBar v-if="! enablePIPLyrics"/>
       <PlayerBar />
     </q-footer>
   </q-layout>
@@ -177,9 +179,10 @@
 import PlayerBar from 'components/PlayerBar'
 import AudioPlayer from 'components/AudioPlayer'
 import LyricsBar from 'components/LyricsBar'
+import PIPLyrics from 'src/components/PIPLyrics'
 import SleepMode from 'components/SleepMode'
 import NotifyMixin from '../mixins/Notification.js'
-import { mapMutations, mapState } from 'vuex'
+import { mapMutations, mapState, mapGetters } from 'vuex'
 import { Dark } from 'quasar'
 import { truncate } from 'fs'
 
@@ -192,7 +195,8 @@ export default {
     PlayerBar,
     AudioPlayer,
     LyricsBar,
-    SleepMode
+    SleepMode,
+    PIPLyrics,
   },
 
   data () {
@@ -282,7 +286,12 @@ export default {
     
     ...mapState('AudioPlayer', [
       'playWorkId',
+      'enablePIPLyrics',
     ]),
+
+    ...mapGetters('AudioPlayer', [
+      'isQueueEmpty',
+    ])
   },
 
   methods: {

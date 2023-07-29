@@ -45,6 +45,15 @@
                   开启音频可视化（需要刷新页面）
                 </q-item-section>
               </q-item>
+
+              <q-item :disable="isAndroid" clickable v-ripple @click="setPIPLyrics">
+                <q-item-section avatar>
+                  <q-icon :name="enablePIPLyrics ? 'done' : ''" />
+                </q-item-section>
+                <q-item-section>
+                  {{ isAndroid ? "尚不支持Android桌面歌词" : "打开桌面歌词" }}
+                </q-item-section>
+              </q-item>
             </q-menu>
           </q-btn>
           <div class="row absolute q-pl-md q-pr-md col-12 justify-between">
@@ -175,6 +184,8 @@ export default {
       editCurrentPlayList: false,
       queueCopy: [],
       hideSeekButton: false,
+      isAndroid: navigator.userAgent.toLowerCase().indexOf('android') > -1,
+      histroyCheckIntervalId: -1,
     }
   },
 
@@ -182,6 +193,17 @@ export default {
     if (this.$q.localStorage.has('hideSeekButton')) {
       this.hideSeekButton = this.$q.localStorage.getItem('hideSeekButton')
     }
+    this.histroyCheckIntervalId = setInterval(() => {
+      this.onUpdatePlayingStatus()
+    }, 60 * 1000) // 每隔一段时间更新一次播放记录
+  },
+
+  beforeDestroy() {
+    clearInterval(this.histroyCheckIntervalId)
+
+    // 原本是想要在关闭窗口时，更新最后一次播放历史
+    // 但是实际测试下来，关闭窗口时根本没有来得及发送最后一次更新消息，于是放弃这个方案
+    // this.onUpdatePlayingStatus()
   },
 
   watch: {
@@ -190,7 +212,16 @@ export default {
       // 在删除最后一个 track 时关闭当前播放列表
       if (this.queueCopy.length === 0) {
         this.showCurrentPlayList = false
+      } else {
+        // 播放列表发生变化，且更新后不为空的情况下
+        // 更新播放历史
+        this.onUpdatePlayingStatus()
       }
+    },
+
+    queueIndex() {
+      // 当前播放序号发生变化时更新历史
+      this.onUpdatePlayingStatus()
     },
 
     showCurrentPlayList (flag) {
@@ -203,6 +234,39 @@ export default {
     hideSeekButton (option) {
       this.$q.localStorage.set('hideSeekButton', option)
     },
+
+    playing() {
+      this.onUpdatePlayingStatus()
+    },
+
+    // 监听 前进、后退 进度条时间，
+    // 当 ***SeekMode 变为false，表明进度条跳转已经完成
+    rewindSeekMode(v) {
+      if (!v) {
+        // 当用户前进后退时，currentTime可能并没有立即从audio元素中反馈到vue状态里，
+        // 因此这里需要延迟一小会，等待audio前进后退之后的更新时间抵达vue的currentTime状态，
+        // 然后再去更新播放历史
+        setTimeout(() => {
+          this.onUpdatePlayingStatus()
+        }, 100) 
+      }
+    },
+    forwardSeekMode(v) {
+      if (!v) {
+        // 当用户前进后退时，currentTime可能并没有立即从audio元素中反馈到vue状态里，
+        // 因此这里需要延迟一小会，等待audio前进后退之后的更新时间抵达vue的currentTime状态，
+        // 然后再去更新播放历史
+        setTimeout(() => {
+          this.onUpdatePlayingStatus()
+        }, 100)
+      }
+    },
+    currentTime() {
+      if (!this.playing) {
+        // 暂停状态下切换时间，也更新播放历史
+        this.onUpdatePlayingStatus()
+      }
+    }
   },
 
   computed: {
@@ -287,11 +351,16 @@ export default {
       'rewindSeekTime',
       'forwardSeekTime',
       'swapSeekButton',
-      'enableVisualizer'
+      'enableVisualizer',
+      'enablePIPLyrics',
+      'playWorkId',
+      'rewindSeekMode',
+      'forwardSeekMode'
     ]),
     
     ...mapGetters('AudioPlayer', [
-      'currentPlayingFile'
+      'currentPlayingFile',
+      'resumeHistroyDone',
     ])
   },
 
@@ -306,7 +375,8 @@ export default {
       rewind: 'SET_REWIND_SEEK_MODE',
       forward: 'SET_FORWARD_SEEK_MODE',
       toggleSwapSeekButton: 'TOGGLE_SWAP_SEEK_BUTTON',
-      toggleEnableVisualizer: 'TOGGLE_ENABLE_VISUALIZER'
+      toggleEnableVisualizer: 'TOGGLE_ENABLE_VISUALIZER',
+      setEnablePIPLyrics: 'SET_ENABLE_PIP_LYRICS',
     }),
     ...mapMutations('AudioPlayer', [
       'SET_TRACK',
@@ -381,7 +451,40 @@ export default {
       if (this.$q.screen.lt.sm) {
           this.toggleHide()
       }
-    }
+    },
+
+    setPIPLyrics() {
+      if (!this.enablePIPLyrics) {
+        this.$q.notify({message: "创建桌面歌词组件中，请稍等...", timeout: 500})
+      }
+      this.setEnablePIPLyrics(!this.enablePIPLyrics)
+    },
+    
+    onUpdatePlayingStatus() {
+      // 当前播放列表为空，禁止记录播放历史
+      if (this.queueCopy.length <= 0) return;
+      if (!this.resumeHistroyDone) {
+        console.log("尚处于恢复历史记录的状态，跳过本次历史更新")
+        return
+      }
+
+      const data = {
+        "work_id": this.playWorkId,
+        "state": {
+          queue: this.queueCopy,
+          index: this.queueIndex,
+          seconds: this.currentTime,
+        }
+      }
+
+      this.$axios.put('/api/histroy', data)
+        .then((_) => {
+          console.log("更新播放状态成功")
+        })
+        .catch((err) => {
+          console.error(err.response.data.error)
+        })
+    },
   }
 }
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <WorkDetails :metadata="metadata" @reset="requestData()" />
+    <WorkDetails :metadata="metadata" @reset="requestData()" @resumeHistroy="resumeMetadataPlayHistroy" />
     <!-- <WorkQueue :queue="tracks" :editable="false" /> -->
     <WorkTree :tree="tree" :metadata="metadata" :editable="false" />
   </div>
@@ -11,6 +11,7 @@ import WorkDetails from 'components/WorkDetails'
 // import WorkQueue from 'components/WorkQueue'
 import WorkTree from 'components/WorkTree'
 import NotifyMixin from '../mixins/Notification.js'
+import { mapState } from 'vuex'
 
 export default {
   name: 'Work',
@@ -34,10 +35,21 @@ export default {
     }
   },
 
+  computed: {
+    ...mapState('AudioPlayer', [
+      'playing',
+      'playWorkId'
+    ]),
+  },
+
   watch: {
     $route (to) {
       this.workid = to.params.id;
+      this.metadata.state = null;
       this.requestData();
+    },
+    
+    metadata() {
     }
   },
 
@@ -50,6 +62,11 @@ export default {
       this.$axios.get(`/api/work/${this.workid}`)
         .then(response => {
           this.metadata = response.data
+          // 如果有播放状态记录
+          // 同时当前尚未播放，则设置历史播放进度
+          if (this.metadata.state && this.playWorkId == 0) {
+            this.resumeMetadataPlayHistroy()
+          }
         })
         .catch((error) => {
           if (error.response) {
@@ -72,6 +89,17 @@ export default {
             this.showErrNotif(error.message || error)
           }
         })
+    },
+
+    resumeMetadataPlayHistroy() {
+      this.$store.commit('AudioPlayer/SET_QUEUE', {
+        workId: this.metadata.id,
+        queue: this.metadata.state.queue,
+        index: this.metadata.state.index,
+        resetPlaying: false,
+        resumeHistroySeconds: this.metadata.state.seconds,
+      })
+      console.log(`resume seconds = ${this.metadata.state.seconds}`)
     },
   }
 }

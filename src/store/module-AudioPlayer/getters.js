@@ -5,6 +5,14 @@ const getters = {
       title: '',
       workTitle: ''
     }
+  },
+
+  resumeHistroyDone: (state) => {
+    return state.resumeHistroySeconds < 0
+  },
+
+  isQueueEmpty: (state) => {
+    return state.queue.length == 0
   }
 }
 

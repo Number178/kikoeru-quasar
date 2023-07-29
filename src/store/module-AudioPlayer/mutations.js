@@ -1,6 +1,6 @@
 import { LocalStorage } from 'quasar'
 import getters from './getters'
-import { SWAP_SEEK_BUTTON_KEY, ENABLE_VISUALIZER_KEY } from './state'
+import { SWAP_SEEK_BUTTON_KEY, ENABLE_VISUALIZER_KEY, ENABLE_PIP_LYRICS } from './state'
 
 const mutations = {
   TOGGLE_HIDE (state) {
@@ -47,7 +47,7 @@ const mutations = {
 
     if (payload.resetPlaying) {
       state.playing = true
-    }    
+    }
 
     const workId = payload.workId
     // 设置workId，然后配置封面，从浏览器本地Storage查找是否曾经手动配置过封面，
@@ -62,6 +62,9 @@ const mutations = {
       state.visualPlayerCoverUrl = coverUrl
     }
     state.playWorkId = workId
+    if (Object.prototype.hasOwnProperty.call(payload, "resumeHistroySeconds")) {
+      state.resumeHistroySeconds = payload.resumeHistroySeconds
+    }
   },
   EMPTY_QUEUE: (state) => {
     state.playing = false
@@ -177,7 +180,20 @@ const mutations = {
 
   SET_AUDIO_ANALYSER: (state, value) => {
     state.audioAnalyser = value;
-  }
+  },
+
+  SET_ENABLE_PIP_LYRICS: (state, value) => {
+    state.enablePIPLyrics = value
+    LocalStorage.set(ENABLE_PIP_LYRICS, state.enablePIPLyrics)
+  },
+
+  SET_RESUME_HISTROY_SECONDS: (state, value) => {
+    state.resumeHistroySeconds = value
+  },
+
+  RESUME_HISTROY_SECONDS_DONE: (state) => {
+    state.resumeHistroySeconds = -1
+  },
 }
 
 export default mutations

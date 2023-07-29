@@ -133,11 +133,13 @@ export default {
       'forwardSeekTime',
       'rewindSeekMode',
       'forwardSeekMode',
-      'enableVisualizer'
+      'enableVisualizer',
+      'resumeHistroySeconds',
     ]),
 
     ...mapGetters('AudioPlayer', [
-      'currentPlayingFile'
+      'currentPlayingFile',
+      'resumeHistroyDone',
     ])
   },
 
@@ -224,7 +226,8 @@ export default {
       'CLEAR_SLEEP_MODE',
       'SET_REWIND_SEEK_MODE',
       'SET_FORWARD_SEEK_MODE',
-      'SET_AUDIO_ANALYSER'
+      'SET_AUDIO_ANALYSER',
+      'RESUME_HISTROY_SECONDS_DONE',
     ]),
 
     onCanplay () {
@@ -234,6 +237,15 @@ export default {
       // 播放
       if (this.playing && this.player.currentTime !== this.player.duration) {
         this.player.play()
+      }
+
+      // 当音频文件在网页中加载完毕，可以播放时
+      // 检查此前是否有需要恢复的历史进度，如果尚未恢复
+      // 则设置currentTime到指定的时间点，然后标记已经恢复历史播放记录
+      if (!this.resumeHistroyDone) {
+        this.player.currentTime = this.resumeHistroySeconds;
+        this.RESUME_HISTROY_SECONDS_DONE()
+        this.$q.notify({message: "已恢复播放历史", timeout: 1000})
       }
     },
 
@@ -343,6 +355,7 @@ export default {
                 }
                 this.lrcObj.setLyric(response.data);
                 this.lrcObj.play(this.player.currentTime * 1000);
+                if (!this.playing) this.lrcObj.pause() // 加载歌词后，观察当前是否在播放音频，如果没有，则暂停歌词滚动
               });
           } else {
             // 无歌词文件
