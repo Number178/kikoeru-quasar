@@ -349,7 +349,7 @@ export default {
             this.lrcAvailable = true;
             console.log('读入歌词');
             const lrcUrl = `/api/media/stream/${response.data.hash}?token=${token}`;
-            const lyricExtension = response.data.lyricExtension;
+            const lyricExtension = response.data.lyricExtension.toLowerCase();
             this.$axios.get(lrcUrl)
               .then(response => {
                 console.log('歌词读入成功');
