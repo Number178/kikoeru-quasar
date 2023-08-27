@@ -135,6 +135,8 @@ export default {
       'forwardSeekMode',
       'enableVisualizer',
       'resumeHistroySeconds',
+      'playWorkId',
+      'visualPlayerCoverUrl',
     ]),
 
     ...mapGetters('AudioPlayer', [
@@ -158,6 +160,7 @@ export default {
         // 加载新音频/视频文件
         this.player.media.load();
         this.loadLrcFile();
+        this.updateMediaSessionMetadata();
       }
     },
 
@@ -186,7 +189,7 @@ export default {
         this.player.forward(this.forwardSeekTime);
         this.SET_FORWARD_SEEK_MODE(false);
       }
-    }
+    },
   },
 
   methods: {
@@ -221,6 +224,7 @@ export default {
       'PLAY',
       'SET_TRACK',
       'NEXT_TRACK',
+      'PREVIOUS_TRACK',
       'SET_CURRENT_LYRIC',
       'SET_VOLUME',
       'CLEAR_SLEEP_MODE',
@@ -375,6 +379,62 @@ export default {
           }
         })
     },
+
+    updateMediaSessionMetadata() {
+      console.log("try update media session")
+      try {
+        if (this.playWorkId == 0) {
+          navigator.mediaSession.metadata = null;
+        } else {
+          navigator.mediaSession.metadata = new window.MediaMetadata({
+            title: this.currentPlayingFile.title,
+            artist: "",
+            album: this.currentPlayingFile.workTitle,
+            // artwork: this.visualPlayerCoverUrl,
+            artwork: [
+              // {
+              //   src: this.genCoverUrl(this.playWorkId, "visualPlayerCover"), // 图像太大，safari上有时会出现加载失败的问题
+              //   sizes: "600x600", // 随便写的尺寸
+              //   type: "image/jpg",
+              // },
+              {
+                src: this.genCoverUrl(this.playWorkId, "main"),
+                sizes: "560x560",
+                type: "image/jpeg",
+              },
+              {
+                src: this.genCoverUrl(this.playWorkId, "240x240"),
+                sizes: "240x240",
+                type: "image/jpeg",
+              },
+              {
+                src: this.genCoverUrl(this.playWorkId, "sam"),
+                sizes: "100x100",
+                type: "image/jpeg",
+              },
+            ]
+          })
+        }
+      } catch (e) {
+        console.warn("set mediasession failed, because: ", e)
+      }
+    },
+
+    // type: in 'visualPlayerCover', 'main', 'sam', '240x240', # warning '360x360' is almost not exist in dlsite, do not use 360x360
+    // 'visualPlayerCover' 默认是 'main'，如果用户有手动设置过可视化封面的话，则使用用户设置过的那个图片
+    genCoverUrl(workId, type) {
+      const token = this.$q.localStorage.getItem('jwt-token') || ''
+
+      if (type == "visualPlayerCover") {
+        return this.visualPlayerCoverUrl
+          ? `${this.visualPlayerCoverUrl}?token=${token}`
+          : ""
+      } else if (workId != 0) {
+        return `/api/cover/${workId}?type=${type}&token=${token}`
+      } else {
+        return ""
+      }
+    },
   },
 
   mounted () {
@@ -406,6 +466,9 @@ export default {
     if (this.source) {
       this.loadLrcFile();
     }
+
+    // this.initMediaSessionActionHandler()
+
   }
 }
 </script>
