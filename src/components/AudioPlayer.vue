@@ -186,6 +186,7 @@ export default {
       hideSeekButton: false,
       isAndroid: navigator.userAgent.toLowerCase().indexOf('android') > -1,
       histroyCheckIntervalId: -1,
+      latestUpdatedHistory: null, // 记录最近一次更新的历史记录，防止反复对同一个播放历史进行远程数据更新
     }
   },
 
@@ -460,9 +461,26 @@ export default {
       this.setEnablePIPLyrics(!this.enablePIPLyrics)
     },
     
+    // return true if two history updated on (onUpdatePlayingStatus) is same
+    isSameTwoHistory(ha, hb) {
+      // 如果有任意一个是null，则认为两者不一样
+      if (!(ha && hb)) return false;
+      
+      if (ha.work_id != hb.work_id) return false;
+      if (ha.state.seconds != hb.state.seconds) return false;
+      if (ha.state.index != hb.state.index) return false;
+      if (ha.state.queue.length != hb.state.queue.length) return false;
+      for (let i = 0; i < ha.state.queue.length; ++i) {
+        if (ha.state.queue[i].hash != hb.state.queue[i].hash) return false;
+      }
+      return true;
+    },
+    
     onUpdatePlayingStatus() {
       // 当前播放列表为空，禁止记录播放历史
       if (this.queueCopy.length <= 0) return;
+
+      // 尚处于恢复历史记录的阶段，为了避免此时将空状态写入远程服务器覆盖有效状态，跳过本次历史更新
       if (!this.resumeHistroyDone) {
         console.log("尚处于恢复历史记录的状态，跳过本次历史更新")
         return
@@ -477,9 +495,16 @@ export default {
         }
       }
 
+      // 检查最近一次的历史更新记录，如果两次数据不变，则无需更新记录
+      if (this.isSameTwoHistory(this.latestUpdatedHistory, data)) {
+        console.log("播放状态未变，跳过服务器历史更新")
+        return
+      }
+
       this.$axios.put('/api/histroy', data)
         .then((_) => {
           console.log("更新播放状态成功")
+          this.latestUpdatedHistory = data;
         })
         .catch((err) => {
           console.error(err.response.data.error)
