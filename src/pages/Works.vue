@@ -2,81 +2,102 @@
   <div>
     <div class="text-h5 text-weight-regular q-ma-md">
       {{pageTitle}}
-      <span v-show="pagination.totalCount">
-        ({{pagination.totalCount}})
-      </span>
+      <q-chip>
+        <q-avatar color="secondary">{{pagination.totalCount}}</q-avatar>
+        <span v-for="meta, index in searchMetas" :key="meta" class="text-primary">{{ index == 0 ? "":"," }} {{ meta }}</span>
+      </q-chip>
+    </div>
+
+    <div class="row justify-between q-mb-md q-mr-sm">
+      <!-- 排序属性 -->
+      <q-select
+        dense
+        rounded
+        outlined
+        bg-color=""
+        transition-show="scale"
+        transition-hide="scale"
+        v-model="sortCategoryOption"
+        :options="sortCategoryOptions"
+        :option-label="humanReadableLabel"
+        label="排序属性"
+        class="col-auto"
+      />
+
+      <!-- 年龄分级 -->
+      <q-select
+        dense
+        rounded
+        outlined
+        bg-color=""
+        transition-show="scale"
+        transition-hide="scale"
+        v-model="nsfwOption"
+        :options="nsfwOptions"
+        :option-label="humanReadableLabel"
+        label="年龄分级"
+        class="col-auto"
+      />
+
+      <!-- 排序顺序 -->
+      <q-toggle v-model="sortInDesc" :label="sortInDesc ? '降序' : '升序'" />
+
+      <!-- 切换显示模式按钮 -->
+      <q-btn-toggle
+        dense
+        spread
+        rounded
+        v-model="listMode"
+        toggle-color="primary"
+        color="white"
+        text-color="primary"
+        :options="[
+          { icon: 'apps', value: false },
+          { icon: 'list', value: true }
+        ]"
+        style="width: 85px;"
+        class="col-auto"
+      />
+
+      <q-btn-toggle
+        dense
+        spread
+        rounded
+        v-model="showLabel"
+        toggle-color="primary"
+        color="white"
+        text-color="primary"
+        :options="[
+          { icon: 'label', value: true },
+          { icon: 'label_off', value: false }
+        ]"
+        style="width: 85px;"
+        class="col-auto"
+        v-if="$q.screen.width > 700 && listMode"
+      />
+
+      <q-btn-toggle
+        dense
+        spread
+        rounded
+        :disable="$q.screen.width < 1120"
+        v-model="detailMode"
+        toggle-color="primary"
+        color="white"
+        text-color="primary"
+        :options="[
+          { icon: 'zoom_in', value: true },
+          { icon: 'zoom_out', value: false },
+        ]"
+        style="width: 85px;"
+        class="col-auto"
+        v-if="$q.screen.width > 700 && !listMode"
+      />
+
     </div>
 
     <div :class="`row justify-center ${listMode ? 'list' : 'q-mx-md'}`">
       <q-infinite-scroll @load="onLoad" :offset="250" :disable="stopLoad" style="max-width: 1680px;" class="col">
-        <div v-show="works.length" class="row justify-between q-mb-md q-mr-sm">
-          <!-- 排序选择框 -->
-          <q-select
-            dense
-            rounded
-            outlined
-            bg-color=""
-            transition-show="scale"
-            transition-hide="scale"
-            v-model="sortOption"
-            :options="options"
-            label="排序"
-            class="col-auto"
-          />
-
-          <!-- 切换显示模式按钮 -->
-          <q-btn-toggle
-            dense
-            spread
-            rounded
-            v-model="listMode"
-            toggle-color="primary"
-            color="white"
-            text-color="primary"
-            :options="[
-              { icon: 'apps', value: false },
-              { icon: 'list', value: true }
-            ]"
-            style="width: 85px;"
-            class="col-auto"
-          />
-
-          <q-btn-toggle
-            dense
-            spread
-            rounded
-            v-model="showLabel"
-            toggle-color="primary"
-            color="white"
-            text-color="primary"
-            :options="[
-              { icon: 'label', value: true },
-              { icon: 'label_off', value: false }
-            ]"
-            style="width: 85px;"
-            class="col-auto"
-            v-if="$q.screen.width > 700 && listMode"
-          />
-
-          <q-btn-toggle
-            dense
-            spread
-            rounded
-            :disable="$q.screen.width < 1120"
-            v-model="detailMode"
-            toggle-color="primary"
-            color="white"
-            text-color="primary"
-            :options="[
-              { icon: 'zoom_in', value: true },
-              { icon: 'zoom_out', value: false },
-            ]"
-            style="width: 85px;"
-            class="col-auto"
-            v-if="$q.screen.width > 700 && !listMode"
-          />
-
-        </div>
 
         <q-list v-if="listMode" bordered separator class="shadow-2">
           <WorkListItem v-for="work in works" :key="work.id" :metadata="work" :showLabel="showLabel && $q.screen.width > 700" />
@@ -88,7 +109,7 @@
           </div>
         </div>
 
-        <div v-show="stopLoad" class="q-mt-lg q-mb-xl text-h6 text-bold text-center">END</div>
+        <div v-show="stopLoad" class="q-mt-lg q-mb-xl text-h6 text-bold text-center">无更多作品</div>
 
         <template v-slot:loading>
           <div class="row justify-center q-my-md">
@@ -123,81 +144,20 @@ export default {
       stopLoad: false,
       works: [],
       pageTitle: '',
+      searchMetas: [],
       page: 1,
       pagination: { currentPage:0, pageSize:12, totalCount:0 },
       seed: 7, // random sort
-      sortOption: {
-        label: '按照发售日期新到老的顺序',
-        order: 'release',
-        sort: 'desc'
-      },
-      options: [
-        {
-          label: '按照发售日期新到老的顺序',
-          order: 'release',
-          sort: 'desc'
-        },
-        {
-          label: '按照我的评价排序',
-          order: 'rating',
-          sort: 'desc'
-        },
-        {
-          label: '按照发售日期老到新的顺序',
-          order: 'release',
-          sort: 'asc'
-        },
-        {
-          label: '按照售出数量多到少的顺序',
-          order: 'dl_count',
-          sort: 'desc'
-        },
-        {
-          label: '按照价格便宜到贵的顺序',
-          order: 'price',
-          sort: 'asc'
-        },
-        {
-          label: '按照价格贵到便宜的顺序',
-          order: 'price',
-          sort: 'desc'
-        },
-        {
-          label: '按照评价高到低的顺序',
-          order: 'rate_average_2dp',
-          sort: 'desc'
-        },
-        {
-          label: '按照评论多到少的顺序',
-          order: 'review_count',
-          sort: 'desc'
-        },
-        {
-          label: '按照RJ号大到小的顺序',
-          order: 'id',
-          sort: 'desc'
-        },
-        {
-          label: '按照RJ号小到大的顺序',
-          order: 'id',
-          sort: 'asc'
-        },
-        {
-          label: '按照全年龄新作优先的顺序',
-          order: 'nsfw',
-          sort: 'asc'
-        },
-        {
-          label: '按照作品最新添的顺序',
-          order: 'created_at',
-          sort: 'desc'
-        },
-        {
-          label: '随机排序',
-          order: 'random',
-          sort: 'desc'
-        }
-      ]
+
+      // 排序种类，例如可以选择按照发售日期来排序结果
+      sortCategoryOption: "release",
+      sortCategoryOptions: ["release", "rating", "dl_count", "price", "rate_average_2dp", "review_count", "id", "created_at", "random"],
+
+      nsfwOption: "nsfw_0", 
+      nsfwOptions: ["nsfw_0", "nsfw_1", "nsfw_2"], // nsfw_0无年龄限制，nsfw_1全年龄，nsfw_2十八禁
+
+      // 排序顺序，true表示降序，false表示升序
+      sortInDesc: true,
     }
   },
 
@@ -207,12 +167,14 @@ export default {
   },
 
   mounted() {
-    if (localStorage.sortOption) {
-      try {
-        this.sortOption = JSON.parse(localStorage.sortOption);
-      } catch {
-        localStorage.removeItem('sortOption');
-      }
+    if (localStorage.sortCategoryOption) {
+      this.sortCategoryOption = localStorage.sortCategoryOption;
+    }
+    if (localStorage.nsfwOption) {
+      this.nsfwOption = localStorage.nsfwOption;
+    }
+    if (localStorage.sortInDesc) {
+      this.sortInDesc = (localStorage.sortInDesc === 'true');
     }
     if (localStorage.showLabel) {
       this.showLabel = (localStorage.showLabel === 'true');
@@ -257,10 +219,19 @@ export default {
       this.reset()
     },
 
-    sortOption (newSortOptionSetting) {
-      localStorage.sortOption = JSON.stringify(newSortOptionSetting);
-      this.seed = Math.floor(Math.random() * 100);
-      this.reset();
+    sortCategoryOption (v) {
+      localStorage.sortCategoryOption = v;
+      this.reset()
+    },
+
+    nsfwOption (v) {
+      localStorage.nsfwOption = v;
+      this.reset()
+    },
+
+    sortInDesc (v) {
+      localStorage.sortInDesc = v;
+      this.reset()
     },
 
     showLabel (newLabelSetting) {
@@ -284,9 +255,10 @@ export default {
 
     requestWorksQueue () {
       const params = {
-        order: this.sortOption.order,
-        sort: this.sortOption.sort,
         page: this.pagination.currentPage + 1 || 1,
+        sort: this.sortInDesc ? "desc" : "asc",
+        order: this.sortCategoryOption,
+        nsfw: parseInt(this.nsfwOption.replace("nsfw_", "")), // 'nsfw_0' => 0, 'nsfw_1' => 1
         seed: this.seed
       }
 
@@ -334,17 +306,17 @@ export default {
 
             switch (restrict) {
               case 'tags':
-                pageTitle = 'Works tagged with '
+                pageTitle = '搜索标签：'
                 break
               case 'vas':
-                pageTitle = 'Works voiced by '
+                pageTitle = '搜索声优：'
                 break
               case 'circles':
-                pageTitle = 'Works by '
+                pageTitle = '社团作品：'
                 break
             }
-            pageTitle += name || ''
-
+            // pageTitle += name || ''
+            this.searchMetas = [name]
             this.pageTitle = pageTitle
           })
           .catch((error) => {
@@ -358,13 +330,16 @@ export default {
             }
           })
       } else if (this.$route.query.keyword) {
-        this.pageTitle = `Search by ${this.$route.query.keyword}`
+        this.pageTitle = '搜索关键字：';
+        this.searchMetas = [this.$route.query.keyword];
       } else {
-        this.pageTitle = 'All works'
+        this.pageTitle = '所有作品：'
+        this.searchMetas = [];
       }
     },
 
     reset () {
+      this.seed = Math.floor(Math.random() * 100);
       this.stopLoad = true
       this.refreshPageTitle()
       this.pagination = { currentPage:0, pageSize:12, totalCount:0 }
@@ -372,6 +347,27 @@ export default {
         .then(() => {
           this.stopLoad = false
         })
+    },
+
+    // 将一些标签名称转换成可阅读的文字
+    // 例如排序属性中，有release作为标记，release通常用来直接传递给服务器，
+    // 通过这个函数可以将release转换成更加可阅读的文字标签“发售日期”
+    humanReadableLabel(label) {
+      switch(label) {
+        case "release": return "发售日期";
+        case "rating": return "我的评价";
+        case "dl_count": return "售出数量";
+        case "price": return "售出价格";
+        case "rate_average_2dp": return "听众评分";
+        case "review_count": return "评论数量";
+        case "id": return "作品番号";
+        case "created_at": return "添加时间";
+        case "random": return "随机排序";
+        case "nsfw_0": return "所有分级";
+        case "nsfw_1": return "全年龄";
+        case "nsfw_2": return "十八禁";
+        default: return label;
+      }
     },
   }
 }
