@@ -1,6 +1,6 @@
 <template>
-  <q-slide-transition class="bordered elevated">
-    <div v-show="currentPlayingFile.hash && hide" class="row text-dark">
+  <q-card class="bordered playBar" :class="{showStyle: showPlayBar, hideStyle: !showPlayBar}">
+    <div class="row text-dark">
       <q-item clickable v-ripple @click="toggleHide()" style="padding: 0px 5px;" class="col non-selectable">
         <q-item-section avatar>
           <q-img transition="fade" :src="samCoverUrl" style="height: 50px; width: 50px" class="rounded-borders" />
@@ -12,12 +12,12 @@
         </q-item-section>
       </q-item>
 
-      <q-btn flat size="lg" :icon="swapSeekButton ? rewindIcon : 'skip_previous'" @click="swapSeekButton ? rewind(true) : previousTrack()" style="height: 60px; width: 60px" class="col-auto gt-sm"/>
-      <q-btn flat size="lg" :icon="playingIcon" @click="togglePlaying()" style="height: 60px; width: 60px" class="col-auto" />
-      <q-btn flat size="lg" :icon="swapSeekButton ? forwardIcon : 'skip_next'" @click="swapSeekButton ? forward(true) : nextTrack()" style="height: 60px; width: 60px" class="col-auto gt-sm"/>
+      <q-btn flat size="lg" color="primary" :icon="swapSeekButton ? rewindIcon : 'skip_previous'" @click="swapSeekButton ? rewind(true) : previousTrack()" style="height: 60px; width: 60px" class="col-auto gt-xs"/>
+      <q-btn flat size="lg" color="primary" :icon="playingIcon" @click="togglePlaying()" style="height: 60px; width: 60px" class="col-auto" />
+      <q-btn flat size="lg" color="primary" :icon="swapSeekButton ? forwardIcon : 'skip_next'" @click="swapSeekButton ? forward(true) : nextTrack()" style="height: 60px; width: 60px" class="col-auto gt-xs"/>
       <div class="simple-progress" :style="progressBarStyle"></div>
     </div>
-  </q-slide-transition>
+  </q-card >
 </template>
 
 <script>
@@ -32,6 +32,10 @@ export default {
       const token = this.$q.localStorage.getItem('jwt-token') || ''
       const hash = this.currentPlayingFile.hash
       return hash ? `/api/cover/${hash.split('/')[0]}?type=sam&token=${token}` : ""
+    },
+
+    showPlayBar () {
+      return this.currentPlayingFile.hash && this.hide;
     },
 
     playingIcon () {
@@ -110,4 +114,27 @@ export default {
   /* width: 100%; */
   background-color: var(--q-color-positive);
 }
+
+.playBar {
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  border-radius: 8px;
+  /* background: white; */
+  box-shadow: black 0px 0px 8px;
+  overflow: hidden;
+  position: fixed;
+  transition: transform 0.5s ;
+  color: inherit;
+}
+
+.hideStyle {
+  transform: translateY(200%);
+}
+
+.showStyle {
+  transform: translateY(0);
+}
+
+
 </style>

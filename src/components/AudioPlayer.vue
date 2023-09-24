@@ -1,10 +1,15 @@
 <template>
   <div>
     <!-- 播放器 -->
-    <q-slide-transition>
-      <q-card square v-show="currentPlayingFile.hash && !hide" class="fixed-bottom-right text-secondary audio-player" @mousewheel.prevent @touchmove.prevent>
+    <div>
+      <q-card 
+        class="fixed-bottom-right text-secondary audio-player" 
+        @mousewheel.prevent 
+        @touchmove.prevent
+        :class="{showStyle: showAudioPlayer, hideStyle: !showAudioPlayer}"
+      >
         <!-- 音声封面 -->
-        <div class="bg-dark row items-center albumart">
+        <div class="bg-dark row items-center albumart" @dblclick="openWorkDetail()">
           <q-img contain transition="fade" :src="coverUrl" :ratio="4/3" />
           <q-btn dense round size="md" color="white" text-color="dark" icon="keyboard_arrow_down" @click="toggleHide()" class="absolute-top-left q-ma-sm" />
           <q-btn dense round size="md" color="white" text-color="dark" icon="more_vert" class="absolute-top-right q-ma-sm">
@@ -33,7 +38,7 @@
                   <!-- placeholder -->
                 </q-item-section>
                 <q-item-section>
-                  打开作品详情
+                  打开作品详情（双击播放器的封面）
                 </q-item-section>
               </q-item>
               
@@ -108,7 +113,7 @@
           <q-icon name="volume_up" size="sm" class="col-auto" />
         </div>
       </q-card>
-    </q-slide-transition>
+    </div>
 
     <!-- 当前播放列表 -->
     <q-dialog v-model="showCurrentPlayList">
@@ -271,6 +276,10 @@ export default {
   },
 
   computed: {
+    showAudioPlayer () {
+      return this.currentPlayingFile.hash && !this.hide;
+    },
+
     coverUrl () {
       // 从 LocalStorage 中读取 token
       const token = this.$q.localStorage.getItem('jwt-token') || ''
@@ -527,6 +536,19 @@ export default {
       width: 100%;
       height: 100%;
     }
+
+    box-shadow: black 0px 0px 8px;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.5s;
+  }
+
+  .hideStyle {
+    transform: translateY(200%);
+  }
+
+  .showStyle {
+    transform: translateY(0);
   }
 
   .albumart {

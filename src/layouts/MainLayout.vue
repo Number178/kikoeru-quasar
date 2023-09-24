@@ -1,6 +1,6 @@
 <template>
   <q-layout view="hHh Lpr lFf" class="">
-    <q-header class="shadow-4">
+    <q-header reveal class="shadow-4">
       <q-toolbar class="row justify-between">
         <q-btn flat dense round @click="drawerOpen = !drawerOpen" icon="menu" aria-label="Menu" />
 
@@ -20,8 +20,6 @@
         </q-input>
 
       </q-toolbar>
-
-      <AudioPlayer />
     </q-header>
 
     <q-drawer
@@ -155,22 +153,26 @@
 
     <SleepMode v-model="showTimer" />
 
-    <q-page-container :class="{'page-container-style': isFullScreenPage}">
+    <q-page-container :class="{'page-container-style': isFullScreenPage, 'padding-bottom-play-bar': !isFullScreenPage}">
       <!-- <q-page padding> -->
         <keep-alive include="Works">
           <router-view />
         </keep-alive>
       <!-- </q-page> -->
-        <q-page-scroller position="bottom-right" :scroll-offset="150" :offset="[18, 18]">
+        <q-page-scroller v-if="!isFullScreenPage" position="bottom-right" :scroll-offset="150" :offset="[18, 90]">
           <q-btn fab icon="keyboard_arrow_up" color="accent" />
         </q-page-scroller>
     </q-page-container>
 
+    <div style="z-index: 3001; position: fixed; bottom: 0;"> <!-- z-index must be greater than header z-index -->
+      <AudioPlayer />
+      <PlayerBar />
+
+      <LyricsBar v-if="! enablePIPLyrics"/>
+      <PIPLyrics />
+    </div>
     <q-footer class="q-pa-none">
       <!--<PIPLyrics v-if="enablePIPLyrics && !isQueueEmpty" />-->
-      <PIPLyrics />
-      <LyricsBar v-if="! enablePIPLyrics"/>
-      <PlayerBar />
     </q-footer>
   </q-layout>
 </template>
@@ -463,5 +465,10 @@ export default {
   bottom: 0;
   top: 0;
   /* overflow-y: auto; */
+}
+
+// 为了避开底部的play bar设置的padding
+.padding-bottom-play-bar {
+  padding-bottom: 70px !important 
 }
 </style>

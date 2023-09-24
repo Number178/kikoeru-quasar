@@ -8,12 +8,12 @@
       :img-style="{'animation-play-state': playing ? 'running' : 'paused'}"
     />
     <canvas class="visualizer" ref="visualizer" width="1000" height="1000"></canvas>
-    <div class="simple-progress" :style="progressBarStyle"></div>
+    <div v-if="isInFullScreen" class="simple-progress" :style="progressBarStyle"></div>
     <div class="footer">
       <LyricsBar v-if="isInFullScreen && !enablePIPLyrics" />
     </div>
     <div v-if="isInFullScreen" class="current-playing-info">
-      <div class="text-h6 text-weight-bolder">
+      <div class="text-h6 text-weight-bolder non-selectable">
         {{ title }}
       </div>
     </div>
