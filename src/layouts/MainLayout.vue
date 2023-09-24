@@ -35,7 +35,7 @@
       bordered
       content-class=""
     >
-      <q-scroll-area class="fit">
+      <q-scroll-area class="fit padding-bottom-play-bar">
         <q-list>
           <q-item
             clickable
@@ -164,10 +164,9 @@
         </q-page-scroller>
     </q-page-container>
 
-    <div style="z-index: 3001; position: fixed; bottom: 0;"> <!-- z-index must be greater than header z-index -->
-      <AudioPlayer />
+    <div :style="{'z-index': miniState ? 3001 : 0}" style="position: fixed; bottom: 0;"> <!-- z-index must be greater than header z-index -->
       <PlayerBar />
-
+      <AudioPlayer />
       <LyricsBar v-if="! enablePIPLyrics"/>
       <PIPLyrics />
     </div>
@@ -261,7 +260,7 @@ export default {
     sharedConfig (config) {
       this.SET_REWIND_SEEK_TIME(config.rewindSeekTime);
       this.SET_FORWARD_SEEK_TIME(config.forwardSeekTime);
-    }
+    },
   },
 
   mounted () {
@@ -469,6 +468,6 @@ export default {
 
 // 为了避开底部的play bar设置的padding
 .padding-bottom-play-bar {
-  padding-bottom: 70px !important 
+  padding-bottom: 80px !important 
 }
 </style>

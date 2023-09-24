@@ -1,16 +1,21 @@
 <template>
   <div>
+
     <!-- 播放器 -->
     <div>
       <q-card 
-        class="fixed-bottom-right text-secondary audio-player" 
+        class="fixed-bottom-right box-shadow audio-player" 
         @mousewheel.prevent 
         @touchmove.prevent
+        color="primary"
         :class="{showStyle: showAudioPlayer, hideStyle: !showAudioPlayer}"
       >
+        <!--背景-->
+        <div class="bg-img-blur" :style="{'background-image': `url(${coverUrl})`}"></div>
+
         <!-- 音声封面 -->
-        <div class="bg-dark row items-center albumart" @dblclick="openWorkDetail()">
-          <q-img contain transition="fade" :src="coverUrl" :ratio="4/3" />
+        <div class="row items-center albumart" @dblclick="openWorkDetail()" style="padding: 10px">
+          <q-img contain class="rounded-borders box-shadow" transition="fade" :src="coverUrl" :ratio="4/3" />
           <q-btn dense round size="md" color="white" text-color="dark" icon="keyboard_arrow_down" @click="toggleHide()" class="absolute-top-left q-ma-sm" />
           <q-btn dense round size="md" color="white" text-color="dark" icon="more_vert" class="absolute-top-right q-ma-sm">
             <q-menu anchor="bottom right" self="top right">
@@ -38,7 +43,7 @@
                   <!-- placeholder -->
                 </q-item-section>
                 <q-item-section>
-                  打开作品详情（双击播放器的封面）
+                  打开作品详情（或双击封面）
                 </q-item-section>
               </q-item>
               
@@ -68,10 +73,10 @@
         </div>
 
         <!-- 进度条控件 -->
-        <div class="row items-center q-mx-sm q-my-sm" style="height: 40px">
-          <div class="col-auto">{{ formatSeconds(currentTime) }}</div>
+        <div class="row items-center q-mx-sm q-my-sm" style="height: 40px;">
+          <div class="col-auto z-top">{{ formatSeconds(currentTime) }}</div>
           <AudioElement class="col" />
-          <div class="col-auto">{{ formatSeconds(duration) }}</div>
+          <div class="col-auto z-top">{{ formatSeconds(duration) }}</div>
         </div>
 
         <!-- Place holder for iOS -->
@@ -89,11 +94,11 @@
 
         <!-- 播放按钮控件 -->
         <div class="row justify-around" style="height: 65px">
-          <q-btn flat dense size="md" icon="queue_music" @click="showCurrentPlayList = !showCurrentPlayList" style="width: 55px" class="col-auto" />
-          <q-btn flat dense size="lg" :icon="swapSeekButton ? rewindIcon : 'skip_previous'" @click="swapSeekButton ? rewind(true) : previousTrack()" style="width: 55px" class="col-auto" />
-          <q-btn flat dense size="28px" :icon="playingIcon" @click="togglePlaying()" style="width: 65px" class="col-auto" />
-          <q-btn flat dense size="lg" :icon="swapSeekButton ? forwardIcon : 'skip_next'" @click="swapSeekButton ? forward(true) : nextTrack()" style="width: 55px" class="col-auto" />
-          <q-btn flat dense size="md" :icon="playModeIcon" @click="changePlayMode()" style="width: 55px" class="col-auto" />
+          <q-btn flat dense class="col-auto" size="md"   icon="queue_music" @click="showCurrentPlayList = !showCurrentPlayList" style="width: 55px" />
+          <q-btn flat dense class="col-auto" size="lg"   :icon="swapSeekButton ? rewindIcon : 'skip_previous'" @click="swapSeekButton ? rewind(true) : previousTrack()" style="width: 55px" />
+          <q-btn flat dense class="col-auto" size="28px" :icon="playingIcon" @click="togglePlaying()" style="width: 65px" />
+          <q-btn flat dense class="col-auto" size="lg"   :icon="swapSeekButton ? forwardIcon : 'skip_next'" @click="swapSeekButton ? forward(true) : nextTrack()" style="width: 55px" />
+          <q-btn flat dense class="col-auto" size="md"   :icon="playModeIcon" @click="changePlayMode()" style="width: 55px" />
         </div>
 
         <!-- 音量控件 -->
@@ -525,22 +530,39 @@ export default {
 
 
 <style lang="scss" scoped>
+  .box-shadow {
+    box-shadow: black 0px 0px 8px;
+  }
+
   .audio-player {
     // 宽度 > $breakpoint-sm-min
     @media (min-width: $breakpoint-sm-min) {
       width: 330px;
       margin: 0px 10px 10px 0px;
+      border-radius: 8px;
     }
     // 宽度 < $breakpoint-xs-max (599px)
     @media (max-width: $breakpoint-xs-max) {
       width: 100%;
       height: 100%;
+      border-radius: 0;
     }
 
-    box-shadow: black 0px 0px 8px;
-    border-radius: 8px;
+    transition: 0.5s;
     overflow: hidden;
-    transition: transform 0.5s;
+  }
+
+  .bg-img-blur {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    position: absolute;
+    transform: scale(1.5);
+    background-position: 50% 50%;
+    background-size: contain;
+    
+    filter: blur(30px) brightness(0.7); // blur bigger than 80 will cause safari wrong render result
   }
 
   .hideStyle {

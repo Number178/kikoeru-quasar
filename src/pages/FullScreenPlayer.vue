@@ -4,7 +4,7 @@
     <q-img contain 
       :src="coverUrl"
       class="constrain-height"
-      img-class="scale-animation"
+      img-class="scale-animation image-style"
       :img-style="{'animation-play-state': playing ? 'running' : 'paused'}"
     />
     <canvas class="visualizer" ref="visualizer" width="1000" height="1000"></canvas>
@@ -438,12 +438,12 @@ export default {
       // console.log("audio element = ", this.audioElement);
       // const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-      // const analyser = audioCtx.createAnalyser();
-      if (!this.audioAnalyser) return;
       this.initHaloManager();
 
-      const leftDataArray = this.getAnalyserArray(this.setAnalyser(this.audioAnalyser.left));
-      const rightDataArray = this.getAnalyserArray(this.setAnalyser(this.audioAnalyser.right));
+      // const analyser = audioCtx.createAnalyser();
+      const drawFrequency = this.audioAnalyser != null;
+      const leftDataArray = drawFrequency && this.getAnalyserArray(this.setAnalyser(this.audioAnalyser.left));
+      const rightDataArray = drawFrequency && this.getAnalyserArray(this.setAnalyser(this.audioAnalyser.right));
       
       // // Connect the source to be analysed
       // // source.connect(analyser);
@@ -454,7 +454,6 @@ export default {
       // draw an oscilloscope of the current audio source
       canvasCtx.font="80px Arial";
 
-      let count = 0
       const draw = (millsTime) => {
         if (this.stopper.stop) return false;
 
@@ -466,16 +465,16 @@ export default {
           canvasCtx.canvas.height = canvasCtx.canvas.clientHeight;
         }
 
-        this.audioAnalyser.left.getByteFrequencyData(leftDataArray);
-        this.audioAnalyser.right.getByteFrequencyData(rightDataArray);
-
-        count = (count + 1) % 20
-
         canvasCtx.fillStyle = "rgba(0, 0, 0, 1)";
         canvasCtx.clearRect(0, 0, canvasCtx.canvas.width, canvasCtx.canvas.height);
 
-        fillFrequencyData(leftDataArray, canvasCtx, 'left');
-        fillFrequencyData(rightDataArray, canvasCtx, 'right');
+        if (drawFrequency) {
+          this.audioAnalyser.left.getByteFrequencyData(leftDataArray);
+          this.audioAnalyser.right.getByteFrequencyData(rightDataArray);
+          fillFrequencyData(leftDataArray, canvasCtx, 'left');
+          fillFrequencyData(rightDataArray, canvasCtx, 'right');
+        }
+
         this.haloManager.update(millsTime, canvasCtx);
         this.haloManager.draw(canvasCtx);
         requestAnimationFrame(draw);
@@ -580,8 +579,8 @@ export default {
   width: 100%;
   height: 100%;
   background-position: 50% 50%;
-  background-size: cover;
-  filter: blur(4px) brightness(0.8);
+  background-size: contain;
+  filter: blur(30px) brightness(0.6);
 }
 
 .constrain-height {
@@ -629,14 +628,14 @@ export default {
   animation-name: bump-shrink;
   animation-duration: 9s;
   animation-iteration-count: infinite;
-  border-radius: 0px;
   transform-origin: center;
-
+  border-radius: 0px;
+  overflow: hidden;
 }
 
 @keyframes bump-shrink {
   0% {transform: scale(1.0);}
-  50% {transform: scale(1.08);}
+  50% {transform: scale(1.1);}
   100% {transform: scale(1.0);}
 }
 </style>

@@ -8,7 +8,7 @@
       </q-chip>
     </div>
 
-    <div class="row justify-between q-mb-md q-mr-sm">
+    <div class="row justify-between q-mb-md q-mx-sm">
       <!-- 排序属性 -->
       <q-select
         dense
