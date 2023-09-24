@@ -367,7 +367,7 @@ export default {
     return {
       workid: this.$route.params.id,
       counter: 0,
-      stopper: { stop: false },
+      renderNotifier: { stop: false, pause: false },
       isInFullScreen: false,
       haloManager: null,
     }
@@ -425,7 +425,7 @@ export default {
       }
 
       const middleHalos = 10;
-      for (let i = 0; i < bottomHalos; ++i) {
+      for (let i = 0; i < middleHalos; ++i) {
         const rx = Math.random();
         const ry = 0.8 * Math.random();
         const random_radius = 10 + 100 * Math.random();
@@ -435,9 +435,6 @@ export default {
     },
 
     audioElementInit() {
-      // console.log("audio element = ", this.audioElement);
-      // const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
       this.initHaloManager();
 
       // const analyser = audioCtx.createAnalyser();
@@ -445,25 +442,31 @@ export default {
       const leftDataArray = drawFrequency && this.getAnalyserArray(this.setAnalyser(this.audioAnalyser.left));
       const rightDataArray = drawFrequency && this.getAnalyserArray(this.setAnalyser(this.audioAnalyser.right));
       
-      // // Connect the source to be analysed
-      // // source.connect(analyser);
-      // Get a canvas defined with ID "oscilloscope"
-
       const canvas = this.$refs.visualizer;
       const canvasCtx = canvas.getContext("2d");
       // draw an oscilloscope of the current audio source
       canvasCtx.font="80px Arial";
 
+      this.renderNotifier.stop = true; // 停止前一个渲染循环
+      let newNotifier = {stop: false, pause: !this.playing}; // 创建新的渲染停止器
+      this.renderNotifier = newNotifier; // 记录这个渲染停止器
       const draw = (millsTime) => {
-        if (this.stopper.stop) return false;
+        if (newNotifier.stop) return false;
+        requestAnimationFrame(draw);
 
+        // 判断是否要渲染，如果外部暂停，例如音乐暂停 同时 canvas 尺寸没有变化的时候才真正暂停渲染
+        // 注意，暂停渲染pause 仍然会保持raf运行，停止渲染stop 才会停止后续所有渲染
+        let pauseDraw = newNotifier.pause;
         // sync canvas inner drawing size with client element size
         if (canvasCtx.canvas.width !== canvasCtx.canvas.clientWidth) {
           canvasCtx.canvas.width = canvasCtx.canvas.clientWidth;
+          pauseDraw = false;
         }
         if (canvasCtx.canvas.height !== canvasCtx.canvas.clientHeight) {
           canvasCtx.canvas.height = canvasCtx.canvas.clientHeight;
+          pauseDraw = false;
         }
+        if (pauseDraw) return false; // 
 
         canvasCtx.fillStyle = "rgba(0, 0, 0, 1)";
         canvasCtx.clearRect(0, 0, canvasCtx.canvas.width, canvasCtx.canvas.height);
@@ -477,8 +480,7 @@ export default {
 
         this.haloManager.update(millsTime, canvasCtx);
         this.haloManager.draw(canvasCtx);
-        requestAnimationFrame(draw);
-      }
+      };
       requestAnimationFrame(draw);
     }
   },
@@ -531,6 +533,9 @@ export default {
   watch: {
     audioAnalyser() {
       this.audioElementInit();
+    },
+    playing (isPlaying) {
+      this.renderNotifier.pause = !isPlaying;
     }
   },
   created() {
@@ -553,11 +558,11 @@ export default {
     }
   },
   mounted() {
-    this.audioElementInit();
+    this.audioElementInit()
     this.$refs.container.addEventListener("fullscreenchange", this.onFullscreenChange)
   },
   beforeDestroy() {
-    this.stopper.stop = false;
+    this.renderNotifier.stop = true;
     this.$refs.container.removeEventListener("fullscreenchange", this.onFullscreenChange)
   }
 }
