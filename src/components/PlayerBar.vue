@@ -1,7 +1,8 @@
 <template>
-  <q-card class="bordered playBar" :class="{showStyle: showPlayBar, hideStyle: !showPlayBar}">
+  <q-card class="bordered playBar" :class="{showStyle: showPlayBar, hideStyle: !showPlayBar}" v-touch-swipe.mouse.up="toggleHide">
     <div class="row" color="primary">
-      <q-item clickable v-ripple @click="toggleHide()" style="padding: 0px 5px;" class="col non-selectable">
+      <div class="simple-progress" :style="progressBarStyle"></div>
+      <q-item clickable v-ripple @click="toggleHide" style="padding: 0px 5px;" class="col non-selectable">
         <q-item-section avatar>
           <q-img transition="fade" :src="samCoverUrl" style="height: 50px; width: 50px" class="rounded-borders" />
         </q-item-section>
@@ -15,7 +16,6 @@
       <q-btn flat size="lg" :icon="swapSeekButton ? rewindIcon : 'skip_previous'" @click="swapSeekButton ? rewind(true) : previousTrack()" style="height: 60px; width: 60px" class="col-auto gt-xs"/>
       <q-btn flat size="lg" :icon="playingIcon" @click="togglePlaying()" style="height: 60px; width: 60px" class="col-auto" />
       <q-btn flat size="lg" :icon="swapSeekButton ? forwardIcon : 'skip_next'" @click="swapSeekButton ? forward(true) : nextTrack()" style="height: 60px; width: 60px" class="col-auto gt-xs"/>
-      <div class="simple-progress" :style="progressBarStyle"></div>
     </div>
   </q-card >
 </template>
@@ -110,12 +110,18 @@ export default {
   position: absolute;
   left: 0;
   top: 0;
-  height: 2px;
+  height: 100%;
   /* width: 100%; */
-  background-color: var(--q-color-secondary);
+  background-color: var(--q-color-primary);
+  opacity: 0.2;
 }
 
 .playBar {
+  bottom: 20px;
+  margin-left: 50%;
+  max-width: 500px;
+  transform: translateX(-50%) translateY(0);
+
   border-radius: 8px;
   /* background: white; */
   box-shadow: black 0px 0px 8px;
@@ -126,29 +132,23 @@ export default {
 }
 
 .hideStyle {
-  transform: translateY(200%);
-  bottom: 20px;
+  transform: translateX(-50%) translateY(200%);
 
   // 不同尺寸下，AudioPlayer位于全屏、或者右下角，
   // 参考其位置，调整底部playerBar隐藏时去往的地方，使动画更连贯
   // 宽度 > $breakpoint-sm-min
   @media (min-width: $breakpoint-sm-min) {
-    left: 80vw;
-    right: 20px;
+    margin-left: 100%;
   }
   // 宽度 < $breakpoint-xs-max (599px)
   @media (max-width: $breakpoint-xs-max) {
-    left: 0px;
-    right: 0px;
+    width: 80vw;
   }
 }
 
 .showStyle {
-  transform: translateY(0);
-
-  left: 20px;
-  right: 20px;
-  bottom: 20px;
+  transform: translateX(-50%) translateY(0);
+  width: 80vw;
 }
 
 

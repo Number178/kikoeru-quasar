@@ -13,11 +13,35 @@
         <!--背景-->
         <div class="bg-img-blur" :style="{'background-image': `url(${coverUrl})`}"></div>
 
+        <div class="pull-handler" @click="toggleHide" v-touch-swipe.mouse.down="toggleHide"></div>
+
         <!-- 音声封面 -->
-        <div class="row items-center albumart" @dblclick="openWorkDetail()" style="padding: 10px">
-          <q-img contain class="rounded-borders box-shadow" transition="fade" :src="coverUrl" :ratio="4/3" />
-          <q-btn dense round size="md" color="white" text-color="dark" icon="keyboard_arrow_down" @click="toggleHide()" class="absolute-top-left q-ma-sm" />
-          <q-btn dense round size="md" color="white" text-color="dark" icon="more_vert" class="absolute-top-right q-ma-sm">
+        <div class="row items-center albumart q-mt-md"
+          style="padding: 10px"
+          v-touch-swipe.mouse.down="toggleHide"
+        >
+          <q-img
+            contain
+            class="rounded-borders box-shadow"
+            transition="fade"
+            :src="coverUrl"
+            :ratio="4/3"
+            @dblclick.prevent="openWorkDetail"
+          />
+
+          <div class="row absolute q-pl-md q-pr-md col-12 justify-between" style="margin: -10px;"><!--margin -10 px 来补偿外部封面的10px padding-->
+            <q-btn v-if="!hideSeekButton" round size="lg" color="white" text-color="dark" style="opacity: 0.8" @click.prevent="swapSeekButton ? previousTrack() : rewind(true)" :icon="swapSeekButton ? 'skip_previous': rewindIcon" />
+            <q-btn v-if="!hideSeekButton" round size="lg" color="white" text-color="dark" style="opacity: 0.8" @click.prevent="swapSeekButton ? nextTrack() : forward(true)" :icon="swapSeekButton ? 'skip_next' : forwardIcon" />
+          </div>
+        </div>
+
+        <div class="row justify-end q-mr-sm">
+          <q-btn
+            flat 
+            dense
+            size="md"
+            icon="more_horiz"
+          >
             <q-menu anchor="bottom right" self="top right">
               <q-item clickable v-ripple @click="hideSeekButton = !hideSeekButton">
                 <q-item-section avatar>
@@ -66,14 +90,10 @@
               </q-item>
             </q-menu>
           </q-btn>
-          <div class="row absolute q-pl-md q-pr-md col-12 justify-between">
-            <q-btn v-if="!hideSeekButton" round size="lg" color="white" text-color="dark" style="opacity: 0.8" @click="swapSeekButton ? previousTrack() : rewind(true)" :icon="swapSeekButton ? 'skip_previous': rewindIcon" />
-            <q-btn v-if="!hideSeekButton" round size="lg" color="white" text-color="dark" style="opacity: 0.8" @click="swapSeekButton ? nextTrack() : forward(true)" :icon="swapSeekButton ? 'skip_next' : forwardIcon" />
-          </div>
         </div>
 
         <!-- 进度条控件 -->
-        <div class="row items-center q-mx-sm q-my-sm" style="height: 40px;">
+        <div class="row items-center q-mx-sm q-mb-sm non-selectable" style="height: 40px;">
           <div class="col-auto z-top">{{ formatSeconds(currentTime) }}</div>
           <AudioElement class="col" />
           <div class="col-auto z-top">{{ formatSeconds(duration) }}</div>
@@ -531,7 +551,7 @@ export default {
 
 <style lang="scss" scoped>
   .box-shadow {
-    box-shadow: black 0px 0px 8px;
+    box-shadow: black 0px 4px 8px;
   }
 
   .audio-player {
@@ -592,5 +612,21 @@ export default {
     @media (max-width: $breakpoint-xs-max) {
       min-width: 280px;
     }
+  }
+
+  .pull-handler {
+    height: 8px;
+    width: 100px;
+    background: rgba(255, 255, 255, 0.3);
+    position: absolute;
+    border-radius: 4px !important;
+    overflow: hidden;
+    left: 50%;
+    top: 8px;
+    transform: translateX(-50%);
+  }
+
+  .pull-handler:hover {
+    background: rgba(255, 255, 255, 0.5);
   }
 </style>

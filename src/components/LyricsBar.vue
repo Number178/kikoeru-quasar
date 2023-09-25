@@ -3,8 +3,12 @@
       class="lyric-container"
       ref="draggable"
     >
-        <div id="lyricsBar" class="text-center text-bold ellipsis-2-lines text-purple q-mb-md absolute-bottom non-selectable rounded-borders">
+        <div v-if="showSizeBar" class="fontSizeBar" style="">
+          <q-slider v-model="fontSize" :min="0.2" :max="10" :step="0" thumb-size="35px" @change="onFontSizeChange"/>
+        </div>
+        <div id="lyricsBar" class="text-center text-bold ellipsis-2-lines text-purple absolute-bottom non-selectable">
             <span id="lyric"
+              :style="{'font-size': `${fontSize}rem`}"
               @mousedown="onCursorDown"
               @touchstart="onCursorDown">
               {{currentLyric}}
@@ -31,11 +35,31 @@ export default {
 
       // 鼠标按下时的位置
       startX: 0,
-      startY: 0
+      startY: 0,
+
+      fontSize: 0, // rem
+      
+      showSizeBar: false,
+      laterTimer: 0,
+    }
+  },
+
+  watch: {
+    fontSize(newv, oldv) {
+      if (oldv > 0) this.showTempSizeBar()
     }
   },
 
   methods: {
+    showTempSizeBar() {
+      // return // debug only
+      clearTimeout(this.laterTimer);
+      this.showSizeBar = true;
+      this.laterTimer = setTimeout(() => {
+        this.showSizeBar = false;
+      }, 3 * 1000); // 延迟关闭滑块
+    },
+
     /**
      * @param {TouchEvent|MouseEvent} ev
      */
@@ -44,6 +68,7 @@ export default {
     },
 
     onCursorDown(ev) {
+      this.showTempSizeBar()
       ev.preventDefault()
       this.beTouched = true
 
@@ -70,11 +95,18 @@ export default {
 
       this.$refs.draggable.style.left = eleX + 'px'
       this.$refs.draggable.style.top = eleY + 'px'
+    },
+
+    // 用户松开滑块之后才会触发此方法
+    onFontSizeChange(v) {
+      console.warn("fontSize change to: ", v)
+      localStorage.lyricFontSize = v;
     }
     
   },
 
   mounted() {
+    this.fontSize = parseFloat(localStorage.lyricFontSize || "1.5");
     // addEventListener('mousemove', onCursorMove(this), false)
     // addEventListener('touchmove', onCursorMove(this), false)
     addEventListener('mousemove', this.onCursorMove)
@@ -106,7 +138,11 @@ export default {
     transform: translateX(-50%);
 
     /* 垂直位置置于底部playBar尚未考上一点，这个后面可以手动调整 */
-    top: -80px; /* */
+    top: -80px;
+    
+    display: flex;
+    flex-direction: column;
+    align-self: center;
   }
   .moveable-line {
     background-color: transparent !important;
@@ -118,6 +154,13 @@ export default {
   }
   #lyric {
     text-shadow:1px 1px 2px black;
-    font-size: 1.5rem;
+    
+  }
+  .fontSizeBar {
+    width: 300px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%) translateY(100%);
+    bottom: 0;
   }
 </style>
