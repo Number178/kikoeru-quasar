@@ -35,11 +35,13 @@
           </div>
         </div>
 
+        <!-- 设置菜单 -->
         <div class="row justify-end q-mr-sm">
           <q-btn
             flat 
             dense
             size="md"
+            padding="none sm"
             icon="more_horiz"
           >
             <q-menu anchor="bottom right" self="top right">
@@ -568,7 +570,7 @@ export default {
       border-radius: 0;
     }
 
-    transition: 0.5s;
+    transition: 0.6s;
     overflow: hidden;
   }
 

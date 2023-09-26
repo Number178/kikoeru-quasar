@@ -1,5 +1,5 @@
 <template>
-  <q-card>
+  <q-card class="card">
     <router-link :to="`/work/${metadata.id}`">
       <CoverSFW :workid="metadata.id" :nsfw="false" :release="metadata.release" />
     </router-link>
@@ -109,7 +109,6 @@
 </template>
 
 <script>
-// import WorkDetails from 'components/WorkDetails'
 import CoverSFW from 'components/CoverSFW'
 import NotifyMixin from '../mixins/Notification.js'
 
@@ -206,3 +205,12 @@ export default {
   }
 }
 </script>
+
+
+<style scoped>
+.card {
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 0px 8px rgba(0, 0, 0, 0.4);
+}
+</style>

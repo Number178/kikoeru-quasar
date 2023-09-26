@@ -49,8 +49,6 @@
 </template>
 
 <script>
-// import WorkDetails from 'components/WorkDetails'
-// import CoverSFW from 'components/CoverSFW'
 
 export default {
   name: 'WorkListItem',

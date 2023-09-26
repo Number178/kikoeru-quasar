@@ -1,8 +1,14 @@
 <template>
   <div>
-    <router-link :to="`/work/${metadata.id}`">
-      <CoverSFW :workid="metadata.id" :nsfw="false" :release="metadata.release" />
-    </router-link>
+    <div class="q-ma-md row justify-start" >
+      <CoverSFW 
+        :workid="metadata.id" 
+        :nsfw="false" 
+        :release="metadata.release" 
+        style="border-radius: 8px; overflow: hidden;"
+        class="shadow-4"
+      />
+    </div>
 
     <div class="q-pa-sm">
       <div class="q-px-sm q-py-none">

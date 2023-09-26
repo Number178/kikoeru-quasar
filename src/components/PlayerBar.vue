@@ -1,8 +1,8 @@
 <template>
-  <q-card class="bordered playBar" :class="{showStyle: showPlayBar, hideStyle: !showPlayBar}" v-touch-swipe.mouse.up="toggleHide">
+  <q-card class="bordered playBar" :class="{showStyle: showPlayBar, hideStyle: !showPlayBar}" v-touch-swipe.mouse.up="toggleHide" draggable="false">
     <div class="row" color="primary">
       <div class="simple-progress" :style="progressBarStyle"></div>
-      <q-item clickable v-ripple @click="toggleHide" style="padding: 0px 5px;" class="col non-selectable">
+      <q-item clickable @click="toggleHide" style="padding: 0px 5px;" class="col non-selectable">
         <q-item-section avatar>
           <q-img transition="fade" :src="samCoverUrl" style="height: 50px; width: 50px" class="rounded-borders" />
         </q-item-section>

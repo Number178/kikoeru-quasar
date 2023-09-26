@@ -1,6 +1,6 @@
 <template>
   <q-layout view="hHh Lpr lFf" class="">
-    <q-header reveal class="shadow-4">
+    <q-header reveal :reveal-offset="100" @reveal="onHeaderRevealChange" class="shadow-4">
       <q-toolbar class="row justify-between">
         <q-btn flat dense round @click="drawerOpen = !drawerOpen" icon="menu" aria-label="Menu" />
 
@@ -159,8 +159,8 @@
           <router-view />
         </keep-alive>
       <!-- </q-page> -->
-        <q-page-scroller v-if="!isFullScreenPage" position="bottom-right" :scroll-offset="150" :offset="[18, 90]">
-          <q-btn fab icon="keyboard_arrow_up" color="accent" />
+        <q-page-scroller v-if="!isFullScreenPage" position="bottom-right" :scroll-offset="150" :offset="[18, 90]" class="scroller" :class="{'scroller-hide': !showScroller, 'scroller-show': showScroller}">
+          <q-btn dense fab icon="keyboard_arrow_up" color="accent" padding="sm" />
         </q-page-scroller>
     </q-page-container>
 
@@ -208,6 +208,7 @@ export default {
       confirm: false,
       randId: null,
       showTimer: false,
+      showScroller: false,
       links: [
         {
           title: '媒体库',
@@ -442,6 +443,10 @@ export default {
       });
 
     },
+    
+    onHeaderRevealChange(isReveal) {
+      this.showScroller = isReveal;
+    }
   },
 }
 </script>
@@ -469,5 +474,19 @@ export default {
 // 为了避开底部的play bar设置的padding
 .padding-bottom-play-bar {
   padding-bottom: 80px !important 
+}
+
+.scroller {
+  transition: 0.3s;
+}
+
+.scroller-show {
+  opacity: 1.0;
+  visibility: visible;
+}
+
+.scroller-hide {
+  opacity: 0;
+  visibility: collapse;
 }
 </style>
