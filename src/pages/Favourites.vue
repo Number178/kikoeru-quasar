@@ -9,9 +9,7 @@
             no-caps
             rounded
             toggle-color="primary"
-            color="white"
-            class="text-bold"
-            text-color="black"
+            class="text-bold outline-style"
             :options="[
               {label: '播放历史', value: 'histroy'},
               {label: '我的评价', value: 'review'},
@@ -20,29 +18,28 @@
             ]"
           />
       </div>
-      <div v-if="mode != 'histroy'" class="col-auto gt-sm row">
-        <q-select dense rounded outlined v-model="sortBy" :options="sortOptions" bg-color="white" class="q-mx-sm"/>
+      <div v-if="mode != 'histroy'" class="col-auto row q-py-md">
+        <q-select dense rounded outlined v-model="sortBy" :options="sortOptions" class="q-mx-sm"/>
         <q-btn
           :disable="sortButtonDisabled"
           dense
-          rounded
-          color="white"
-          :text-color="sortButtonDisabled? 'grey': 'black'"
+          round
+          outline
+          padding="sm"
           :icon="direction? 'arrow_downward' : 'arrow_upward'"
           @click="switchSortMode" 
         />
       </div>
 
     </div>
-    <div class="q-pt-md q-px-sm">
+    <div class="q-px-sm">
       <q-btn-toggle
         v-if="mode === 'progress'"
         v-model="progressFilter"
         @input="changeProgressFilter"
         toggle-color="primary"
-        color="white"
-        text-color="black"
         rounded
+        class="outline-style"
         :options="[
           {label: '想听', value: 'marked'},
           {label: '在听', value: 'listening'},
@@ -53,8 +50,8 @@
       />
     </div>
 
-    <div class="q-pt-md">
-      <div class="q-px-sm q-py-md">
+    <div>
+      <div class="q-px-sm">
         <q-infinite-scroll @load="onLoad" :offset="500" :disable="stopLoad" ref="scroll" v-if="mode !=='folder'">
           <div class="row justify-center text-grey" v-if="works.length === 0">在作品界面上点击星标、标记进度，标记的音声就会出现在这里啦</div>
           <q-list bordered separator class="shadow-2" v-if="works.length">
@@ -273,3 +270,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.outline-style {
+  border: 1px solid var(--q-color-primary);
+}
+</style>
