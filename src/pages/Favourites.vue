@@ -18,23 +18,29 @@
             ]"
           />
       </div>
-      <div v-if="mode != 'histroy'" class="col-auto row q-py-md">
-        <q-select dense rounded outlined v-model="sortBy" :options="sortOptions" class="q-mx-sm"/>
+
+      <!-- 排序选项 -->
+      <div v-if="mode != 'histroy'" class="col-auto row q-pt-md">
+        <q-select dense rounded outlined v-model="sortBy" :options="sortOptions"/>
         <q-btn
           :disable="sortButtonDisabled"
           dense
           round
           outline
           padding="sm"
+          class="q-ml-sm"
           :icon="direction? 'arrow_downward' : 'arrow_upward'"
           @click="switchSortMode" 
         />
       </div>
-
     </div>
-    <div class="q-px-sm">
+
+    <!-- 进度选项，仅在我的进度tab选项中显示-->
+    <div
+      v-if="mode === 'progress'"
+      class="q-px-sm q-pt-md"
+    >
       <q-btn-toggle
-        v-if="mode === 'progress'"
         v-model="progressFilter"
         @input="changeProgressFilter"
         toggle-color="primary"
@@ -50,8 +56,9 @@
       />
     </div>
 
+    <!-- 作品列表 -->
     <div>
-      <div class="q-px-sm">
+      <div class="q-px-sm q-pt-md">
         <q-infinite-scroll @load="onLoad" :offset="500" :disable="stopLoad" ref="scroll" v-if="mode !=='folder'">
           <div class="row justify-center text-grey" v-if="works.length === 0">在作品界面上点击星标、标记进度，标记的音声就会出现在这里啦</div>
           <q-list bordered separator class="shadow-2" v-if="works.length">
