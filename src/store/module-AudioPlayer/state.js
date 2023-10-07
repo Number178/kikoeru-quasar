@@ -3,6 +3,7 @@ import { LocalStorage } from 'quasar'
 export const SWAP_SEEK_BUTTON_KEY = 'swap_seek_button'
 export const ENABLE_VISUALIZER_KEY = 'enable_visualizer'
 export const ENABLE_PIP_LYRICS = 'enable_pip_lyrics'
+export const ENABLE_VIDEO_SOURCE_KEY = 'enable_video_source'
 
 export default function () {
   return {
@@ -35,6 +36,8 @@ export default function () {
     forwardSeekMode: false,
     swapSeekButton: LocalStorage.has(SWAP_SEEK_BUTTON_KEY) && LocalStorage.getItem(SWAP_SEEK_BUTTON_KEY), // 交换进度按钮与切换按钮
     enableVisualizer: LocalStorage.has(ENABLE_VISUALIZER_KEY) && LocalStorage.getItem(ENABLE_VISUALIZER_KEY), // 是否开启音频可视化
+    enableVideoSource: LocalStorage.has(ENABLE_VIDEO_SOURCE_KEY) && LocalStorage.getItem(ENABLE_VIDEO_SOURCE_KEY), // 是否开启视频元素作为媒体源，用于在网页中播放视频格式的音频作品
+    enableVideoSourcePIP: false, // 让videoSource进入画中画模式，每一次需要单独设置
     visualPlayerCoverUrl: '', // 可视化播放器的封面图
     playWorkId: 0, // 当前播放作品的id
 

@@ -1,7 +1,7 @@
 <template>
   <div :class="visibility" class="topClass">
     <canvas ref="canvas" width="500" height="60" class="sized"></canvas>
-    <video ref="video" class="sized"></video>
+    <video ref="video" class="sized" muted playsinline controls="controls" style="display: inline;"></video>
   </div>
 </template>
 

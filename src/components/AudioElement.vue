@@ -1,19 +1,41 @@
 <template>
-  <vue-plyr
-    ref="plyr"
-    :emit="['canplay', 'timeupdate', 'ended', 'seeked', 'playing', 'waiting', 'pause']"
-    @canplay="onCanplay()"
-    @timeupdate="onTimeupdate()"
-    @ended="onEnded()"
-    @seeked="onSeeked()"
-    @playing="onPlaying()"
-    @waiting="onWaiting()"
-    @pause="onPause()"
+
+  <!--在进度条周围监听mouseup、mousedown事件，辅助进度条状态切换-->
+  <div class="q-px-md"
+      @mousedown.capture="onPanSlider('start')"
+      @mouseup.capture="onPanSlider('end')"
   >
-    <audio crossorigin="anonymous" >
-      <source v-if="source" :src="source" />
-    </audio>
-  </vue-plyr>
+    <q-slider v-model="changeCurrentTime"
+      @change="onChangeSlider"
+      @pan="onPanSlider"
+      :min="0" :max="duration" :step="0.01"
+      label
+      :label-value="formatSeconds(displayCurrentTime)"
+      />
+    <vue-plyr 
+      ref="plyr"
+      :hideControls="false"
+      class="vue-plyr"
+      :emit="['canplay', 'timeupdate', 'ended', 'seeked', 'playing', 'waiting', 'pause']" @canplay="onCanplay()"
+      @timeupdate="onTimeupdate()"
+      @ended="onEnded()"
+      @seeked="onSeeked()"
+      @playing="onPlaying()"
+      @waiting="onWaiting()"
+      @pause="onPause()"
+    >
+      <!--使用video组件来播放音频和视频文件，同时隐藏原生的vue-plyr组件，这里的组件只会留下一个进度条的功能
+      之所以用video，是因为video可以设置mp3等音频文件，也可以播放mp4等视频文件，在播放视频的时候，还能够用该video元素作为canvas绘制来源，
+      反之，audio虽然可以播放video的音频，但是将其作为canvas的绘制源，因此倾向于使用video来播放所有媒体元素-->
+      <!--注意，这里video设置了一个id，因为需要被其他组件通过document.querySelector方式进行查找引用-->
+      <video v-if="enableVideoSource" class="hide-in-global-page-for-pip" id="mediaVideo" crossorigin="anonymous" playsinline controls="controls" style="display: inline;">
+        <source v-if="source" :src="source" />
+      </video>
+      <audio v-else crossorigin="anonymous">
+        <source v-if="source" :src="source" />
+      </audio>
+    </vue-plyr>
+  </div>
 </template>
 
 <script>
@@ -98,12 +120,22 @@ export default {
     return {
       lrcObj: null,
       lrcAvailable: false,
+
+      // 音频播放器进度条实现有些trick，普通的slider不能直接用，
+      // 因为time的更新源有两个【audio播放】【用户输入】，
+      // 两个更新源回导致进度条跳转出错，需要在【用户输入时】关闭【audio播放】发出的time更新（slider上）
+      isChangingCurrentTime: false,
+      changeCurrentTime: 0,
     }
   },
 
   computed: {
     player () {
       return this.$refs.plyr.player
+    },
+
+    isSourceVideo() {
+      return this.currentPlayingFile.title.endsWith(".mp4")
     },
 
     source () {
@@ -137,12 +169,20 @@ export default {
       'resumeHistroySeconds',
       'playWorkId',
       'visualPlayerCoverUrl',
+      'duration',
+      'currentTime',
+      'enableVideoSource',
     ]),
 
     ...mapGetters('AudioPlayer', [
       'currentPlayingFile',
       'resumeHistroyDone',
-    ])
+    ]),
+
+    displayCurrentTime() {
+      if (this.isChangingCurrentTime) return this.changeCurrentTime;
+      else return this.currentTime;
+    }
   },
 
   watch: {
@@ -189,6 +229,10 @@ export default {
         this.player.forward(this.forwardSeekTime);
         this.SET_FORWARD_SEEK_MODE(false);
       }
+    },
+    currentTime(v) {
+      if (this.isChangingCurrentTime) return;
+      else this.changeCurrentTime = this.currentTime;
     },
   },
 
@@ -435,6 +479,43 @@ export default {
         return ""
       }
     },
+
+    onChangeSlider(v) {
+      console.log("player current time is ", this.player.currentTime)
+      console.log("slider change value to ", v)
+      console.log("global current time is ", this.currentTime)
+      this.player.currentTime = v;
+    },
+     onPanSlider(phase) {
+      console.warn(" pan with phase = ", phase)
+      if (phase == 'start') {
+        this.isChangingCurrentTime = true;
+        this.changeCurrentTime = this.currentTime;
+      } else {
+        // 延时一下，避免音频状态的值立即被更新到slider上
+        setTimeout(() => {
+          this.isChangingCurrentTime = false;
+        }, 100);
+      }
+     },
+
+     formatSeconds(seconds) {
+      let h = Math.floor(seconds / 3600) < 10
+        ? '0' + Math.floor(seconds / 3600)
+        : Math.floor(seconds / 3600)
+
+      let m = Math.floor((seconds / 60 % 60)) < 10
+        ? '0' + Math.floor((seconds / 60 % 60))
+        : Math.floor((seconds / 60 % 60))
+
+      let s = Math.floor((seconds % 60)) < 10
+        ? '0' + Math.floor((seconds % 60))
+        : Math.floor((seconds % 60))
+
+      return h === "00"
+        ? m + ":" + s
+        : h + ":" + m + ":" + s
+    },
   },
 
   mounted () {
@@ -460,15 +541,32 @@ export default {
 
     if (this.enableVisualizer) {
       document.addEventListener('click', initAudio);
+      if (this.$q.platform.is.safari && this.$q.platform.is.mobile) {
+        this.$q.notify({
+          message: "监测到safari平台上开启了音频可视化功能，注意移动端safari有bug，如果没有声音的话，请关闭音频可视化功能",
+          timeout: 5000
+        })
+      }
     }
 
     this.initLrcObj();
     if (this.source) {
       this.loadLrcFile();
     }
-
-    // this.initMediaSessionActionHandler()
-
-  }
+  },
 }
 </script>
+
+<style scoped>
+.vue-plyr {
+  /* visibility: hidden; */
+  /*display: none;*/
+  width: 1px;
+    height: 1px;
+    overflow: hidden;
+    top: 0px;
+    left: 0px;
+    position: absolute;
+}
+
+</style>

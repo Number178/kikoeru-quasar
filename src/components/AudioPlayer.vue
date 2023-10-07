@@ -82,12 +82,30 @@
                 </q-item-section>
               </q-item>
 
-              <q-item :disable="isAndroid" clickable v-ripple @click="setPIPLyrics">
+              <q-item :disable="$q.platform.is.android" clickable v-ripple @click="setPIPLyrics">
                 <q-item-section avatar>
                   <q-icon :name="enablePIPLyrics ? 'done' : ''" />
                 </q-item-section>
                 <q-item-section>
                   {{ isAndroid ? "尚不支持Android桌面歌词" : "打开桌面歌词" }}
+                </q-item-section>
+              </q-item>
+              
+              <q-item clickable v-ripple @click="onToggleVideoSource">
+                <q-item-section avatar>
+                  <q-icon :name="enableVideoSource ? 'done' : ''" />
+                </q-item-section>
+                <q-item-section>
+                  视频源绘制功能（需要刷新页面）
+                </q-item-section>
+              </q-item>
+
+              <q-item v-if="enableVideoSource" :disable="$q.platform.is.android" clickable v-ripple @click="onSetEnableVideoSourcePIP(!enableVideoSourcePIP)">
+                <q-item-section avatar>
+                  <q-icon :name="enableVideoSourcePIP ? 'done' : ''" />
+                </q-item-section>
+                <q-item-section>
+                  视频源进入画中画模式
                 </q-item-section>
               </q-item>
             </q-menu>
@@ -127,16 +145,7 @@
         <!-- HTML5 volume in iOS is read-only -->
         <div class="row items-center q-mx-lg" style="height: 50px" v-if="!$q.platform.is.ios">
           <q-icon name="volume_down" size="sm" class="col-auto" />
-          <vue-slider 
-            v-model="volume"
-            :min="0"
-            :max="1"
-            :interval="0.01"
-            :dragOnClick="true"
-            :contained="true"
-            tooltip="none"
-            class="col"
-          />
+          <q-slider v-model="volume" :min="0" :max="1" :step="0.01" class="col q-mx-md"/>
           <q-icon name="volume_up" size="sm" class="col-auto" />
         </div>
       </q-card>
@@ -299,6 +308,12 @@ export default {
         // 暂停状态下切换时间，也更新播放历史
         this.onUpdatePlayingStatus()
       }
+    },
+    enableVisualizer() {
+      this.suggestRefreshPage();
+    },
+    enableVideoSource() {
+      this.suggestRefreshPage();
     }
   },
 
@@ -389,6 +404,8 @@ export default {
       'forwardSeekTime',
       'swapSeekButton',
       'enableVisualizer',
+      'enableVideoSource',
+      'enableVideoSourcePIP',
       'enablePIPLyrics',
       'playWorkId',
       'rewindSeekMode',
@@ -413,6 +430,8 @@ export default {
       forward: 'SET_FORWARD_SEEK_MODE',
       toggleSwapSeekButton: 'TOGGLE_SWAP_SEEK_BUTTON',
       toggleEnableVisualizer: 'TOGGLE_ENABLE_VISUALIZER',
+      toggleEnableVideoSource: 'TOGGLE_ENABLE_VIDEO_SOURCE',
+      setEnableVideoSourcePIP: 'SET_ENABLE_VIDEO_SOURCE_PIP',
       setEnablePIPLyrics: 'SET_ENABLE_PIP_LYRICS',
     }),
     ...mapMutations('AudioPlayer', [
@@ -546,6 +565,67 @@ export default {
           console.error(err.response.data.error)
         })
     },
+
+    // 中转一道这个设置，加一些用户提示
+    onToggleVideoSource() {
+
+      // 如果是关闭的话，直接关掉，无需用户提示
+      if (this.enableVideoSource) {
+        this.toggleEnableVideoSource();
+        return;
+      }
+
+      // 打开的话，需要提示一些用户信息
+      this.$q.dialog({
+        title: '注意',
+        message: '开启视频源绘制功能会增加性能开销，移动设备上可能会发热严重，请谨慎选择。此外，在iOS safari系统中，safari会强制将页面中正在播放的视频元素设置为画中画模式，无法规避，建议iOS safari环境下关闭此项功能',
+        cancel: true,
+      }).onOk(() => {
+        this.toggleEnableVideoSource()
+      }).onCancel(() => {})
+    },
+
+    onSetEnableVideoSourcePIP(enable) {
+      this.setEnableVideoSourcePIP(enable)
+
+      const video = document.querySelector("#mediaVideo") // 全局id获取对应的video元素，因为safari进入pip模式需要在用户动作回调中执行，实在是没法跨组件做这个，这里hack一下
+      const isAlreadyInPIP = document.pictureInPictureElement === video
+      if (enable && !isAlreadyInPIP) {
+        if (
+          typeof video.requestPictureInPicture === 'function' &&
+          document.pictureInPictureEnabled
+        ) {
+          video.requestPictureInPicture().then(() => {
+            video.addEventListener('leavepictureinpicture', () => {
+              if (this.playing) this.player.play()
+              this.setEnableVideoSourcePIP(false)
+            })
+          }).catch((err) => {
+            console.log("PIP in video source failed, msg = ", err.message)
+          })
+        } else if (typeof video.webkitPresentationMode === 'function') {
+          video.webkitPresentationMode('picture-in-picture')
+        }
+      } else if (isAlreadyInPIP) {
+        document.exitPictureInPicture();
+      }
+    },
+
+    // 当发生特定配置改动，需要用户刷新页面时，通过这个通知来提示用户
+    suggestRefreshPage() {
+      this.$q.notify({
+        message: "配置已更改，建议刷新页面",
+        actions: [
+          { label: "立即刷新",
+            handler: () => {
+              // this.$router.push(`/fullScreenPlayer/${this.playWorkId}`)
+              // this.$router.push(`/fullScreenPlayer`)
+              this.$router.go(0);
+            }
+          }
+        ],
+      });
+    }
   }
 }
 </script>
@@ -572,6 +652,10 @@ export default {
 
     transition: 0.6s;
     overflow: hidden;
+
+    /* flex布局，让封面占据主要空间，其余空间留给其他控件 */
+    display: flex;
+    flex-direction: column;
   }
 
   .bg-img-blur {
@@ -599,8 +683,10 @@ export default {
     // 宽度 < $breakpoint-xs-max (599px)
     @media (max-width: $breakpoint-xs-max) {
       width: 100%;
-      height: calc(100% - 230px);
     }
+
+    /* 播放控件中，封面占据几乎所有剩余空间，将其他控件挤到底部去 */
+    flex-grow: 1;
   }
 
   .current-play-list {

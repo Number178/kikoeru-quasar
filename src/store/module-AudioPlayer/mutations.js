@@ -1,6 +1,6 @@
 import { LocalStorage } from 'quasar'
 import getters from './getters'
-import { SWAP_SEEK_BUTTON_KEY, ENABLE_VISUALIZER_KEY, ENABLE_PIP_LYRICS } from './state'
+import { SWAP_SEEK_BUTTON_KEY, ENABLE_VISUALIZER_KEY, ENABLE_PIP_LYRICS, ENABLE_VIDEO_SOURCE_KEY } from './state'
 
 const mutations = {
   TOGGLE_HIDE (state) {
@@ -193,6 +193,15 @@ const mutations = {
 
   RESUME_HISTROY_SECONDS_DONE: (state) => {
     state.resumeHistroySeconds = -1
+  },
+
+  TOGGLE_ENABLE_VIDEO_SOURCE: (state) => {
+    state.enableVideoSource = !state.enableVideoSource
+    LocalStorage.set(ENABLE_VIDEO_SOURCE_KEY, state.enableVideoSource)
+  },
+
+  SET_ENABLE_VIDEO_SOURCE_PIP: (state, value) => {
+    state.enableVideoSourcePIP = value
   },
 }
 

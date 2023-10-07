@@ -1,7 +1,7 @@
 <template>
   <div class="container" ref="container" @dblclick="clickOnContainer">
     <div class="img-blur-background" :style="containerStyle"></div>
-    <q-img contain 
+    <q-img contain v-if="!enableDrawVideo"
       :src="coverUrl"
       class="constrain-height"
       img-class="scale-animation image-style"
@@ -369,7 +369,13 @@ export default {
       counter: 0,
       renderNotifier: { stop: false, pause: false },
       isInFullScreen: false,
+
+      enableDrawFrequency: false,
+      enableDrawHalo: false,
+      enableDrawVideo: true, 
+
       haloManager: null,
+      videoElement: null,
     }
   },
 
@@ -438,9 +444,8 @@ export default {
       this.initHaloManager();
 
       // const analyser = audioCtx.createAnalyser();
-      const drawFrequency = this.audioAnalyser != null;
-      const leftDataArray = drawFrequency && this.getAnalyserArray(this.setAnalyser(this.audioAnalyser.left));
-      const rightDataArray = drawFrequency && this.getAnalyserArray(this.setAnalyser(this.audioAnalyser.right));
+      this.checkVisualEffect();
+      let leftDataArray = null, rightDataArray = null; // for holding frequency data
       
       const canvas = this.$refs.visualizer;
       const canvasCtx = canvas.getContext("2d");
@@ -448,8 +453,7 @@ export default {
       canvasCtx.font="80px Arial";
 
       this.renderNotifier.stop = true; // 停止前一个渲染循环
-      let newNotifier = {stop: false, pause: !this.playing}; // 创建新的渲染停止器
-      this.renderNotifier = newNotifier; // 记录这个渲染停止器
+      let newNotifier = {stop: false, pause: !this.playing, drawer: null}; // 创建新的渲染停止器
       const draw = (millsTime) => {
         if (newNotifier.stop) return false;
         requestAnimationFrame(draw);
@@ -459,11 +463,16 @@ export default {
         let pauseDraw = newNotifier.pause;
         // sync canvas inner drawing size with client element size
         if (canvasCtx.canvas.width !== canvasCtx.canvas.clientWidth) {
-          canvasCtx.canvas.width = canvasCtx.canvas.clientWidth;
+          canvasCtx.canvas.width = canvasCtx.canvas.clientWidth * window.devicePixelRatio;
           pauseDraw = false;
         }
         if (canvasCtx.canvas.height !== canvasCtx.canvas.clientHeight) {
-          canvasCtx.canvas.height = canvasCtx.canvas.clientHeight;
+          canvasCtx.canvas.height = canvasCtx.canvas.clientHeight * window.devicePixelRatio;
+          pauseDraw = false;
+        }
+
+        // video更新后应该至少绘制一次，避免页面上啥也没有
+        if (this.enableDrawVideo) {
           pauseDraw = false;
         }
         if (pauseDraw) return false; // 
@@ -471,17 +480,68 @@ export default {
         canvasCtx.fillStyle = "rgba(0, 0, 0, 1)";
         canvasCtx.clearRect(0, 0, canvasCtx.canvas.width, canvasCtx.canvas.height);
 
-        if (drawFrequency) {
+        // 绘制音频频率
+        if (this.enableDrawFrequency) {
+          if (!leftDataArray && !rightDataArray) {
+            leftDataArray = this.getAnalyserArray(this.setAnalyser(this.audioAnalyser.left));
+            rightDataArray = this.getAnalyserArray(this.setAnalyser(this.audioAnalyser.right));
+          }
           this.audioAnalyser.left.getByteFrequencyData(leftDataArray);
           this.audioAnalyser.right.getByteFrequencyData(rightDataArray);
           fillFrequencyData(leftDataArray, canvasCtx, 'left');
           fillFrequencyData(rightDataArray, canvasCtx, 'right');
         }
 
-        this.haloManager.update(millsTime, canvasCtx);
-        this.haloManager.draw(canvasCtx);
+        // 绘制光晕
+        if (this.enableDrawHalo) {
+          this.haloManager.update(millsTime, canvasCtx);
+          this.haloManager.draw(canvasCtx);
+        }
+
+        // 绘制视频
+        if (this.enableDrawVideo && this.video) {
+          this.drawVideoInCanvas(canvas, canvasCtx)
+        }
       };
-      requestAnimationFrame(draw);
+      newNotifier.drawer = draw;
+      this.renderNotifier = newNotifier; // 记录这个渲染停止器
+      requestAnimationFrame(newNotifier.drawer);
+    },
+
+    drawVideoInCanvas(canvas, canvasCtx) {
+      const containerRatio = canvas.width / canvas.height;
+      const video = this.video;
+      const videoRatio = video.videoWidth / video.videoHeight;
+
+      let x,y,newVideoWidth, newVideoHeight
+      if (containerRatio > videoRatio) {
+        // 横置居中
+        newVideoHeight = canvas.height;
+        newVideoWidth = videoRatio * newVideoHeight;
+        x = 0.5 * (canvas.width - newVideoWidth)
+        y = 0;
+      } else {
+        // 竖置居中
+        newVideoWidth = canvas.width;
+        newVideoHeight = newVideoWidth / videoRatio;
+        x = 0;
+        y = 0.5 * (canvas.height - newVideoHeight)
+      }
+      canvasCtx.drawImage(video, x, y, newVideoWidth, newVideoHeight)
+    },
+
+    checkVisualEffect() {
+      this.enableDrawVideo = this.enableVideoSource && this.currentPlayingFile.title.toLowerCase().endsWith(".mp4")
+      if (this.enableDrawVideo) {
+        this.video = document.querySelector("#mediaVideo");
+      }
+
+      this.enableDrawFrequency = this.video == null && this.audioAnalyser != null;
+      if (this.enableDrawVideo) {
+        this.enableDrawFrequency = this.enableDrawHalo = false;
+      } else {
+        this.enableDrawHalo = true;
+      }
     }
   },
 
@@ -507,7 +567,7 @@ export default {
         width: `${percent.toFixed(5)}%`,
       }
     },
-    
+
     ...mapState('AudioPlayer', [
       'visualPlayerCoverUrl',
       'audioAnalyser',
@@ -518,6 +578,7 @@ export default {
       'playWorkId',
       'playing',
       'enablePIPLyrics',
+      'enableVideoSource'
     ]),
 
     ...mapGetters('AudioPlayer', [
@@ -536,7 +597,10 @@ export default {
     },
     playing (isPlaying) {
       this.renderNotifier.pause = !isPlaying;
-    }
+    },
+    currentPlayingFile() {
+      this.checkVisualEffect()
+    },
   },
   created() {
     // console.log("full screen rounter workid = ", this.workid)
@@ -560,10 +624,12 @@ export default {
   mounted() {
     this.audioElementInit()
     this.$refs.container.addEventListener("fullscreenchange", this.onFullscreenChange)
+    this.checkVisualEffect();
   },
   beforeDestroy() {
     this.renderNotifier.stop = true;
     this.$refs.container.removeEventListener("fullscreenchange", this.onFullscreenChange)
+    this.video = null;
   }
 }
 </script>
