@@ -82,12 +82,12 @@
                 </q-item-section>
               </q-item>
 
-              <q-item v-if="hasLyric || enablePIPLyrics" :disable="$q.platform.is.android" clickable v-ripple @click="setPIPLyrics">
+              <q-item v-if="hasLyric || enablePIPLyrics" clickable v-ripple @click="setPIPLyrics">
                 <q-item-section avatar>
                   <q-icon :name="enablePIPLyrics ? 'done' : ''" />
                 </q-item-section>
                 <q-item-section>
-                  {{ isAndroid ? "尚不支持Android桌面歌词" : "打开桌面歌词" }}
+                  打开桌面歌词
                 </q-item-section>
               </q-item>
               
@@ -210,6 +210,7 @@
 import draggable from 'vuedraggable'
 import AudioElement from 'components/AudioElement'
 import { mapState, mapGetters, mapMutations } from 'vuex'
+import { formatSeconds } from '../utils'
 
 export default {
   name: 'AudioPlayer',
@@ -421,6 +422,8 @@ export default {
   },
 
   methods: {
+    formatSeconds,
+
     ...mapMutations('AudioPlayer', {
       toggleHide: 'TOGGLE_HIDE',
       togglePlaying: 'TOGGLE_PLAYING',
@@ -443,24 +446,6 @@ export default {
       'EMPTY_QUEUE',
       'SET_VOLUME',
     ]),
-
-    formatSeconds (seconds) {
-      let h = Math.floor(seconds / 3600) < 10
-        ? '0' + Math.floor(seconds / 3600)
-        : Math.floor(seconds / 3600)
-
-      let m = Math.floor((seconds / 60 % 60)) < 10
-        ? '0' + Math.floor((seconds / 60 % 60))
-        : Math.floor((seconds / 60 % 60))
-
-      let s = Math.floor((seconds % 60)) < 10
-        ? '0' + Math.floor((seconds % 60))
-        : Math.floor((seconds % 60))
-
-      return h === "00"
-        ? m + ":" + s
-        : h + ":" + m + ":" + s
-    },
 
     samCoverUrl (hash) {
       // 从 LocalStorage 中读取 token

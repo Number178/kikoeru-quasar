@@ -1,6 +1,6 @@
 import { LocalStorage } from 'quasar'
 import getters from './getters'
-import { SWAP_SEEK_BUTTON_KEY, ENABLE_VISUALIZER_KEY, ENABLE_PIP_LYRICS, ENABLE_VIDEO_SOURCE_KEY } from './state'
+import state, { SWAP_SEEK_BUTTON_KEY, ENABLE_VISUALIZER_KEY, ENABLE_PIP_LYRICS, ENABLE_VIDEO_SOURCE_KEY } from './state'
 
 const mutations = {
   TOGGLE_HIDE (state) {
@@ -15,6 +15,10 @@ const mutations = {
   },
   TOGGLE_PLAYING (state) {
     state.playing = !state.playing
+  },
+
+  SET_NEW_CURRENT_TIME (state, value) {
+    state.newCurrentTime = value;
   },
 
   // Play a specific file from the queue.

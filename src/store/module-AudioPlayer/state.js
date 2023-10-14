@@ -10,6 +10,7 @@ export default function () {
     hide: false,
     playing: false, // 播放状态 (true/false)
     currentTime: 0, // 单位: 秒
+    newCurrentTime: -1, // 单位：秒，<0 的负数表示当前无需更改媒体的currentTime，>=0 表示需要更改媒体的currentTime
     duration: 0,
     source: "",
     queue: [

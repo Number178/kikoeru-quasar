@@ -42,6 +42,7 @@
 import Lyric from 'lrc-file-parser'
 import { mapState, mapGetters, mapMutations } from 'vuex'
 import NotifyMixin from '../mixins/Notification.js'
+import { formatSeconds } from '../utils'
 
 function convert_srt_vtt_to_lrc(text) {
   let lines = text.split("\n").map(l => l.trim())
@@ -167,6 +168,7 @@ export default {
       'visualPlayerCoverUrl',
       'duration',
       'currentTime',
+      'newCurrentTime',
       'enableVideoSource',
     ]),
 
@@ -230,9 +232,16 @@ export default {
       if (this.isChangingCurrentTime) return;
       else this.changeCurrentTime = this.currentTime;
     },
+    newCurrentTime(v) {
+      if (v < 0) return;
+      this.player.currentTime = v;
+      this.SET_NEW_CURRENT_TIME(-1); // 标记时间已经更新到media上了
+    }
   },
 
   methods: {
+    formatSeconds,
+
     /**
      * 当 外部暂停（线控暂停、软件切换）、用户控制暂停、seek 时会触发本事件
      */
@@ -272,7 +281,8 @@ export default {
       'SET_FORWARD_SEEK_MODE',
       'SET_AUDIO_ANALYSER',
       'RESUME_HISTROY_SECONDS_DONE',
-      'SET_HAS_LYRIC'
+      'SET_HAS_LYRIC',
+      'SET_NEW_CURRENT_TIME',
     ]),
 
     onCanplay () {
@@ -498,24 +508,6 @@ export default {
         }, 100);
       }
      },
-
-     formatSeconds(seconds) {
-      let h = Math.floor(seconds / 3600) < 10
-        ? '0' + Math.floor(seconds / 3600)
-        : Math.floor(seconds / 3600)
-
-      let m = Math.floor((seconds / 60 % 60)) < 10
-        ? '0' + Math.floor((seconds / 60 % 60))
-        : Math.floor((seconds / 60 % 60))
-
-      let s = Math.floor((seconds % 60)) < 10
-        ? '0' + Math.floor((seconds % 60))
-        : Math.floor((seconds % 60))
-
-      return h === "00"
-        ? m + ":" + s
-        : h + ":" + m + ":" + s
-    },
   },
 
   mounted () {
