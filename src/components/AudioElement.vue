@@ -134,10 +134,6 @@ export default {
       return this.$refs.plyr.player
     },
 
-    isSourceVideo() {
-      return this.currentPlayingFile.title.endsWith(".mp4")
-    },
-
     source () {
       // 从 LocalStorage 中读取 token
       const token = this.$q.localStorage.getItem('jwt-token') || ''
@@ -276,6 +272,7 @@ export default {
       'SET_FORWARD_SEEK_MODE',
       'SET_AUDIO_ANALYSER',
       'RESUME_HISTROY_SECONDS_DONE',
+      'SET_HAS_LYRIC'
     ]),
 
     onCanplay () {
@@ -404,12 +401,14 @@ export default {
                 this.lrcObj.setLyric(response.data);
                 this.lrcObj.play(this.player.currentTime * 1000);
                 if (!this.playing) this.lrcObj.pause() // 加载歌词后，观察当前是否在播放音频，如果没有，则暂停歌词滚动
+                this.SET_HAS_LYRIC(true);
               });
           } else {
             // 无歌词文件
             this.lrcAvailable = false;
             this.lrcObj.setLyric('');
             this.SET_CURRENT_LYRIC('');
+            this.SET_HAS_LYRIC(false);
           }
         })
         .catch((error) => {
@@ -421,6 +420,7 @@ export default {
           } else {
             this.showErrNotif(error.message || error);
           }
+          this.SET_HAS_LYRIC(false);
         })
     },
 

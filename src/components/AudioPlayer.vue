@@ -82,7 +82,7 @@
                 </q-item-section>
               </q-item>
 
-              <q-item :disable="$q.platform.is.android" clickable v-ripple @click="setPIPLyrics">
+              <q-item v-if="hasLyric || enablePIPLyrics" :disable="$q.platform.is.android" clickable v-ripple @click="setPIPLyrics">
                 <q-item-section avatar>
                   <q-icon :name="enablePIPLyrics ? 'done' : ''" />
                 </q-item-section>
@@ -100,7 +100,7 @@
                 </q-item-section>
               </q-item>
 
-              <q-item v-if="enableVideoSource" :disable="$q.platform.is.android" clickable v-ripple @click="onSetEnableVideoSourcePIP(!enableVideoSourcePIP)">
+              <q-item v-if="enableVideoSource && isCurrentPlayingFileVideo" :disable="$q.platform.is.android" clickable v-ripple @click="onSetEnableVideoSourcePIP(!enableVideoSourcePIP)">
                 <q-item-section avatar>
                   <q-icon :name="enableVideoSourcePIP ? 'done' : ''" />
                 </q-item-section>
@@ -409,12 +409,14 @@ export default {
       'enablePIPLyrics',
       'playWorkId',
       'rewindSeekMode',
-      'forwardSeekMode'
+      'forwardSeekMode',
+      'hasLyric',
     ]),
     
     ...mapGetters('AudioPlayer', [
       'currentPlayingFile',
       'resumeHistroyDone',
+      'isCurrentPlayingFileVideo',
     ])
   },
 

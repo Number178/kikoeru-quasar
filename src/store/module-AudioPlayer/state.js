@@ -27,6 +27,7 @@ export default function () {
     }, // 顺序播放("order"), 循环播放("all repeat"), 单曲循环("repeat once") or 随机播放("shuffle")
     muted: false,
     volume: 0, // 音量 (0.0-1.0)
+    hasLyric: false,
     currentLyric: '',
     sleepTime: null,
     sleepMode: false,

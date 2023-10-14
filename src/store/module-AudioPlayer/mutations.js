@@ -145,6 +145,9 @@ const mutations = {
   SET_FORWARD_SEEK_MODE: (state, value) => {
     state.forwardSeekMode = value
   },
+  SET_HAS_LYRIC: (state, value) => {
+    state.hasLyric = value;
+  },
   SET_CURRENT_LYRIC: (state, line) => {
     state.currentLyric = line
   },

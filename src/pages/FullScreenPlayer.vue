@@ -531,7 +531,7 @@ export default {
     },
 
     checkVisualEffect() {
-      this.enableDrawVideo = this.enableVideoSource && this.currentPlayingFile.title.toLowerCase().endsWith(".mp4")
+      this.enableDrawVideo = this.enableVideoSource && this.isCurrentPlayingFileVideo;
       if (this.enableDrawVideo) {
         this.video = document.querySelector("#mediaVideo");
       }
@@ -582,7 +582,8 @@ export default {
     ]),
 
     ...mapGetters('AudioPlayer', [
-      'currentPlayingFile'
+      'currentPlayingFile',
+      'isCurrentPlayingFileVideo'
     ]),
 
     title() {

@@ -1,7 +1,7 @@
 <template>
   <div :class="visibility" class="topClass">
     <canvas ref="canvas" width="500" height="60" class="sized"></canvas>
-    <video ref="video" class="sized" muted playsinline controls="controls" style="display: inline;"></video>
+    <video ref="video" class="sized" muted playsinline preload="metadata" controls="controls" style="display: inline;"></video>
   </div>
 </template>
 
@@ -12,9 +12,14 @@ export default {
   name: 'PIPLyrics',
 
   computed: {
+    video() {
+      return this.$refs.video;
+    },
+
     ...mapState('AudioPlayer', [
       'currentLyric',
       'enablePIPLyrics',
+      'playing',
     ]),
 
     ...mapGetters('AudioPlayer', [
@@ -29,6 +34,7 @@ export default {
       visibility: "hide",
       // visibility: "show",
       isFireFox: navigator.userAgent.toLowerCase().indexOf('firefox') > -1,
+      isVideoCanPlay: false, // 用以记录video能否播放并进入画中画模式，如果用户操作太快，此时video还没有准备好，需要延迟到video canplay事件发生后才能进入画中画状态
     }
   },
 
@@ -129,39 +135,62 @@ export default {
     },
 
     initVideos() {
-      const video = this.$refs.video
       const stream = this.$refs.canvas.captureStream(15)
-      video.srcObject = stream
-      this.drawLyric("  ") // 首先绘制一次
-      video.onleavepictureinpicture = () => {
+      this.video.srcObject = stream
+      this.video.onleavepictureinpicture = () => {
         if (!this.stopPIPLyric) return // 组件已经被销毁
         this.stopPIPLyric()
         this.setEnablePIPLyrics(false)
         // video.onleavepictureinpicture = ()=> {}
       }
-      video.oncanplay = () => {
-        video.play()
-        video.pause()
+      this.video.onloadedmetadata = () => {
+        console.log("pip video ready")
+        this.isVideoCanPlay = true;
       }
+      this.video.play()
+      this.forceVideoStartLoadMetadata()
+    },
+
+    forceVideoStartLoadMetadata() {
+      // 首先绘制一次，初始化video状态，保证dataloaded，是的后续画中画状态能够立即进入
+      let forceDrawCount = 10;
+      const draw = () => {
+        if (forceDrawCount < 0) {
+          if (!this.enablePIPLyrics || !this.playing)this.video.pause() // 停止强制渲染后，根据播放器状态决定video是否暂停
+          return;
+        }
+        forceDrawCount--;
+        requestAnimationFrame(draw)
+        this.drawLyric("  ") 
+      }
+      requestAnimationFrame(draw)
     },
 
     openPIPVideoMode() {
+      this.drawLyric(this.currentLyric) // 首先绘制一次
+      this.video.play()
       console.log("打开桌面歌词")
-      const video = this.$refs.video
+
       if (
-        typeof video.requestPictureInPicture === 'function' &&
+        typeof this.video.requestPictureInPicture === 'function' &&
         document.pictureInPictureEnabled
       ) {
-        video.requestPictureInPicture().catch((err) => {
+        this.video.requestPictureInPicture().then(() => {
+          // 解决歌词video播放、暂停事件无法传递到音频播放状态的问题
+          if (!this.playing) this.video.pause()
+          this.video.onplay = () => {
+            if (!this.playing) this.togglePlaying();
+          }
+          this.video.onpause = () => {
+            if (this.playing) this.togglePlaying();
+          }
+        }).catch((err) => {
           console.log("PIP lyric open video failed, msg = ", err.message)
           this.stopPIPLyric()
         })
-      } else if (typeof video.webkitPresentationMode === 'function') {
-        video.webkitPresentationMode('picture-in-picture')
+      } else if (typeof this.video.webkitPresentationMode === 'function') {
+        this.video.webkitPresentationMode('picture-in-picture')
       }
-
-      this.drawLyric(this.currentLyric) // 首先绘制一次
-      video.play()
 
       if (this.isFireFox) {
         // 对火狐浏览器，将video强制显示出来，让用户自己设置video进入画中画模式，然后自动隐藏
@@ -221,31 +250,45 @@ export default {
       }
       video.pause()
       // this.setEnablePIPLyrics(false)
+      video.onplay = null;
+      video.onpause = null;
     },
 
     ...mapMutations('AudioPlayer', {
       setEnablePIPLyrics: 'SET_ENABLE_PIP_LYRICS',
+      togglePlaying: 'TOGGLE_PLAYING',
     }),
 
+    tryEnterPIPAndShowUserPrompt() {
+      if (this.isVideoCanPlay) {
+        this.showUserPrompt() 
+      } else {
+        this.$q.notify({message: "桌面歌词打开失败，请播放音频5秒后再次尝试打开", timeout: 500})
+      }
+    }
   },
 
   watch: {
     enablePIPLyrics(value) {
       if (!value) this.stopPIPLyric()
-      else {
-        this.showUserPrompt()
-      }
+      else  this.tryEnterPIPAndShowUserPrompt()
     },
+
+    // 监听播放列表，如果有新增，一般是打开的桌面歌词状态的时候，还没有播放作品，
+    // 如果这个时候突然播放作品，就需要做检查并进入歌词画中画模式
     isQueueEmpty(value) {
       if (value) this.stopPIPLyric()
-      else if (this.enablePIPLyrics) {
-        this.showUserPrompt()
-      }
-
+      else if (this.enablePIPLyrics) this.tryEnterPIPAndShowUserPrompt()
     },
     currentLyric(newLyric) {
       if (!this.enablePIPLyrics) return
       this.drawLyric(newLyric)
+    },
+    playing() {
+      // 将音频状态 同步到 歌词video上
+      if (!this.enablePIPLyrics) return;
+      if (this.playing && this.video.paused) this.video.play()
+      else if (!this.playing && !this.video.paused) this.video.pause()
     }
   },
 
