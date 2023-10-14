@@ -20,7 +20,7 @@
         :class="{hideNewProgress: !isPanning}"
         :style="newProgressBarStyle"
       >
-        <span class="q-pa-xs" :style="showDeltaTimeStyle">
+        <span class="q-pa-xs" :style="showDeltaTimeStyle" style="transition: all 0.5s;">
           <div class="text-h4">
             {{ showNewCurrentTime }}
           </div>
