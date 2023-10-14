@@ -119,6 +119,7 @@ export default {
 
   data() {
     return {
+      lrcContent: "",
       lrcObj: null,
       lrcAvailable: false,
 
@@ -170,6 +171,7 @@ export default {
       'currentTime',
       'newCurrentTime',
       'enableVideoSource',
+      'lyricOffsetSeconds',
     ]),
 
     ...mapGetters('AudioPlayer', [
@@ -236,6 +238,10 @@ export default {
       if (v < 0) return;
       this.player.currentTime = v;
       this.SET_NEW_CURRENT_TIME(-1); // 标记时间已经更新到media上了
+    },
+    lyricOffsetSeconds(v) {
+      this.playLrc(true); // 强制更新一下歌词时间
+      this.playLrc(this.playing); // 强制更新一下歌词时间
     }
   },
 
@@ -373,14 +379,14 @@ export default {
     playLrc (playStatus) {
       if (this.lrcAvailable) {
         if (playStatus) {
-          this.lrcObj.play(this.player.currentTime * 1000);
+          this.lrcObj.play((this.player.currentTime + this.lyricOffsetSeconds) * 1000);
         } else {
           this.lrcObj.pause();
         }
       }
     },
 
-    initLrcObj () {
+    createLrcObj () {
         this.lrcObj = new Lyric({
           onPlay: (line, text) => {
             this.SET_CURRENT_LYRIC(text);
@@ -409,6 +415,7 @@ export default {
                   response.data = convert_srt_vtt_to_lrc(response.data);
                 }
                 this.lrcObj.setLyric(response.data);
+                this.lrcContent = response.data;
                 this.lrcObj.play(this.player.currentTime * 1000);
                 if (!this.playing) this.lrcObj.pause() // 加载歌词后，观察当前是否在播放音频，如果没有，则暂停歌词滚动
                 this.SET_HAS_LYRIC(true);
@@ -417,6 +424,7 @@ export default {
             // 无歌词文件
             this.lrcAvailable = false;
             this.lrcObj.setLyric('');
+            this.lrcContent = '';
             this.SET_CURRENT_LYRIC('');
             this.SET_HAS_LYRIC(false);
           }
@@ -541,7 +549,7 @@ export default {
       }
     }
 
-    this.initLrcObj();
+    this.createLrcObj();
     if (this.source) {
       this.loadLrcFile();
     }

@@ -30,6 +30,7 @@ export default function () {
     volume: 0, // 音量 (0.0-1.0)
     hasLyric: false,
     currentLyric: '',
+    lyricOffsetSeconds: 0,
     sleepTime: null,
     sleepMode: false,
     rewindSeekTime: 5,

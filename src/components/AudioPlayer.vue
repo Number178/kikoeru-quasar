@@ -37,6 +37,7 @@
 
         <!-- 设置菜单 -->
         <div class="row justify-end q-mr-sm">
+
           <q-btn
             flat 
             dense
@@ -106,6 +107,41 @@
                 </q-item-section>
                 <q-item-section>
                   视频源进入画中画模式
+                </q-item-section>
+              </q-item>
+
+              <q-item v-if="hasLyric">
+                <q-item-section>
+                  <q-input
+                    v-if="hasLyric"
+                    :value="lyricOffsetSeconds"
+                    @input="lyricOffsetChange"
+                    type="number"
+                    prefix="歌词偏移"
+                    suffix="s"
+                    style="max-width: 100%;"
+                    outlined
+                    clearable
+                    input-style="text-align: right;"
+                  >
+                    <template slot="before">
+                        <q-btn size="sm" padding="md xs" icon="sync_alt" @click="lyricSyncDialog = true"></q-btn>
+                    </template>
+                    <template slot="append">
+                      <div class="column">
+                        <q-btn
+                          size="xs"
+                          icon="arrow_drop_up"
+                          @click="lyricOffsetChange(lyricOffsetSeconds + 0.1)"
+                        ></q-btn>
+                        <q-btn
+                          size="xs"
+                          icon="arrow_drop_down"
+                          @click="lyricOffsetChange(lyricOffsetSeconds - 0.1)"
+                        ></q-btn>
+                      </div>
+                    </template>
+                  </q-input>
                 </q-item-section>
               </q-item>
             </q-menu>
@@ -203,6 +239,36 @@
         </q-list>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="lyricSyncDialog"  seamless position="top">
+      <q-card class="bg-primary text-white">
+        <q-card-section>
+          <div class="text-h6">歌词同步辅助工具</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          这是一个辅助计算歌词偏移量的工具，当音频和歌词的时间出现不同步的时候，使用此工具来计算修复的歌词偏移量。
+          请在正常播放状态下播放音频和歌词，从声音和歌词中找到一个关键点A，对应声音A和歌词A，
+          判断先听到声音还是先看到歌词，当其中一个出现时，点击下方对应的按钮，接着在另一个元素出现时再次点击一次按钮。
+          这里将会计算两次点击之间的时间差，点击“应用偏移量”即可立即刚才两次点击的时间差作为歌词偏移量。
+        </q-card-section>
+
+        <q-card-section v-if="fixState === 'ready'">
+          <q-btn @click="startFixLyricSync('lyric')">歌词先出现了</q-btn>
+          <q-btn @click="startFixLyricSync('audio')">先听到了声音</q-btn>
+        </q-card-section>
+
+        <q-card-section v-if="fixState === 'measure'">
+          <q-btn @click="stopFixLyricSync">{{ fixWhoStartFirst == "audio" ? "歌词这个时候出现了" : "这个时候才听到了声音" }}</q-btn>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn @click="lyricSyncDialog = false">关闭</q-btn>
+          <q-btn v-if="fixState !== 'ready'" @click="fixState = 'ready'" >重新计量偏移量</q-btn>
+          <q-btn v-if="fixState === 'done'" @click="fixApply">应用偏移量 {{ showDeltaSeconds }}</q-btn>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -229,6 +295,13 @@ export default {
       isAndroid: navigator.userAgent.toLowerCase().indexOf('android') > -1,
       histroyCheckIntervalId: -1,
       latestUpdatedHistory: null, // 记录最近一次更新的历史记录，防止反复对同一个播放历史进行远程数据更新
+
+      // 歌词偏移量修复工具
+      lyricSyncDialog: false,
+      fixState: "ready",  // ready: 准备开始, measure: 计时进行中, done: 计时完成
+      fixWhoStartFirst: "", // "audio", "lyric" // 先看到的歌词，还是先听到的声音
+      fixStartMills: 0,
+      fixStopMills: 0,
     }
   },
 
@@ -315,6 +388,9 @@ export default {
     },
     enableVideoSource() {
       this.suggestRefreshPage();
+    },
+    lyricSyncDialog() {
+      this.fixState = 'ready';
     }
   },
 
@@ -394,6 +470,17 @@ export default {
       }
     },
 
+    fixDeltaMills() {
+      // 音频先出现的话，需要将offset增加，使得歌词提前出现
+      let sign = this.fixWhoStartFirst == 'audio' ? +1 : -1;
+      return sign * (this.fixStopMills - this.fixStartMills);
+    },
+    showDeltaSeconds() {
+      const epsilon = 1;
+      if (Math.abs(this.fixDeltaMills) < epsilon) return ""
+      return `${this.fixDeltaMills > 0 ? '+': ''}${(this.fixDeltaMills/1000).toFixed(2)}s`;
+    },
+
     ...mapState('AudioPlayer', [
       'playing',
       'hide',
@@ -412,6 +499,7 @@ export default {
       'rewindSeekMode',
       'forwardSeekMode',
       'hasLyric',
+      'lyricOffsetSeconds',
     ]),
     
     ...mapGetters('AudioPlayer', [
@@ -423,6 +511,24 @@ export default {
 
   methods: {
     formatSeconds,
+
+    startFixLyricSync(whoStartFirst) {
+      this.fixState = "measure";
+      this.fixWhoStartFirst = whoStartFirst;
+      this.fixStartMills = this.fixStopMills = performance.now();
+    },
+
+    stopFixLyricSync() {
+      this.fixState = "done"; // 计时结束，重制状态
+      this.fixStopMills = performance.now();
+    },
+
+    fixApply() {
+      this.lyricOffsetChange(this.fixDeltaMills / 1000);
+      this.lyricSyncDialog = false;
+      this.fixState = "ready";
+      this.$q.notify({message: `歌词偏移量(${this.fixDeltaMills/1000}s)已应用`, timeout: 500})
+    },
 
     ...mapMutations('AudioPlayer', {
       toggleHide: 'TOGGLE_HIDE',
@@ -438,6 +544,7 @@ export default {
       toggleEnableVideoSource: 'TOGGLE_ENABLE_VIDEO_SOURCE',
       setEnableVideoSourcePIP: 'SET_ENABLE_VIDEO_SOURCE_PIP',
       setEnablePIPLyrics: 'SET_ENABLE_PIP_LYRICS',
+      setLyricOffsetSeconds: 'SET_LYRIC_OFFSET_SECONDS',
     }),
     ...mapMutations('AudioPlayer', [
       'SET_TRACK',
@@ -612,7 +719,14 @@ export default {
           }
         ],
       });
-    }
+    },
+
+    lyricOffsetChange(seconds) {
+      if (seconds == null) seconds = 0;
+      seconds = Math.round(seconds * 10000) / 10000; // 解决javascript小数点精度问题，比如0.9+0.1变成0.999999这种问题，在这里修复成1.0
+      console.log("lyric offset change to ", seconds, typeof seconds)
+      this.setLyricOffsetSeconds(seconds)
+    },
   }
 }
 </script>
