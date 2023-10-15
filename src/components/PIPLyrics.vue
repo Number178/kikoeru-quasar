@@ -7,6 +7,7 @@
 
 <script>
 import { mapState, mapMutations, mapGetters } from 'vuex'
+import { debounce } from 'quasar';
 
 export default {
   name: 'PIPLyrics',
@@ -178,12 +179,13 @@ export default {
         this.video.requestPictureInPicture().then(() => {
           // 解决歌词video播放、暂停事件无法传递到音频播放状态的问题
           if (!this.playing) this.video.pause()
+          // from user
           this.video.onplay = () => {
-            if (!this.playing) this.togglePlaying();
-          }
+            this.syncPlayingStateFromPIPVideoToAudio(true);
+          };
           this.video.onpause = () => {
-            if (this.playing) this.togglePlaying();
-          }
+            this.syncPlayingStateFromPIPVideoToAudio(false);
+          };
         }).catch((err) => {
           console.log("PIP lyric open video failed, msg = ", err.message)
           this.stopPIPLyric()
@@ -257,6 +259,8 @@ export default {
     ...mapMutations('AudioPlayer', {
       setEnablePIPLyrics: 'SET_ENABLE_PIP_LYRICS',
       togglePlaying: 'TOGGLE_PLAYING',
+      playAudio: 'PLAY',
+      pauseAudio: 'PAUSE',
     }),
 
     tryEnterPIPAndShowUserPrompt() {
@@ -265,6 +269,18 @@ export default {
       } else {
         this.$q.notify({message: "桌面歌词打开失败，请播放音频5秒后再次尝试打开", timeout: 500})
       }
+    },
+
+    syncPlayingStateFromAudioToPIPVideo() {
+      // 将音频状态 同步到 歌词video上
+      if (!this.enablePIPLyrics) return;
+      if (this.playing && this.video.paused) this.video.play()
+      else if (!this.playing && !this.video.paused) this.video.pause()
+    },
+
+    syncPlayingStateFromPIPVideoToAudio(isPIPPlaying) {
+      if (isPIPPlaying) this.playAudio()
+      else this.pauseAudio()
     }
   },
 
@@ -285,11 +301,18 @@ export default {
       this.drawLyric(newLyric)
     },
     playing() {
-      // 将音频状态 同步到 歌词video上
-      if (!this.enablePIPLyrics) return;
-      if (this.playing && this.video.paused) this.video.play()
-      else if (!this.playing && !this.video.paused) this.video.pause()
+      this.syncPlayingStateFromAudioToPIPVideo()
     }
+  },
+
+  created() {
+    // 防止快速切换导致video/audio相互之间的状态递归
+    //  user ===play/pause---> PIP video --- play/pause ---> audio
+    //                            ^                           |
+    //                            |                           |
+    //                            -------------play/pause-----`
+    this.syncPlayingStateFromAudioToPIPVideo = debounce(this.syncPlayingStateFromAudioToPIPVideo, 500) // ms
+    this.syncPlayingStateFromPIPVideoToAudio = debounce(this.syncPlayingStateFromPIPVideoToAudio, 500) // ms
   },
 
   mounted() {

@@ -277,6 +277,7 @@ import draggable from 'vuedraggable'
 import AudioElement from 'components/AudioElement'
 import { mapState, mapGetters, mapMutations } from 'vuex'
 import { formatSeconds } from '../utils'
+import { debounce } from 'quasar'
 
 export default {
   name: 'AudioPlayer',
@@ -727,6 +728,11 @@ export default {
       console.log("lyric offset change to ", seconds, typeof seconds)
       this.setLyricOffsetSeconds(seconds)
     },
+  },
+
+  created() {
+    // 历史更新函数防抖动
+    this.onUpdatePlayingStatus = debounce(this.onUpdatePlayingStatus, 1000 * 5);
   }
 }
 </script>
