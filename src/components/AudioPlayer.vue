@@ -16,9 +16,9 @@
         <div class="pull-handler" @click="toggleHide" v-touch-swipe.mouse.down="toggleHide"></div>
 
         <!-- 音声封面 -->
-        <div class="row items-center albumart q-mt-md"
-          style="padding: 10px"
+        <div class="row items-center albumart q-mt-md q-pa-sm relative-position"
           v-touch-swipe.mouse.down="toggleHide"
+          
         >
           <q-img
             contain
@@ -29,14 +29,77 @@
             @dblclick.prevent="openWorkDetail"
           />
 
-          <div class="row absolute q-pl-md q-pr-md col-12 justify-between" style="margin: -10px;"><!--margin -10 px 来补偿外部封面的10px padding-->
+          <!--
+          <div class="row absolute q-pl-md q-pr-md col-12 justify-between" style="margin: -10px;/*来补偿外部封面的10px padding */">
             <q-btn v-if="!hideSeekButton" round size="lg" color="white" text-color="dark" style="opacity: 0.8" @click.prevent="swapSeekButton ? previousTrack() : rewind(true)" :icon="swapSeekButton ? 'skip_previous': rewindIcon" />
             <q-btn v-if="!hideSeekButton" round size="lg" color="white" text-color="dark" style="opacity: 0.8" @click.prevent="swapSeekButton ? nextTrack() : forward(true)" :icon="swapSeekButton ? 'skip_next' : forwardIcon" />
           </div>
+          -->
         </div>
 
         <!-- 设置菜单 -->
-        <div class="row justify-end q-mr-sm">
+        <div class="row justify-end q-mr-sm q-my-sm">
+
+          <!--视频画中画-->
+          <q-btn 
+            v-if="enableVideoSource && isCurrentPlayingFileVideo" 
+            dense 
+            size="md" 
+            padding="none sm" 
+            :flat="!enableVideoSourcePIP"
+            :outline="enableVideoSourcePIP"
+            icon="picture_in_picture_alt" 
+            @click="onSetEnableVideoSourcePIP(!enableVideoSourcePIP)" 
+          >
+          <q-tooltip anchor="top middle" self="bottom middle">
+            视频画中画
+          </q-tooltip>
+        </q-btn>
+
+
+          <!--画中画歌词-->
+          <q-btn 
+            v-if="hasLyric" 
+            dense 
+            size="md" 
+            padding="none sm"
+            :flat="!enablePIPLyrics"
+            :outline="enablePIPLyrics"
+            icon="picture_in_picture" 
+            @click="setPIPLyrics" 
+          >
+            <q-tooltip anchor="top middle" self="bottom middle">
+              桌面歌词
+            </q-tooltip>
+          </q-btn>
+
+          <!--曲目列表-->
+          <q-btn 
+            flat 
+            dense 
+            size="md" 
+            padding="none sm" 
+            icon="queue_music" 
+            @click="showCurrentPlayList = !showCurrentPlayList" 
+          >
+            <q-tooltip anchor="top middle" self="bottom middle">
+              切换曲目
+            </q-tooltip>
+          </q-btn>
+
+          <!--播放顺序切换-->
+          <q-btn 
+            flat 
+            dense 
+            size="md" 
+            padding="none sm" 
+            :icon="playModeIcon" 
+            @click="changePlayMode()" 
+          >
+            <q-tooltip anchor="top middle" self="bottom middle">
+              播放顺序
+            </q-tooltip>
+          </q-btn>
 
           <q-btn
             flat 
@@ -45,6 +108,9 @@
             padding="none sm"
             icon="more_horiz"
           >
+            <q-tooltip anchor="top middle" self="bottom middle">
+              更多播放设置
+            </q-tooltip>
             <q-menu anchor="bottom right" self="top right">
               <q-item clickable v-ripple @click="hideSeekButton = !hideSeekButton">
                 <q-item-section avatar>
@@ -82,15 +148,6 @@
                   开启音频可视化（需要刷新页面）
                 </q-item-section>
               </q-item>
-
-              <q-item v-if="hasLyric || enablePIPLyrics" clickable v-ripple @click="setPIPLyrics">
-                <q-item-section avatar>
-                  <q-icon :name="enablePIPLyrics ? 'done' : ''" />
-                </q-item-section>
-                <q-item-section>
-                  打开桌面歌词
-                </q-item-section>
-              </q-item>
               
               <q-item clickable v-ripple @click="onToggleVideoSource">
                 <q-item-section avatar>
@@ -98,15 +155,6 @@
                 </q-item-section>
                 <q-item-section>
                   视频源绘制功能（需要刷新页面）
-                </q-item-section>
-              </q-item>
-
-              <q-item v-if="enableVideoSource && isCurrentPlayingFileVideo" :disable="$q.platform.is.android" clickable v-ripple @click="onSetEnableVideoSourcePIP(!enableVideoSourcePIP)">
-                <q-item-section avatar>
-                  <q-icon :name="enableVideoSourcePIP ? 'done' : ''" />
-                </q-item-section>
-                <q-item-section>
-                  视频源进入画中画模式
                 </q-item-section>
               </q-item>
 
@@ -170,11 +218,11 @@
 
         <!-- 播放按钮控件 -->
         <div class="row justify-around" style="height: 65px">
-          <q-btn flat dense class="col-auto" size="md"   icon="queue_music" @click="showCurrentPlayList = !showCurrentPlayList" style="width: 55px" />
-          <q-btn flat dense class="col-auto" size="lg"   :icon="swapSeekButton ? rewindIcon : 'skip_previous'" @click="swapSeekButton ? rewind(true) : previousTrack()" style="width: 55px" />
+          <q-btn flat dense class="col-auto" size="lg"   icon="skip_previous" @click="previousTrack()" style="width: 55px" />
+          <q-btn flat dense class="col-auto" size="lg"   :icon="rewindIcon" @click="rewind(true)" style="width: 55px" />
           <q-btn flat dense class="col-auto" size="28px" :icon="playingIcon" @click="togglePlaying()" style="width: 65px" />
-          <q-btn flat dense class="col-auto" size="lg"   :icon="swapSeekButton ? forwardIcon : 'skip_next'" @click="swapSeekButton ? forward(true) : nextTrack()" style="width: 55px" />
-          <q-btn flat dense class="col-auto" size="md"   :icon="playModeIcon" @click="changePlayMode()" style="width: 55px" />
+          <q-btn flat dense class="col-auto" size="lg"   :icon="forwardIcon" @click="forward(true)" style="width: 55px" />
+          <q-btn flat dense class="col-auto" size="lg"   icon="skip_next" @click="nextTrack()" style="width: 55px" />
         </div>
 
         <!-- 音量控件 -->

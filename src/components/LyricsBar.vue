@@ -3,16 +3,18 @@
       class="lyric-container"
       ref="draggable"
     >
-        <div v-if="showSizeBar" class="fontSizeBar" style="">
+        <div class="fontSizeBar" :class="showSizeBar ? 'showSizeBarStyle' : 'hideSizeBarStyle'">
           <q-slider v-model="fontSize" :min="0.2" :max="10" :step="0" thumb-size="35px" @change="onFontSizeChange"/>
         </div>
         <div id="lyricsBar" class="text-center text-bold ellipsis-2-lines text-purple absolute-bottom non-selectable">
+          <div class="lyricBackground">
             <span id="lyric"
               :style="{'font-size': `${fontSize}rem`}"
               @mousedown="onCursorDown"
               @touchstart="onCursorDown">
               {{currentLyric}}
             </span>
+          </div>
         </div>
       </div>
 </template>
@@ -151,16 +153,32 @@ export default {
     /* background-color: rgba($grey-4, $alpha: 0.6); */
     position: relative;
     min-width: 1vw;
+    max-width: 90vw;
   }
   #lyric {
     text-shadow:1px 1px 2px black;
-    
+  }
+  .lyricBackground {
+    background-color: rgba($grey-8, $alpha: 0.6);
+    border-radius: 10px;
+    padding: 2px 4px;
   }
   .fontSizeBar {
     width: 300px;
     position: absolute;
     left: 50%;
-    transform: translateX(-50%) translateY(100%);
     bottom: 0;
+
+    transition: 0.5s;
+  }
+
+  .showSizeBarStyle {
+    opacity: 1;
+    transform: translateX(-50%) translateY(100%);
+  }
+  .hideSizeBarStyle {
+    opacity: 0;
+    transform: translateX(-50%) translateY(0);
+    visibility: hidden;
   }
 </style>
