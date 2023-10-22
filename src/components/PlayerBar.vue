@@ -14,7 +14,7 @@
       color="primary"
       :class="{}"
     >
-      <div class="simple-progress" :style="progressBarStyle"></div>
+      <div class="simple-progress" :class="$q.dark.isActive ? 'simple-progress-dark' : 'simple-progress-light'" :style="progressBarStyle"></div>
       <div
         class="new-progress row justify-end"
         :class="{hideNewProgress: !isPanning}"
@@ -313,8 +313,14 @@ export default {
   top: 0;
   height: 100%;
   /* width: 100%; */
-  background-color: var(--q-color-primary);
-  opacity: 0.2;
+  opacity: 1;
+}
+
+.simple-progress-dark {
+  background-color: rgba($primary, $alpha: 0.5);
+}
+.simple-progress-light {
+  background-color: rgba($primary, $alpha: 0.3);
 }
 
 .new-progress {

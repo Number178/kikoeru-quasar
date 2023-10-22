@@ -2,6 +2,7 @@
   <div :class="visibility" class="topClass">
     <canvas ref="canvas" width="500" height="60" class="sized"></canvas>
     <video ref="video" class="sized" muted playsinline preload="metadata" controls="controls" style="display: inline;"></video>
+    <div v-if="isDarkMode" style="display: none;"></div>
   </div>
 </template>
 
@@ -36,6 +37,7 @@ export default {
       // visibility: "show",
       isFireFox: navigator.userAgent.toLowerCase().indexOf('firefox') > -1,
       isVideoCanPlay: false, // 用以记录video能否播放并进入画中画模式，如果用户操作太快，此时video还没有准备好，需要延迟到video canplay事件发生后才能进入画中画状态
+      pixelRatio: window.devicePixelRatio,
     }
   },
 
@@ -43,7 +45,8 @@ export default {
     initCanvas() {
       this.ctx = this.$refs.canvas.getContext("2d")
       const canvas = this.$refs.canvas
-      canvas.width = Math.min(1000, window.innerWidth)
+      // const pixelRatio = 1;
+      canvas.width = this.pixelRatio * window.innerWidth
       canvas.height = canvas.width / 500 * 60
 
       // const ctx = this.ctx
@@ -75,9 +78,11 @@ export default {
       const ctx = this.ctx
       const fontsize = fontScale * cvs.width / 30
 
+      const isDarkMode = this.$q.dark.isActive;
+
       // background
       ctx.clearRect(0, 0, cvs.width, cvs.height)
-      ctx.fillStyle = 'rgba(160, 160, 160, 1.0)'
+      ctx.fillStyle = isDarkMode ? 'rgba(50, 50, 50, 1.0)' : "rgba(255, 255, 255, 1.0)"
       ctx.fillRect(0, 0, cvs.width, cvs.height)
 
       ctx.font = `bold ${fontsize * 0.9
@@ -302,6 +307,10 @@ export default {
     },
     playing() {
       this.syncPlayingStateFromAudioToPIPVideo()
+    },
+    "$q.dark.isActive"() {
+      // 监听黑夜模式，立即重新绘制
+      this.drawLyric(this.currentLyric);
     }
   },
 

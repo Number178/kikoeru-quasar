@@ -13,10 +13,11 @@
         <!--背景-->
         <div class="bg-img-blur" :style="{'background-image': `url(${coverUrl})`}"></div>
 
+        <!--顶部小横条-->
         <div class="pull-handler" @click="toggleHide" v-touch-swipe.mouse.down="toggleHide"></div>
 
         <!-- 音声封面 -->
-        <div class="row items-center albumart q-mt-md q-pa-sm relative-position"
+        <div class="row items-center albumart q-mt-lg q-pa-sm relative-position"
           v-touch-swipe.mouse.down="toggleHide"
           
         >
@@ -38,162 +39,163 @@
         </div>
 
         <!-- 设置菜单 -->
-        <div class="row justify-end q-mr-sm q-my-sm">
+        <div class="row justify-between q-mr-sm q-my-sm">
+          <!-- 顶在前面 -->
+            <!-- 曲目列表 -->
+            <q-btn 
+              flat 
+              dense 
+              size="md" 
+              padding="none sm" 
+              icon="queue_music" 
+              @click="showCurrentPlayList = !showCurrentPlayList" 
+            >
+              <q-tooltip anchor="top middle" self="bottom middle">
+                切换曲目
+              </q-tooltip>
+            </q-btn>
 
-          <!--视频画中画-->
-          <q-btn 
-            v-if="enableVideoSource && isCurrentPlayingFileVideo" 
-            dense 
-            size="md" 
-            padding="none sm" 
-            :flat="!enableVideoSourcePIP"
-            :outline="enableVideoSourcePIP"
-            icon="picture_in_picture_alt" 
-            @click="onSetEnableVideoSourcePIP(!enableVideoSourcePIP)" 
-          >
-          <q-tooltip anchor="top middle" self="bottom middle">
-            视频画中画
-          </q-tooltip>
-        </q-btn>
-
-
-          <!--画中画歌词-->
-          <q-btn 
-            v-if="hasLyric" 
-            dense 
-            size="md" 
-            padding="none sm"
-            :flat="!enablePIPLyrics"
-            :outline="enablePIPLyrics"
-            icon="picture_in_picture" 
-            @click="setPIPLyrics" 
-          >
+            <!--视频画中画-->
+            <q-btn 
+              v-if="enableVideoSource && isCurrentPlayingFileVideo" 
+              dense 
+              size="md" 
+              padding="none sm" 
+              :flat="!enableVideoSourcePIP"
+              :outline="enableVideoSourcePIP"
+              icon="picture_in_picture_alt" 
+              @click="onSetEnableVideoSourcePIP(!enableVideoSourcePIP)" 
+            >
             <q-tooltip anchor="top middle" self="bottom middle">
-              桌面歌词
+              视频画中画
             </q-tooltip>
-          </q-btn>
+            </q-btn>
 
-          <!--曲目列表-->
-          <q-btn 
-            flat 
-            dense 
-            size="md" 
-            padding="none sm" 
-            icon="queue_music" 
-            @click="showCurrentPlayList = !showCurrentPlayList" 
-          >
-            <q-tooltip anchor="top middle" self="bottom middle">
-              切换曲目
-            </q-tooltip>
-          </q-btn>
 
-          <!--播放顺序切换-->
-          <q-btn 
-            flat 
-            dense 
-            size="md" 
-            padding="none sm" 
-            :icon="playModeIcon" 
-            @click="changePlayMode()" 
-          >
-            <q-tooltip anchor="top middle" self="bottom middle">
-              播放顺序
-            </q-tooltip>
-          </q-btn>
+            <!--画中画歌词-->
+            <q-btn 
+              v-if="hasLyric || enablePIPLyrics" 
+              dense 
+              size="md" 
+              padding="none sm"
+              :flat="!enablePIPLyrics"
+              :outline="enablePIPLyrics"
+              icon="picture_in_picture" 
+              @click="setPIPLyrics" 
+            >
+              <q-tooltip anchor="top middle" self="bottom middle">
+                桌面歌词
+              </q-tooltip>
+            </q-btn>
 
-          <q-btn
-            flat 
-            dense
-            size="md"
-            padding="none sm"
-            icon="more_horiz"
-          >
-            <q-tooltip anchor="top middle" self="bottom middle">
-              更多播放设置
-            </q-tooltip>
-            <q-menu anchor="bottom right" self="top right">
-              <q-item clickable v-ripple @click="hideSeekButton = !hideSeekButton">
-                <q-item-section avatar>
-                  <q-icon :name="hideSeekButton ? 'done' : ''" />
-                </q-item-section>
+            <!--播放顺序切换-->
+            <q-btn 
+              flat 
+              dense 
+              size="md" 
+              padding="none sm" 
+              :icon="playModeIcon" 
+              @click="changePlayMode()" 
+            >
+              <q-tooltip anchor="top middle" self="bottom middle">
+                播放顺序
+              </q-tooltip>
+            </q-btn>
 
-                <q-item-section>
-                  隐藏封面按钮
-                </q-item-section>
-              </q-item>
-              
-              <q-item clickable v-ripple @click="toggleSwapSeekButton">
-                <q-item-section avatar>
-                  <q-icon :name="swapSeekButton ? 'done' : ''" />
-                </q-item-section>
-                <q-item-section>
-                  交换进度按钮与切换按钮
-                </q-item-section>
-              </q-item>
-              
-              <q-item clickable v-ripple @click="openWorkDetail()" v-close-popup>
-                <q-item-section avatar>
-                  <!-- placeholder -->
-                </q-item-section>
-                <q-item-section>
-                  打开作品详情（或双击封面）
-                </q-item-section>
-              </q-item>
-              
-              <q-item clickable v-ripple @click="toggleEnableVisualizer">
-                <q-item-section avatar>
-                  <q-icon :name="enableVisualizer ? 'done' : ''" />
-                </q-item-section>
-                <q-item-section>
-                  开启音频可视化（需要刷新页面）
-                </q-item-section>
-              </q-item>
-              
-              <q-item clickable v-ripple @click="onToggleVideoSource">
-                <q-item-section avatar>
-                  <q-icon :name="enableVideoSource ? 'done' : ''" />
-                </q-item-section>
-                <q-item-section>
-                  视频源绘制功能（需要刷新页面）
-                </q-item-section>
-              </q-item>
+          <!-- 放在尾部 -->
+            <q-btn
+              flat 
+              dense
+              size="md"
+              padding="none sm"
+              icon="more_horiz"
+            >
+              <q-tooltip anchor="top middle" self="bottom middle">
+                更多播放设置
+              </q-tooltip>
+              <q-menu anchor="bottom right" self="top right">
+                <q-item clickable v-ripple @click="hideSeekButton = !hideSeekButton">
+                  <q-item-section avatar>
+                    <q-icon :name="hideSeekButton ? 'done' : ''" />
+                  </q-item-section>
 
-              <q-item v-if="hasLyric">
-                <q-item-section>
-                  <q-input
-                    v-if="hasLyric"
-                    :value="lyricOffsetSeconds"
-                    @input="lyricOffsetChange"
-                    type="number"
-                    prefix="歌词偏移"
-                    suffix="s"
-                    style="max-width: 100%;"
-                    outlined
-                    clearable
-                    input-style="text-align: right;"
-                  >
-                    <template slot="before">
-                        <q-btn size="sm" padding="md xs" icon="sync_alt" @click="lyricSyncDialog = true"></q-btn>
-                    </template>
-                    <template slot="append">
-                      <div class="column">
-                        <q-btn
-                          size="xs"
-                          icon="arrow_drop_up"
-                          @click="lyricOffsetChange(lyricOffsetSeconds + 0.1)"
-                        ></q-btn>
-                        <q-btn
-                          size="xs"
-                          icon="arrow_drop_down"
-                          @click="lyricOffsetChange(lyricOffsetSeconds - 0.1)"
-                        ></q-btn>
-                      </div>
-                    </template>
-                  </q-input>
-                </q-item-section>
-              </q-item>
-            </q-menu>
-          </q-btn>
+                  <q-item-section>
+                    隐藏封面按钮
+                  </q-item-section>
+                </q-item>
+                
+                <q-item clickable v-ripple @click="toggleSwapSeekButton">
+                  <q-item-section avatar>
+                    <q-icon :name="swapSeekButton ? 'done' : ''" />
+                  </q-item-section>
+                  <q-item-section>
+                    交换进度按钮与切换按钮
+                  </q-item-section>
+                </q-item>
+                
+                <q-item clickable v-ripple @click="openWorkDetail()" v-close-popup>
+                  <q-item-section avatar>
+                    <!-- placeholder -->
+                  </q-item-section>
+                  <q-item-section>
+                    打开作品详情（或双击封面）
+                  </q-item-section>
+                </q-item>
+                
+                <q-item clickable v-ripple @click="toggleEnableVisualizer">
+                  <q-item-section avatar>
+                    <q-icon :name="enableVisualizer ? 'done' : ''" />
+                  </q-item-section>
+                  <q-item-section>
+                    开启音频可视化（需要刷新页面）
+                  </q-item-section>
+                </q-item>
+                
+                <q-item clickable v-ripple @click="onToggleVideoSource">
+                  <q-item-section avatar>
+                    <q-icon :name="enableVideoSource ? 'done' : ''" />
+                  </q-item-section>
+                  <q-item-section>
+                    视频源绘制功能（需要刷新页面）
+                  </q-item-section>
+                </q-item>
+
+                <q-item v-if="hasLyric">
+                  <q-item-section>
+                    <q-input
+                      v-if="hasLyric"
+                      :value="lyricOffsetSeconds"
+                      @input="lyricOffsetChange"
+                      type="number"
+                      prefix="歌词偏移"
+                      suffix="s"
+                      style="max-width: 100%;"
+                      outlined
+                      clearable
+                      input-style="text-align: right;"
+                    >
+                      <template slot="before">
+                          <q-btn size="sm" padding="md xs" icon="sync_alt" @click="lyricSyncDialog = true"></q-btn>
+                      </template>
+                      <template slot="append">
+                        <div class="column">
+                          <q-btn
+                            size="xs"
+                            icon="arrow_drop_up"
+                            @click="lyricOffsetChange(lyricOffsetSeconds + 0.1)"
+                          ></q-btn>
+                          <q-btn
+                            size="xs"
+                            icon="arrow_drop_down"
+                            @click="lyricOffsetChange(lyricOffsetSeconds - 0.1)"
+                          ></q-btn>
+                        </div>
+                      </template>
+                    </q-input>
+                  </q-item-section>
+                </q-item>
+              </q-menu>
+            </q-btn>
         </div>
 
         <!-- 进度条控件 -->
@@ -858,14 +860,14 @@ export default {
   }
 
   .pull-handler {
-    height: 8px;
+    height: 6px;
     width: 100px;
     background: rgba(255, 255, 255, 0.3);
     position: absolute;
     border-radius: 4px !important;
     overflow: hidden;
     left: 50%;
-    top: 8px;
+    top: 12px;
     transform: translateX(-50%);
   }
 
