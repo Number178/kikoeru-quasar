@@ -83,6 +83,10 @@
               <q-item clickable @click="download(item)">
                 <q-item-section>下载文件</q-item-section>
               </q-item>
+
+              <q-item clickable @click="aiTranslate(item)" v-if="item.type === 'audio'">
+                <q-item-section>进行AI翻译</q-item-section>
+              </q-item>
             </q-list>
           </q-menu>
         </q-item>
@@ -93,6 +97,8 @@
 
 <script>
 import { mapState, mapGetters } from 'vuex'
+import { AIServerApi } from 'src/utils'
+const TaskStatus = AIServerApi.TaskStatus;
 
 export default {
   name: 'WorkTree',
@@ -157,7 +163,8 @@ export default {
 
     ...mapState('AudioPlayer', [
       'playing',
-      'playWorkId'
+      'playWorkId',
+      'aiServerUrl',
     ]),
 
     ...mapGetters('AudioPlayer', [
@@ -235,6 +242,24 @@ export default {
       link.href = url;
       link.target="_blank";
       link.click();
+    },
+
+    async aiTranslate (file) {
+      // 首先查找一下，看服务器上是否已经正在翻译中了
+      const workId = this.metadata.id;
+      const workTitle = this.metadata.title;
+      const tasks = await AIServerApi.searchTask(this.aiServerUrl, file.title, workId, workTitle);
+
+      // 过滤掉所有失败的任务
+      const validTasks = tasks.filter((t) => t.status != TaskStatus.ERROR)
+      if (validTasks.length > 0) {
+        // 已有正在执行的翻译任务，当前任务取消
+        this.$q.notify("服务器已经有该文件的翻译任务，无法重复添加，请在左侧的AI歌词中心查看翻译进度")
+        return;
+      }
+
+      const { id } = await AIServerApi.addNewTask(this.aiServerUrl, file.mediaDownloadUrl, workId, workTitle, file.title);
+      this.$q.notify(`已上传翻译任务${id}，请播放此作品合集，并前往 AI歌词中心面板 观察当前翻译进度`)
     },
 
     setVisualPlayerCover (imgFile) {

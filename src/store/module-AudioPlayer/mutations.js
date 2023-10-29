@@ -1,6 +1,6 @@
 import { LocalStorage } from 'quasar'
 import getters from './getters'
-import state, { SWAP_SEEK_BUTTON_KEY, ENABLE_VISUALIZER_KEY, ENABLE_PIP_LYRICS, ENABLE_VIDEO_SOURCE_KEY } from './state'
+import state, { SWAP_SEEK_BUTTON_KEY, ENABLE_VISUALIZER_KEY, ENABLE_PIP_LYRICS, ENABLE_VIDEO_SOURCE_KEY, AI_SERVER_URL_KEY } from './state'
 
 const mutations = {
   TOGGLE_HIDE (state) {
@@ -213,6 +213,15 @@ const mutations = {
   SET_ENABLE_VIDEO_SOURCE_PIP: (state, value) => {
     state.enableVideoSourcePIP = value
   },
+
+  SET_AI_SERVER_URL: (state, value) => {
+    state.aiServerUrl = value;
+    LocalStorage.set(AI_SERVER_URL_KEY, state.aiServerUrl)
+  },
+
+  SET_REMOTE_AI_LYRIC_TASK_ID: (state, id) => {
+    state.remoteAILyricTaskId = id;
+  }
 }
 
 export default mutations

@@ -42,7 +42,7 @@
 import Lyric from 'lrc-file-parser'
 import { mapState, mapGetters, mapMutations } from 'vuex'
 import NotifyMixin from '../mixins/Notification.js'
-import { formatSeconds } from '../utils'
+import { AIServerApi, formatSeconds } from '../utils'
 
 function convert_srt_vtt_to_lrc(text) {
   let lines = text.split("\n").map(l => l.trim())
@@ -172,6 +172,9 @@ export default {
       'newCurrentTime',
       'enableVideoSource',
       'lyricOffsetSeconds',
+
+      'aiServerUrl',
+      'remoteAILyricTaskId', 
     ]),
 
     ...mapGetters('AudioPlayer', [
@@ -242,6 +245,10 @@ export default {
     lyricOffsetSeconds(v) {
       this.playLrc(true); // 强制更新一下歌词时间
       this.playLrc(this.playing); // 强制更新一下歌词时间
+    },
+    remoteAILyricTaskId(id) {
+      if (id === "") return
+      this.loadRemoteAILyricTaskId(id);
     }
   },
 
@@ -289,6 +296,7 @@ export default {
       'RESUME_HISTROY_SECONDS_DONE',
       'SET_HAS_LYRIC',
       'SET_NEW_CURRENT_TIME',
+      'SET_REMOTE_AI_LYRIC_TASK_ID',
     ]),
 
     onCanplay () {
@@ -440,6 +448,17 @@ export default {
           }
           this.SET_HAS_LYRIC(false);
         })
+    },
+
+    async loadRemoteAILyricTaskId(aiTaskId) {
+      this.SET_REMOTE_AI_LYRIC_TASK_ID(""); // 将全局ai歌词加载flag清空
+      const lrcContent = await AIServerApi.downloadTask(this.aiServerUrl, aiTaskId)
+      this.lrcAvailable = true;
+      this.lrcObj.setLyric(lrcContent);
+      this.lrcContent = lrcContent;
+      this.lrcObj.play(this.player.currentTime * 1000);
+      if (!this.playing) this.lrcObj.pause() // 加载歌词后，观察当前是否在播放音频，如果没有，则暂停歌词滚动
+      this.SET_HAS_LYRIC(true);
     },
 
     updateMediaSessionMetadata() {

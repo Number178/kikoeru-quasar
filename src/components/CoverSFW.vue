@@ -24,23 +24,7 @@
 
 <script>
 
-/**
- * 格式化 id，适配 8 位、6 位 id
- * @param {number} id
- * @return {string}
- */
-
-function formatID(id) {
-  if (id >= 1000000) {
-    // 大于 7 位数，则补全为 8 位
-    id = `0${id}`.slice(-8);
-  } else {
-    // 否则补全为 6 位
-    id = `000000${id}`.slice(-6);
-  }
-
-  return id;
-}
+import { formatID } from 'src/utils'
 
 export default {
   name: 'CoverSFW',
