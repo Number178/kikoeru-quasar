@@ -2,7 +2,6 @@
   <div :class="visibility" class="topClass">
     <canvas ref="canvas" width="500" height="60" class="sized"></canvas>
     <video ref="video" class="sized" muted playsinline preload="metadata" controls="controls" style="display: inline;"></video>
-    <div v-if="isDarkMode" style="display: none;"></div>
   </div>
 </template>
 
