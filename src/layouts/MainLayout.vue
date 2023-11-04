@@ -283,6 +283,7 @@ export default {
     sharedConfig (config) {
       this.SET_REWIND_SEEK_TIME(config.rewindSeekTime);
       this.SET_FORWARD_SEEK_TIME(config.forwardSeekTime);
+      this.SET_AI_SERVER_URL(config.aiServerUrl);
     },
   },
 

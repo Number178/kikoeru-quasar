@@ -84,6 +84,7 @@ export default {
 
   watch: {
     aiServerUrl(v) {
+      this.aiServerUrlLocal = this.aiServerUrl;
     }
   },
 
