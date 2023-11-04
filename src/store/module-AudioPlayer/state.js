@@ -56,7 +56,7 @@ export default function () {
     // -1表示无需恢复，其他大于等于0的数字需要在onCanplay时间触发并完成时间跳转之后，再次设置为-1
     resumeHistroySeconds: -1,
 
-    aiServerUrl: LocalStorage.has(AI_SERVER_URL_KEY) && LocalStorage.getItem(AI_SERVER_URL_KEY) || "",
+    aiServerUrl: "",
 
     // 当AI中心选择应用ai歌词到当前播放音频上时，
     // 将会修改这个id为对应ai翻译任务的id，

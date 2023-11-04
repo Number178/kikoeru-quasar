@@ -216,7 +216,6 @@ const mutations = {
 
   SET_AI_SERVER_URL: (state, value) => {
     state.aiServerUrl = value;
-    LocalStorage.set(AI_SERVER_URL_KEY, state.aiServerUrl)
   },
 
   SET_REMOTE_AI_LYRIC_TASK_ID: (state, id) => {

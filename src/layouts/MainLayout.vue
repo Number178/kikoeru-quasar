@@ -321,7 +321,8 @@ export default {
   methods: {
     ...mapMutations('AudioPlayer', [
       'SET_REWIND_SEEK_TIME',
-      'SET_FORWARD_SEEK_TIME'
+      'SET_FORWARD_SEEK_TIME',
+      'SET_AI_SERVER_URL',
     ]),
     initUser () {
       this.$axios.get('/api/auth/me')

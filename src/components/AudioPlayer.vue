@@ -71,7 +71,6 @@
             </q-tooltip>
             </q-btn>
 
-
             <!--画中画歌词-->
             <q-btn 
               v-if="hasLyric || enablePIPLyrics" 

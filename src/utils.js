@@ -14,6 +14,7 @@ export function formatID(id) {
 
   return id;
 }
+
 export function formatSeconds(seconds) {
   let h = Math.floor(seconds / 3600) < 10
     ? '0' + Math.floor(seconds / 3600)
@@ -37,7 +38,50 @@ function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 }
 
+export function basename(string) {
+  const extIdx = string.lastIndexOf('.');
+  return extIdx >= 0 ? string.substr(0, extIdx) : string;
+}
+
 export const AIServerApi = {
+
+  polishTask(task) {
+    // task {       {
+    //    "status": 5,
+    //    "displayName": "1077815#标题名字#文件名字.mp3",
+    //    "createdTime": 1698584425.8244648,
+    //    "id": 761573718272583583
+    // },}
+    // 
+    // to
+    // 
+    // {
+    //    "status": 5,
+    //    "createdTime": 1698584425.8244648,
+    //    "id": 761573718272583583
+    //    "workId": 1077815,
+    //    "workTitle" "标题名字",
+    //    "fileName" "文件名字.mp3",
+    //    "fileBasename" "文件名字",
+    //    "fileExt" ".mp3",
+    // },}
+    const [workId, workTitle, fileName] = task.displayName.split("#")
+    const extIdx = fileName.lastIndexOf('.');
+    const fileBasename = extIdx >= 0 ? fileName.substr(0, extIdx) : fileName;
+    const fileExt = extIdx >= 0 ? fileName.substr(extIdx) : "";
+    
+    return {
+      status: task.status,
+      createdTime: task.createdTime,
+      id: task.id,
+      workId,
+      workTitle,
+      fileName,
+      fileBasename,
+      fileExt,
+    };
+  },
+  
   async searchTask(serverUrl, fileName, workId, workTitle) {
     // task 存储的名字（用来搜索）是一个字符串，按照`${workId}#${workTitle}#${fileName}` 的形式存储
     // 根据提供的参数，来尽可能的提供完整的搜索字符串
@@ -59,13 +103,18 @@ export const AIServerApi = {
     return await response.json();
   },
 
+  async searchWorkRelatedTask(serverUrl, workId) {
+    const tasks = await this.searchTask(serverUrl, "", workId, undefined)
+    return tasks.map(this.polishTask);
+  },
+
   // protocol: "http:" or "https:"
   // host:  "10.1.1.1:3324"
   // path: "/download/path/1"
   async addNewTask(serverUrl, downloadPath, workId, workTitle, fileName) {
     const data = {
       url: `${location.protocol}//${location.host}${downloadPath}`,
-      name: `${workId}#${workTitle}#${fileName}`,
+      name: `${workId}#${workTitle.replaceAll('#','')}#${fileName}`,
     };
     const response = await fetch(`${serverUrl}/task/new`, {
       method: "POST",
@@ -97,4 +146,79 @@ export const AIServerApi = {
     SUCCESS: 5 ,// 转录成功
     ERROR: 6 ,// 转录失败
   }
+}
+
+export function editDistance(s1, s2) {
+  s1 = s1.toLowerCase();
+  s2 = s2.toLowerCase();
+
+  var costs = new Array();
+  for (var i = 0; i <= s1.length; i++) {
+    var lastValue = i;
+    for (var j = 0; j <= s2.length; j++) {
+      if (i == 0)
+        costs[j] = j;
+      else {
+        if (j > 0) {
+          var newValue = costs[j - 1];
+          if (s1.charAt(i - 1) != s2.charAt(j - 1))
+            newValue = Math.min(Math.min(newValue, lastValue),
+              costs[j]) + 1;
+          costs[j - 1] = lastValue;
+          lastValue = newValue;
+        }
+      }
+    }
+    if (i > 0)
+      costs[s2.length] = lastValue;
+  }
+  return costs[s2.length];
+}
+
+export function similarity(s1, s2) {
+  let longer = s1;
+  let shorter = s2;
+  if (s1.length < s2.length) {
+    longer = s2;
+    shorter = s1;
+  }
+  const longerLength = longer.length;
+  if (longerLength == 0) {
+    return 1.0;
+  }
+  return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
+}
+
+export function bidirectionSimilarity(s1, s2) {
+  let longer = s1;
+  let shorter = s2;
+  if (s1.length < s2.length) {
+    longer = s2;
+    shorter = s1;
+  }
+  const longerLength = longer.length;
+  const shorterLength = shorter.length;
+
+  if (longerLength == 0) {
+    return 1.0;
+  }
+
+  const buf = Array(shorterLength).fill(0);
+  for (let i = 0; i < shorterLength; ++i) {
+    if (longer[i] == shorter[i]) buf[i]++;
+    if (longer[longerLength - i] == shorter[shorterLength - i]) buf[shorterLength - i]++;
+  }
+
+  const samePortion = buf.reduce((acc, x) => acc + (x == 0 ? 0 : 1), 0);
+  const value =  samePortion / shorterLength;
+  return value;
+}
+
+export function audioLyricNameMatch(aname, lname) {
+  const oname = basename(aname);
+  const dname = lname;
+  if (oname.includes(dname)) return true;
+  else if (similarity(oname, dname) > 0.8) return true;
+  else if (bidirectionSimilarity(oname, dname) > 0.8) return true;
+  else return false;
 }

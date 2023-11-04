@@ -99,6 +99,7 @@ export default {
     ]),
 
     async refreshStatus() {
+      if (this.aiServerUrl === "") return;
       const tasks = await AIServerApi.searchTask(this.aiServerUrl, "", this.playWorkId, undefined);
       console.log("fetch tasks = ", tasks)
       tasks.forEach(task => {
