@@ -140,7 +140,7 @@ export default {
     },
 
     initVideos() {
-      const stream = this.$refs.canvas.captureStream(15)
+      const stream = this.$refs.canvas.captureStream()
       this.video.srcObject = stream
       this.video.onleavepictureinpicture = () => {
         if (!this.stopPIPLyric) return // 组件已经被销毁
