@@ -19,6 +19,12 @@
         {{release}}
       </q-chip>
     </div>
+
+    <div :v-if="lyricList.length > 0" class="absolute-top-right transparent" style="padding: 0px;">
+      <q-chip v-for="lyric in lyricList" :key="lyric" dense square color="green-7" text-color="white" class="q-ma-sm shadow-3">
+        {{ {ai: "AI歌词", local: "本地歌词"}[lyric] }}
+      </q-chip>
+    </div>
   </q-img>
 </template>
 
@@ -42,6 +48,11 @@ export default {
 
     release: {
       required: true
+    },
+
+    lyric_status: { // "", "ai", "local", "ai_local"
+      type: String,
+      require: true,
     }
   },
 
@@ -76,6 +87,12 @@ export default {
           return this.blurFlag ? "blur-image" : ""
         }
       }
+    },
+
+    lyricList() {
+      return this.lyric_status 
+      ? this.lyric_status.split("_")
+      : [];
     }
   },
 

@@ -5,6 +5,7 @@
         :workid="metadata.id" 
         :nsfw="false" 
         :release="metadata.release" 
+        :lyric_status="metadata.lyric_status"
         style="border-radius: 8px; overflow: hidden;"
         class="shadow-4"
       />
