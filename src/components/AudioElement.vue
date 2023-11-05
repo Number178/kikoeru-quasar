@@ -426,7 +426,7 @@ export default {
         const lyricExtension = check_response.data.lyricExtension.toLowerCase();
 
         // 开始下载具体的lrc内容
-        const response = this.$axios.get(lrcUrl)
+        const response = await this.$axios.get(lrcUrl)
         console.log('歌词读入成功');
         console.log('srt convert to lrc');
         if (lyricExtension == ".srt" || lyricExtension == ".vtt") {
