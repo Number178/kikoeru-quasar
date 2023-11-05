@@ -39,6 +39,24 @@
         class="col-auto"
       />
 
+      <!-- 字幕筛选 -->
+      <q-select
+        dense
+        rounded
+        outlined
+        bg-color=""
+        style="min-width: 8rem;"
+        transition-show="scale"
+        transition-hide="scale"
+        v-model="lyricOption"
+        :options="lyricOptions"
+        :option-label="humanReadableLabel"
+        label="字幕筛选"
+        clearable
+        multiple
+        class="col-auto"
+      />
+
       <!-- 排序顺序 -->
       <q-toggle v-model="sortInDesc" :label="sortInDesc ? '降序' : '升序'" />
 
@@ -156,6 +174,9 @@ export default {
       nsfwOption: "nsfw_0", 
       nsfwOptions: ["nsfw_0", "nsfw_1", "nsfw_2"], // nsfw_0无年龄限制，nsfw_1全年龄，nsfw_2十八禁
 
+      lyricOption: [], // 注意，这个选项可多选，但是clear的时候，quasar可能会将其设置为null，需要特别注意
+      lyricOptions: ["lyric_local", "lyric_ai"],
+
       // 排序顺序，true表示降序，false表示升序
       sortInDesc: true,
     }
@@ -172,6 +193,9 @@ export default {
     }
     if (localStorage.nsfwOption) {
       this.nsfwOption = localStorage.nsfwOption;
+    }
+    if (localStorage.lyricOption) {
+      this.lyricOption = JSON.parse(localStorage.lyricOption);
     }
     if (localStorage.sortInDesc) {
       this.sortInDesc = (localStorage.sortInDesc === 'true');
@@ -229,6 +253,12 @@ export default {
       this.reset()
     },
 
+    lyricOption (v) {
+      if (v === null) v = [];
+      localStorage.lyricOption = JSON.stringify(v, null, 0);
+      this.reset()
+    },
+
     sortInDesc (v) {
       localStorage.sortInDesc = v;
       this.reset()
@@ -258,7 +288,8 @@ export default {
         page: this.pagination.currentPage + 1 || 1,
         sort: this.sortInDesc ? "desc" : "asc",
         order: this.sortCategoryOption,
-        nsfw: parseInt(this.nsfwOption.replace("nsfw_", "")), // 'nsfw_0' => 0, 'nsfw_1' => 1
+        nsfw: parseInt(this.nsfwOption.replace("nsfw_", "")), // 'nsfw_0' => 0, 'nsfw_1' => 1, 'nsfw_2' => 2
+        lyric: this.lyricOption === null ? "" : this.lyricOption.map(o => o.replace("lyric_", "")).sort().join("_"), // ["lyric_local", "lyric_ai"] => "ai_local"
         seed: this.seed
       }
 
@@ -366,6 +397,8 @@ export default {
         case "nsfw_0": return "所有分级";
         case "nsfw_1": return "全年龄";
         case "nsfw_2": return "十八禁";
+        case "lyric_local": return "本地歌词";
+        case "lyric_ai": return "AI歌词";
         default: return label;
       }
     },
