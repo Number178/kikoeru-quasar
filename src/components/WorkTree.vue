@@ -283,11 +283,20 @@ export default {
       link.click();
     },
 
+    async markWorkHasAILyric() {
+      await this.$axios.post(`/api/mark/ai/${this.metadata.id}`);
+    },
+
     async aiTranslate (file) {
       // 首先查找一下，看服务器上是否已经正在翻译中了
       const workId = this.metadata.id;
       const workTitle = this.metadata.title;
       const tasks = await AIServerApi.searchTask(this.aiServerUrl, file.title, workId, workTitle);
+
+      // 检查一下kikoeru服务器上是否有标记这个作品有ai翻译，没有的话则加上一个标记
+      if (!this.metadata.lyric_status.includes("ai")) {
+        await this.markWorkHasAILyric();
+      }
 
       // 过滤掉所有失败的任务
       const validTasks = tasks.filter((t) => t.status != TaskStatus.ERROR)
@@ -299,6 +308,7 @@ export default {
 
       const { id } = await AIServerApi.addNewTask(this.aiServerUrl, file.mediaDownloadUrl, workId, workTitle, file.title);
       this.$q.notify(`已上传翻译任务${id}，请播放此作品合集，并前往 AI歌词中心面板 观察当前翻译进度`);
+      await this.markWorkHasAILyric(); // 通知kikoeru服务器，当前作品有ai歌词
       this.enableIntervalCheckAITasks();
     },
 
@@ -483,7 +493,7 @@ export default {
   },
 
   created() {
-    this.updateTreeAITaskStatus = debounce(this.updateTreeAITaskStatus, 2*1000); // ai进度检查防抖动2秒
+    this.updateTreeAITaskStatus = debounce(this.updateTreeAITaskStatus, 500); // ai进度检查防抖动2秒
   },
   
   mounted() {
