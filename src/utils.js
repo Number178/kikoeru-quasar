@@ -175,6 +175,7 @@ export function editDistance(s1, s2) {
   return costs[s2.length];
 }
 
+// return [similarity in 0.0~1.0, editDistance]
 export function similarity(s1, s2) {
   let longer = s1;
   let shorter = s2;
@@ -186,7 +187,9 @@ export function similarity(s1, s2) {
   if (longerLength == 0) {
     return 1.0;
   }
-  return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
+
+  const ed = editDistance(longer, shorter);
+  return [(longerLength - ed) / parseFloat(longerLength), ed];
 }
 
 export function bidirectionSimilarity(s1, s2) {
@@ -203,10 +206,10 @@ export function bidirectionSimilarity(s1, s2) {
     return 1.0;
   }
 
-  const buf = Array(shorterLength).fill(0);
+  const buf = Array(longerLength).fill(0);
   for (let i = 0; i < shorterLength; ++i) {
     if (longer[i] == shorter[i]) buf[i]++;
-    if (longer[longerLength - i] == shorter[shorterLength - i]) buf[shorterLength - i]++;
+    if (longer[longerLength - i - 1] == shorter[shorterLength - i - 1]) buf[longerLength - i]++;
   }
 
   const samePortion = buf.reduce((acc, x) => acc + (x == 0 ? 0 : 1), 0);
@@ -217,8 +220,20 @@ export function bidirectionSimilarity(s1, s2) {
 export function audioLyricNameMatch(aname, lname) {
   const oname = basename(aname);
   const dname = lname;
-  if (oname.includes(dname)) return true;
-  else if (similarity(oname, dname) > 0.8) return true;
+
+  
+  if (oname === dname) return true; // 完全相等
+  else if (oname.includes(dname)) return true;
+
+  // 相似性判断，要排除一种情况就是作品文件名称之间极其相似，只有数字序号不同，这个时候相似度极高，需要特殊处理
+  const [sim, ed] = similarity(oname, dname);
+  if (oname.length == dname.length && ed <= 2) {
+    // 如果两个字符串长度一样，编辑距离相差小于2，则认为两者是仅序号不同的文件，将其判定为不匹配的音频和字幕
+    return false;
+  }
+
+  if (sim > 0.8) return true;
   else if (bidirectionSimilarity(oname, dname) > 0.8) return true;
-  else return false;
+
+  return false;
 }
