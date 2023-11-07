@@ -43,8 +43,16 @@
         </q-item-section>
         
         <q-item-section>
+          <Scrollable class="full-width" :stop="!hide">
+            <span class="audio-name relative-position">{{ currentPlayingFile.title }}</span>
+          </Scrollable>
+          <Scrollable class="full-width" :stop="!hide">
+            <span class="work-name relative-position">{{ currentPlayingFile.workTitle }}</span>
+          </Scrollable>
+          <!--
           <q-item-label lines="2">{{ currentPlayingFile.title }}</q-item-label>
           <q-item-label caption lines="1">{{ currentPlayingFile.workTitle }}</q-item-label>
+          -->
         </q-item-section>
       </q-item>
 
@@ -58,6 +66,7 @@
 <script>
 import { mapState, mapGetters, mapMutations } from 'vuex'
 import { formatSeconds } from '../utils'
+import Scrollable from 'components/Scrollable'
 const OpState = {
   idle: 0,
   up: 1,
@@ -67,7 +76,9 @@ const OpState = {
 
 export default {
   name: 'PlayerBar',
-
+  components: {
+    Scrollable,
+  },
   computed: {
     samCoverUrl () {
       // 从 LocalStorage 中读取 token
@@ -377,5 +388,15 @@ export default {
   width: 80vw;
 }
 
+
+.audio-name {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.work-name {
+  opacity: 0.7;
+  white-space: nowrap;
+}
 
 </style>

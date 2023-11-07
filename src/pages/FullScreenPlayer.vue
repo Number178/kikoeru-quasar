@@ -1,6 +1,5 @@
 <template>
-  <div class="container" ref="container" @dblclick="clickOnContainer">
-    <div class="img-blur-background" :style="containerStyle"></div>
+  <div class="container" ref="container" @dblclick="clickOnContainer" :style="{'--cover-url': `url(${coverUrl})`}">
     <q-img contain v-if="!enableDrawVideo"
       :src="coverUrl"
       class="constrain-height"
@@ -557,7 +556,6 @@ export default {
     containerStyle() {
       return {
         'background-image': `url("${this.coverUrl}")`,
-        'backdrop-filter': `url("${this.coverUrl}") blur(2px)`
       }
     },
 
@@ -643,16 +641,18 @@ export default {
   height: 100%;
   display: flex;
 }
-
-.img-blur-background {
+.container::before {
   position: absolute;
   left: 0;
+  right: 0;
   top: 0;
-  width: 100%;
-  height: 100%;
+  bottom: 0;
+  content: "";
+  background-image: var(--cover-url);
   background-position: 50% 50%;
-  background-size: contain;
-  filter: blur(30px) brightness(0.6);
+  background-size: cover;
+  background-repeat: repeat;
+  filter: blur(30px) brightness(0.7);
 }
 
 .constrain-height {

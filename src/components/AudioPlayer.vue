@@ -9,10 +9,8 @@
         @touchmove.prevent
         color="primary"
         :class="{showStyle: showAudioPlayer, hideStyle: !showAudioPlayer}"
+        :style="{'--cover-url': `url(${coverUrl})`}"
       >
-        <!--背景-->
-        <div class="bg-img-blur" :style="{'background-image': `url(${coverUrl})`}"></div>
-
         <!--顶部小横条-->
         <div class="pull-handler" @click="toggleHide" v-touch-swipe.mouse.down="toggleHide"></div>
 
@@ -198,21 +196,23 @@
         </div>
 
         <!-- 进度条控件 -->
-        <div class="row items-center q-mx-sm q-mb-sm non-selectable" style="height: 40px;">
-          <div class="col-auto z-top">{{ formatSeconds(currentTime) }}</div>
+        <div class="row items-center q-mx-sm q-mb-sm non-selectable">
+          <div class="col-auto relative-position">{{ formatSeconds(currentTime) }}</div>
           <AudioElement class="col" />
-          <div class="col-auto z-top">{{ formatSeconds(duration) }}</div>
+          <div class="col-auto relative-position">{{ formatSeconds(duration) }}</div>
         </div>
 
         <!-- Place holder for iOS -->
         <div style="height: 5px" v-if="$q.platform.is.ios" />
 
-        <q-item style="height: 55px; padding: 0px 15px;" class="text-center non-selectable">
-          <q-item-section>
-            <q-item-label class="text-bold">{{ currentPlayingFile.title }}</q-item-label>
-            <q-item-label caption lines="1">{{ currentPlayingFile.workTitle }}</q-item-label>
-          </q-item-section>
-        </q-item>
+        <div class="column text-center non-selectable ">
+          <Scrollable class="full-width" :stop="hide">
+            <span class="audio-name relative-position">{{ currentPlayingFile.title }}</span>
+          </Scrollable>
+          <Scrollable class="full-width" :stop="hide">
+            <span class="work-name relative-position q-px-md">{{ currentPlayingFile.workTitle }}</span>
+          </Scrollable>
+        </div>
 
         <!-- Place holder for iOS -->
         <div  style="height: 10px" v-if="$q.platform.is.ios" />
@@ -324,6 +324,7 @@
 <script>
 import draggable from 'vuedraggable'
 import AudioElement from 'components/AudioElement'
+import Scrollable from 'components/Scrollable'
 import { mapState, mapGetters, mapMutations } from 'vuex'
 import { formatSeconds } from '../utils'
 import { debounce } from 'quasar'
@@ -333,7 +334,8 @@ export default {
 
   components: {
     draggable,
-    AudioElement
+    AudioElement,
+    Scrollable,
   },
 
   data () {
@@ -814,16 +816,17 @@ export default {
     flex-direction: column;
   }
 
-  .bg-img-blur {
+  .audio-player::before {
+    position: absolute;
     left: 0;
     right: 0;
-    bottom: 0;
     top: 0;
-    position: absolute;
-    transform: scale(1.5);
+    bottom: 0;
+    content: "";
+    background-image: var(--cover-url);
     background-position: 50% 50%;
     background-size: contain;
-    
+    background-repeat: repeat;
     filter: blur(30px) brightness(0.7); // blur bigger than 80 will cause safari wrong render result
   }
 
@@ -872,5 +875,30 @@ export default {
 
   .pull-handler:hover {
     background: rgba(255, 255, 255, 0.5);
+  }
+
+  .audio-name {
+    font-weight: bold;
+    white-space: nowrap;
+  }
+
+  .work-name {
+    opacity: 0.7;
+    white-space: nowrap;
+   }
+
+  .scroll-text {
+    animation: scroll 10s linear infinite;
+  }
+
+  @keyframes scroll {
+    0% {
+      transform: translateX(100%);
+    }
+
+    100% {
+      transform: translateX(-100%);
+    }
+    
   }
 </style>
