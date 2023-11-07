@@ -67,6 +67,7 @@
 import { mapState, mapGetters, mapMutations } from 'vuex'
 import { formatSeconds } from '../utils'
 import Scrollable from 'components/Scrollable'
+import { debounce } from 'quasar';
 const OpState = {
   idle: 0,
   up: 1,
@@ -198,6 +199,10 @@ export default {
       maxDeltaTime: 0,
       minDeltaTime: 0,
       deltaTime: 0,
+
+      fence: 0, // startPanning后fence自增1，防止不同startPanning相互之间重叠
+      holdTriggerMills: 500, // 按住500毫秒后也进入进度调整模式
+      timeTriggerId: 0,
     };
   },
 
@@ -224,6 +229,15 @@ export default {
       this.startCurrentTime = this.currentTime;
       this.maxDeltaTime = this.duration - this.startCurrentTime;
       this.minDeltaTime = - this.startCurrentTime;
+      const sessionFence = ++this.fence;
+      this.deltaTime = 0;
+
+      this.timeTriggerId = setTimeout(() => {
+        if (sessionFence == this.fence && this.state == OpState.idle) {
+          console.warn("holdTrigger")
+          this.state = OpState.horize;
+        }
+      }, this.holdTriggerMills)
     },
 
     panningMove(x, y) {
@@ -243,8 +257,8 @@ export default {
             this.state = OpState.horize;
 
             // // 更新start坐标，来弥补前面的这段空白位置区间
-            // this.startClientX = x;
-            // this.startClientY = y;
+            this.startClientX = x;
+            this.startClientY = y;
 
             break;
           }
@@ -270,9 +284,15 @@ export default {
       }
       // this.deltaTime = 0;
       this.state = OpState.idle;
+
+      clearTimeout(this.timeTriggerId);
+      this.timeTriggerId = 0;
     },
 
     mouseDown(event) {
+      if (event.which !== 1) { // only respond to left mouse click
+        return;
+      }
       const {clientX: x, clientY: y} = event;
       // console.log(`mouse donw: (x:${x}, y:${y})`);
       this.startPanning(x, y);
@@ -365,7 +385,17 @@ export default {
 
 // 左右拖拽playBar的时候，将控件顶部突出一些部分展示更多进度条，方便观察拖拽的进度
 .playBarBumpUp {
-  padding: 4rem 0 0 0;
+
+  @media (min-width: $breakpoint-sm-min) {
+    padding: 4rem 10px 0 10px;
+    max-width: 520px !important;
+  }
+
+  // 宽度 < $breakpoint-xs-max (599px)
+  @media (max-width: $breakpoint-xs-max) {
+    padding: 4rem 2vw 0 2vw;
+    width: 84vw !important;
+  }
 }
 
 .hideStyle {
