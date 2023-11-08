@@ -189,9 +189,9 @@ export default {
   data() {
     return {
       OpState,
-      state: OpState.idle,
-      vertTriggerPixels: 10, // 向上触发像素距离
-      horizeTriggerPixels: 10, // 左右触发像素距离
+      state: OpState.idle, // state == OpState.horize 表示进入进度调整模式
+      vertTriggerPixels: 5, // 向上触发像素距离
+      horizeTriggerPixels: 5, // 左右触发像素距离
 
       startClientX: 0,
       startClientY: 0,
@@ -202,6 +202,8 @@ export default {
 
       fence: 0, // startPanning后fence自增1，防止不同startPanning相互之间重叠
       holdTriggerMills: 500, // 按住500毫秒后也进入进度调整模式
+      onceMoved: false, // 是否移动过，和horizeTriggerPixels的区别在于，这里主要用于处理长按之后没有移动手指时候的情况，避免长按时进度条往后走，但是按住的位置没有变化，这个时候如果松开，则不要修正进度，否则进度可能回跳
+      movedTriggerPixels: 2, // 判断是否移动过的像素阈值
       timeTriggerId: 0,
     };
   },
@@ -243,18 +245,24 @@ export default {
     panningMove(x, y) {
       const deltaY = y - this.startClientY;
       const deltaX = x - this.startClientX;
+      const absDeltaX = Math.abs(deltaX);
+
+      if (!this.onceMoved && absDeltaX >= this.movedTriggerPixels) {
+        this.onceMoved = true;
+      }
 
       switch(this.state) {
         case OpState.idle: {
           // 注：y坐标越向下越大
-          if (deltaY <= -this.vertTriggerPixels) {
+          if (deltaY <= -this.vertTriggerPixels) { // 优先判断
             this.state = OpState.up;
             this.showAudioPlayer();
             break;
           } else if (deltaY >= this.vertTriggerPixels) {
             this.state = OpState.down; // do nothing
-          } else if (Math.abs(deltaX) >= this.horizeTriggerPixels) {
+          } else if (absDeltaX >= this.horizeTriggerPixels) {
             this.state = OpState.horize;
+            this.onceMoved = true;
 
             // // 更新start坐标，来弥补前面的这段空白位置区间
             this.startClientX = x;
@@ -279,11 +287,13 @@ export default {
       if (this.state == OpState.idle) {
         // 触摸结束时，如果并没有被识别成任何方向的扫描，则认为是点击操作，打开audioPlayer
         this.showAudioPlayer();
-      } else if (this.state == OpState.horize) {
+      } else if (this.state == OpState.horize && this.onceMoved) {
+        // this.onceMoved 用来处理长按后，进入horize调整状态，但是触摸位置并没有改变的情况，这个时候松开不应该调整进度，尤其是音频正在播放的时候
         this.setNewCurrentTime(this.newCurrentTime);
       }
       // this.deltaTime = 0;
       this.state = OpState.idle;
+      this.onceMoved = false;
 
       clearTimeout(this.timeTriggerId);
       this.timeTriggerId = 0;
