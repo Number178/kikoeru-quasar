@@ -1,5 +1,5 @@
 <template>
-  <div ref="container" class="container" :style="{'--max-scroll': maxScroll}">
+  <div ref="container" class="container">
     <div class="scrolling" :style="scrollStyle">
       <div ref="slot" class="one-line-expand">
         <slot name="default"></slot>
@@ -22,6 +22,10 @@ export default {
       required: true,
       default: false,
     },
+    name: { // for identify different scrollable by the name
+      type: String,
+      required: false,
+    }
   },
   data() {
     return {
@@ -51,6 +55,11 @@ export default {
       };
     }
   },
+  watch: {
+    stop() {
+      this.onSlotResize();
+    }
+  },
   mounted() {
     this.onSlotResize(); // 初始立即计算一次
 
@@ -61,7 +70,7 @@ export default {
   },
   methods: {
     onSlotResize() {
-      const containerWidth = this.container.clientWidth;
+      const containerWidth = Math.round(this.container.getBoundingClientRect().width);
 
       let slotWidth = 0; // 单个滚动元素的长度
 
@@ -89,7 +98,21 @@ export default {
   }
 }
 </script>
-<style  lang="scss" scoped>
+<style >
+@keyframes scrollAnime {
+  0% {
+    transform: translateX(0);
+  }
+
+  70% {
+    transform: translateX(var(--max-scroll));
+  }
+  100% {
+    transform: translateX(var(--max-scroll));
+  }
+  
+}
+
 .container {
   overflow: hidden;
 }
@@ -98,30 +121,19 @@ export default {
   position: relative;
   white-space: nowrap;
   display: inline-block;
-  // border: 1px solid red;
 }
 
 .scrolling {
-  animation: scroll linear infinite ;
+  animation-name: scrollAnime;
+  animation-delay: 0s;
+  animation-direction: normal;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-fill-mode: forwards;
+  transition: transform 1s;
 }
 
 .spacer {
   display: inline-block;
-  // border: 1px solid red;
-}
-
-@keyframes scroll {
-  0% {
-    transform: translateX(0);
-  }
-
-  70% {
-    transform: translateX(var(--max-scroll));
-  }
-  // stall
-  100% {
-    transform: translateX(var(--max-scroll));
-  }
-  
 }
 </style>

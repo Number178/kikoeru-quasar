@@ -206,10 +206,10 @@
         <div style="height: 5px" v-if="$q.platform.is.ios" />
 
         <div class="column text-center non-selectable ">
-          <Scrollable class="full-width" :stop="hide">
-            <span class="audio-name relative-position">{{ currentPlayingFile.title }}</span>
+          <Scrollable class="full-width" :stop="hide" name="audioTitle">
+            <span class="audio-name relative-position q-px-md">{{ currentPlayingFile.title }}</span>
           </Scrollable>
-          <Scrollable class="full-width" :stop="hide">
+          <Scrollable class="full-width" :stop="hide" name="workTitle">
             <span class="work-name relative-position q-px-md">{{ currentPlayingFile.workTitle }}</span>
           </Scrollable>
         </div>

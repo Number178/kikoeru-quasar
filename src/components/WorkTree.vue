@@ -63,8 +63,8 @@
             <q-item-label v-if="item.children" caption lines="1">{{ `${item.children.length} 项目` }}</q-item-label>
           </q-item-section>
 
-          <q-item-section avatar>
-            <AIStatus v-if="item.status > TaskStatus.NONE" :status="item.status"/>
+          <q-item-section v-if="item.status > TaskStatus.NONE" avatar>
+            <AIStatus :status="item.status"/>
           </q-item-section>
 
           <!-- 上下文菜单 -->
