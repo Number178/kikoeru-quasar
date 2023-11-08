@@ -65,7 +65,7 @@ export const AIServerApi = {
     //    "fileBasename" "文件名字",
     //    "fileExt" ".mp3",
     // },}
-    const [workId, workTitle, fileName] = task.displayName.split("#")
+    const [workId, workTitle, fileName] = task.displayName.split("<#>")
     const extIdx = fileName.lastIndexOf('.');
     const fileBasename = extIdx >= 0 ? fileName.substr(0, extIdx) : fileName;
     const fileExt = extIdx >= 0 ? fileName.substr(extIdx) : "";
@@ -114,7 +114,7 @@ export const AIServerApi = {
   async addNewTask(serverUrl, downloadPath, workId, workTitle, fileName) {
     const data = {
       url: `${location.protocol}//${location.host}${downloadPath}`,
-      name: `${workId}#${workTitle.replaceAll('#','')}#${fileName}`,
+      name: `${workId}<#>${workTitle.replaceAll('#','')}<#>${fileName}`,
     };
     const response = await fetch(`${serverUrl}/task/new`, {
       method: "POST",
