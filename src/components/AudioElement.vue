@@ -501,6 +501,7 @@ export default {
         await this.loadRemoteAILyricTaskId(tasks[0].id)
       } else {
         console.warn("没有找到ai歌词")
+        this.resetToNoLyricStatus(); // 没有找到ai歌词的话，则必然先没有本地歌词，清空歌词状态
       }
     },
 
