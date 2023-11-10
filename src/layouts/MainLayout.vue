@@ -94,6 +94,7 @@
             </q-item-section>
           </q-item>
 
+          <!--
           <q-item
             clickable
             v-ripple
@@ -111,6 +112,7 @@
               </q-item-label>
             </q-item-section>
           </q-item>
+          -->
 
           <q-item
             clickable
@@ -170,7 +172,7 @@
     </q-dialog>
 
     <SleepMode v-model="showTimer" />
-    <AILyricCenter v-model="showAILyricCenter" />
+    <!--<AILyricCenter v-model="showAILyricCenter" />-->
 
     <q-page-container :class="{'page-container-style': isFullScreenPage, 'padding-bottom-play-bar': !isFullScreenPage}">
       <!-- <q-page padding> -->
@@ -201,7 +203,7 @@ import AudioPlayer from 'components/AudioPlayer'
 import LyricsBar from 'components/LyricsBar'
 import PIPLyrics from 'src/components/PIPLyrics'
 import SleepMode from 'components/SleepMode'
-import AILyricCenter from 'components/AILyricCenter'
+// import AILyricCenter from 'components/AILyricCenter'
 import NotifyMixin from '../mixins/Notification.js'
 import { mapMutations, mapState, mapGetters } from 'vuex'
 import { Dark } from 'quasar'
@@ -218,7 +220,7 @@ export default {
     LyricsBar,
     SleepMode,
     PIPLyrics,
-    AILyricCenter,
+    // AILyricCenter,
 },
 
   data () {
@@ -230,7 +232,7 @@ export default {
       randId: null,
       showTimer: false,
       showScroller: false,
-      showAILyricCenter: false,
+      // showAILyricCenter: false,
       links: [
         {
           title: '媒体库',
