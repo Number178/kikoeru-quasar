@@ -99,7 +99,7 @@
           :to="`/works?vaId=${va.id}`"
           :key=index
         >
-          <q-chip square size="md" class="shadow-2" color="teal" text-color="white">
+          <q-chip square size="md" class="shadow-2" color="teal" text-color="white" icon="mic">
             {{ va.name }}
           </q-chip>
         </router-link>

@@ -99,6 +99,20 @@
               </q-tooltip>
             </q-btn>
 
+            <!--大屏幕-->
+            <q-btn 
+              flat 
+              dense 
+              size="md" 
+              padding="none sm" 
+              icon="fullscreen" 
+              @click="gotoFullScreenPlayer"
+            >
+              <q-tooltip anchor="top middle" self="bottom middle">
+                网页全屏
+              </q-tooltip>
+            </q-btn>
+
           <!-- 放在尾部 -->
             <q-btn
               flat 
@@ -757,6 +771,10 @@ export default {
       }
     },
 
+    gotoFullScreenPlayer() {
+      this.$router.push(`/fullScreenPlayer`)
+    },
+
     // 当发生特定配置改动，需要用户刷新页面时，通过这个通知来提示用户
     suggestRefreshPage() {
       this.$q.notify({
@@ -886,19 +904,4 @@ export default {
     opacity: 0.7;
     white-space: nowrap;
    }
-
-  .scroll-text {
-    animation: scroll 10s linear infinite;
-  }
-
-  @keyframes scroll {
-    0% {
-      transform: translateX(100%);
-    }
-
-    100% {
-      transform: translateX(-100%);
-    }
-    
-  }
 </style>
