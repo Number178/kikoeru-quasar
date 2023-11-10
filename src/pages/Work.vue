@@ -58,37 +58,42 @@ export default {
   },
 
   methods: {
-    requestData () {
-      this.$axios.get(`/api/work/${this.workid}`)
-        .then(response => {
-          this.metadata = response.data
-          // 如果有播放状态记录
-          // 同时当前尚未播放，则设置历史播放进度
-          if (this.metadata.state && this.playWorkId == 0) {
-            this.resumeMetadataPlayHistroy()
-          }
-        })
-        .catch((error) => {
-          if (error.response) {
-            // 请求已发出，但服务器响应的状态码不在 2xx 范围内
-            this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)
-          } else {
-            this.showErrNotif(error.message || error)
-          }
-        })
+    async requestMetaData() {
+      try {
+        const response = await this.$axios.get(`/api/work/${this.workid}`);
+        this.metadata = response.data
+        // 如果有播放状态记录
+        // 同时当前尚未播放，则设置历史播放进度
+        if (this.metadata.state && this.playWorkId == 0) {
+          this.resumeMetadataPlayHistroy()
+        }
+      } catch (error ) {
+        if (error.response) {
+          // 请求已发出，但服务器响应的状态码不在 2xx 范围内
+          this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)
+        } else {
+          this.showErrNotif(error.message || error)
+        }
+      }
+    },
 
-      this.$axios.get(`/api/tracks/${this.workid}`)
-        .then(response => {
-          this.tree = response.data
-        })
-        .catch((error) => {
-          if (error.response) {
-            // 请求已发出，但服务器响应的状态码不在 2xx 范围内
-            this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)
-          } else {
-            this.showErrNotif(error.message || error)
-          }
-        })
+    async requestTracks() {
+      try {
+        const response = await this.$axios.get(`/api/tracks/${this.workid}`);
+        this.tree = response.data;
+      } catch (error) {
+        if (error.response) {
+          // 请求已发出，但服务器响应的状态码不在 2xx 范围内
+          this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`)
+        } else {
+          this.showErrNotif(error.message || error)
+        }
+      }
+    },
+
+    requestData () {
+      this.requestMetaData();
+      this.requestTracks();
     },
 
     resumeMetadataPlayHistroy() {

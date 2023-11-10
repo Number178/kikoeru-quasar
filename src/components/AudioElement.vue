@@ -42,7 +42,7 @@
 import Lyric from 'lrc-file-parser'
 import { mapState, mapGetters, mapMutations } from 'vuex'
 import NotifyMixin from '../mixins/Notification.js'
-import { formatSeconds } from '../utils'
+import { AIServerApi, formatSeconds, basename, audioLyricNameMatch } from '../utils'
 
 function convert_srt_vtt_to_lrc(text) {
   let lines = text.split("\n").map(l => l.trim())
@@ -172,6 +172,9 @@ export default {
       'newCurrentTime',
       'enableVideoSource',
       'lyricOffsetSeconds',
+
+      'aiServerUrl',
+      'remoteAILyricTaskId', 
     ]),
 
     ...mapGetters('AudioPlayer', [
@@ -242,6 +245,10 @@ export default {
     lyricOffsetSeconds(v) {
       this.playLrc(true); // 强制更新一下歌词时间
       this.playLrc(this.playing); // 强制更新一下歌词时间
+    },
+    remoteAILyricTaskId(id) {
+      if (id === "") return
+      this.loadRemoteAILyricTaskId(id);
     }
   },
 
@@ -289,6 +296,7 @@ export default {
       'RESUME_HISTROY_SECONDS_DONE',
       'SET_HAS_LYRIC',
       'SET_NEW_CURRENT_TIME',
+      'SET_REMOTE_AI_LYRIC_TASK_ID',
     ]),
 
     onCanplay () {
@@ -394,52 +402,107 @@ export default {
         })
     },
 
-    loadLrcFile () {
+    async loadLrcFile () {
       const token = this.$q.localStorage.getItem('jwt-token') || '';
       const fileHash = this.queue[this.queueIndex].hash;
       const url = `/api/media/check-lrc/${fileHash}?token=${token}`;
 
-      this.$axios.get(url)
-        .then((response) => {
-          if (response.data.result) {
-            // 有lrc歌词文件
-            this.lrcAvailable = true;
-            console.log('读入歌词');
-            const lrcUrl = `/api/media/stream/${response.data.hash}?token=${token}`;
-            const lyricExtension = response.data.lyricExtension.toLowerCase();
-            this.$axios.get(lrcUrl)
-              .then(response => {
-                console.log('歌词读入成功');
-                console.log('srt convert to lrc');
-                if (lyricExtension == ".srt" || lyricExtension == ".vtt") {
-                  response.data = convert_srt_vtt_to_lrc(response.data);
-                }
-                this.lrcObj.setLyric(response.data);
-                this.lrcContent = response.data;
-                this.lrcObj.play(this.player.currentTime * 1000);
-                if (!this.playing) this.lrcObj.pause() // 加载歌词后，观察当前是否在播放音频，如果没有，则暂停歌词滚动
-                this.SET_HAS_LYRIC(true);
-              });
-          } else {
-            // 无歌词文件
-            this.lrcAvailable = false;
-            this.lrcObj.setLyric('');
-            this.lrcContent = '';
-            this.SET_CURRENT_LYRIC('');
-            this.SET_HAS_LYRIC(false);
+      try {
+        // 首先向服务器查询是否有歌词
+        const check_response = await this.$axios.get(url)
+        if (!check_response.data.result) {
+          // 服务器没有查到歌词文件
+
+          // 则尝试去ai服务器上查询
+          if (this.aiServerUrl) await this.tryLoadRemoteAILyric()
+          else this.resetToNoLyricStatus()
+          return;
+        }
+
+        // 有lrc歌词文件
+        this.lrcAvailable = true;
+        console.log('读入歌词');
+        const lrcUrl = `/api/media/stream/${check_response.data.hash}?token=${token}`;
+        const lyricExtension = check_response.data.lyricExtension.toLowerCase();
+
+        // 开始下载具体的lrc内容
+        const response = await this.$axios.get(lrcUrl)
+        console.log('歌词读入成功');
+        console.log('srt convert to lrc');
+        if (lyricExtension == ".srt" || lyricExtension == ".vtt") {
+          response.data = convert_srt_vtt_to_lrc(response.data);
+        }
+        this.lrcObj.setLyric(response.data);
+        this.lrcContent = response.data;
+        this.lrcObj.play(this.player.currentTime * 1000);
+        if (!this.playing) this.lrcObj.pause() // 加载歌词后，观察当前是否在播放音频，如果没有，则暂停歌词滚动
+        this.SET_HAS_LYRIC(true);
+      } catch(error) {
+        if (error.response) {
+          // 请求已发出，但服务器响应的状态码不在 2xx 范围内
+          if (error.response.status !== 401) {
+            this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`);
           }
-        })
-        .catch((error) => {
-          if (error.response) {
-            // 请求已发出，但服务器响应的状态码不在 2xx 范围内
-            if (error.response.status !== 401) {
-              this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`);
-            }
-          } else {
-            this.showErrNotif(error.message || error);
-          }
-          this.SET_HAS_LYRIC(false);
-        })
+        } else {
+          this.showErrNotif(error.message || error);
+        }
+        this.SET_HAS_LYRIC(false);
+      }
+    },
+
+    resetToNoLyricStatus() {
+      // 无歌词文件
+      this.lrcAvailable = false;
+      this.lrcObj.setLyric('');
+      this.lrcContent = '';
+      this.SET_CURRENT_LYRIC('');
+      this.SET_HAS_LYRIC(false);
+    },
+
+    async loadRemoteAILyricTaskId(aiTaskId) {
+      this.SET_REMOTE_AI_LYRIC_TASK_ID(""); // 将全局ai歌词加载flag清空
+      const lrcContent = await AIServerApi.downloadTask(this.aiServerUrl, aiTaskId)
+      this.lrcAvailable = true;
+      this.lrcObj.setLyric(lrcContent);
+      this.lrcContent = lrcContent;
+      this.lrcObj.play(this.player.currentTime * 1000);
+      if (!this.playing) this.lrcObj.pause() // 加载歌词后，观察当前是否在播放音频，如果没有，则暂停歌词滚动
+      this.SET_HAS_LYRIC(true);
+    },
+
+    async tryLoadRemoteAILyric() {
+      const workId = parseInt(this.currentPlayingFile.hash.replace(/\/.*/, "")); // 通过hash获取该文件对应的workId，返回number类型
+      const audioFileBasename = basename(this.currentPlayingFile.title);
+
+      let tasks = [];
+      try {
+        do {
+          console.log("搜索ai歌词，第一阶段，严格匹配workId和文件title")
+          tasks = await AIServerApi.searchTask(this.aiServerUrl, audioFileBasename, workId);
+          tasks = tasks.filter(t => t.status == AIServerApi.TaskStatus.SUCCESS)
+          if (tasks.length >= 1) break;
+
+          console.log("搜索ai歌词，第二阶段，查找workId作品内所有歌词")
+          tasks = await AIServerApi.searchWorkRelatedTask(this.aiServerUrl, workId);
+          tasks = tasks.filter((t) => t.status == AIServerApi.TaskStatus.SUCCESS && audioLyricNameMatch(audioFileBasename, t.fileBasename))
+          break;
+
+        /*eslint-disable no-constant-condition*/
+        } while(0);
+
+      } catch(e) {
+        console.log("查找ai歌词失败: ", e)
+      }
+
+      if (tasks.length >= 1) {
+        console.log(`  已找到ai歌词记录${tasks.length}个`)
+        
+        console.log(`  加载第一个歌词记录，id = ${tasks[0].id}`)
+        await this.loadRemoteAILyricTaskId(tasks[0].id)
+      } else {
+        console.warn("没有找到ai歌词")
+        this.resetToNoLyricStatus(); // 没有找到ai歌词的话，则必然先没有本地歌词，清空歌词状态
+      }
     },
 
     updateMediaSessionMetadata() {

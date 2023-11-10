@@ -1,6 +1,16 @@
 <template>
   <div>
     <div class="row q-ma-sm">
+      <div v-if="state === 'running'" class="col-xs-12 col-sm-12 row q-pa-sm">
+        <q-btn
+          class="col"
+          color="negative"
+          label="终止扫描进程"
+          :disable="state !== 'running' || !(loggedIn || $socket.connected)"
+          @click="killScanProceess()"
+        />
+      </div>
+
       <div class="col-xs-6 col-sm-4 row q-pa-sm">
         <q-btn
           class="col"
@@ -24,10 +34,10 @@
       <div class="col-xs-12 col-sm-4 row q-pa-sm">
         <q-btn
           class="col"
-          color="negative"
-          label="终止扫描进程"
-          :disable="state !== 'running' || !(loggedIn || $socket.connected)"
-          @click="killScanProceess()"
+          color="secondary"
+          label="扫描歌词"
+          :disable="state === 'running' || !(loggedIn || $socket.connected)"
+          @click="performLyricScan()"
         />
       </div>
     </div>
@@ -215,21 +225,26 @@ export default {
   },
 
   methods: {
-    performScan () {
+    cleanRerun() {
       this.tasks = []
       this.failedTasks = []
       this.mainLogs = []
       this.results = []
       this.state = 'running'
+    },
+
+    performScan () {
+      this.cleanRerun()
       this.$socket.emit('PERFORM_SCAN')
     },
 
+    performLyricScan () {
+      this.cleanRerun()
+      this.$socket.emit('PERFORM_LYRIC_SCAN')
+    },
+
     performUpdate () {
-      this.tasks = []
-      this.failedTasks = []
-      this.mainLogs = []
-      this.results = []
-      this.state = 'running'
+      this.cleanRerun()
       this.$socket.emit('PERFORM_UPDATE')
     },
 

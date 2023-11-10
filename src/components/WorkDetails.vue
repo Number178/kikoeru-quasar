@@ -1,16 +1,15 @@
 <template>
-  <div>
-    <div class="q-ma-md row justify-start" >
+  <div class="row">
       <CoverSFW 
+        class="col q-ma-sm row justify-start shadow-4"
         :workid="metadata.id" 
         :nsfw="false" 
         :release="metadata.release" 
+        :lyric_status="metadata.lyric_status"
         style="border-radius: 8px; overflow: hidden;"
-        class="shadow-4"
       />
-    </div>
 
-    <div class="q-pa-sm">
+    <div class="col-md-6 col-12 q-pa-sm">
       <div class="q-px-sm q-py-none">
         <!-- 标题 -->
         <div class="text-h6 text-weight-regular">
@@ -102,7 +101,7 @@
           :to="`/works?vaId=${va.id}`"
           :key=index
         >
-          <q-chip square size="md" class="shadow-4" color="teal" text-color="white">
+          <q-chip square size="md" class="shadow-4" color="teal" text-color="white" icon="mic">
             {{va.name}}
           </q-chip>
         </router-link>

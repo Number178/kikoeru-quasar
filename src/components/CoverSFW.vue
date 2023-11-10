@@ -19,28 +19,18 @@
         {{release}}
       </q-chip>
     </div>
+
+    <div :v-if="lyricList.length > 0" class="absolute-top-right transparent" style="padding: 0px;">
+      <q-chip v-for="lyric in lyricList" :key="lyric" dense square color="green-7" text-color="white" class="q-ma-sm shadow-3">
+        {{ {ai: "AI歌词", local: "本地歌词"}[lyric] }}
+      </q-chip>
+    </div>
   </q-img>
 </template>
 
 <script>
 
-/**
- * 格式化 id，适配 8 位、6 位 id
- * @param {number} id
- * @return {string}
- */
-
-function formatID(id) {
-  if (id >= 1000000) {
-    // 大于 7 位数，则补全为 8 位
-    id = `0${id}`.slice(-8);
-  } else {
-    // 否则补全为 6 位
-    id = `000000${id}`.slice(-6);
-  }
-
-  return id;
-}
+import { formatID } from 'src/utils'
 
 export default {
   name: 'CoverSFW',
@@ -58,6 +48,11 @@ export default {
 
     release: {
       required: true
+    },
+
+    lyric_status: { // "", "ai", "local", "ai_local"
+      type: String,
+      require: true,
     }
   },
 
@@ -92,6 +87,12 @@ export default {
           return this.blurFlag ? "blur-image" : ""
         }
       }
+    },
+
+    lyricList() {
+      return this.lyric_status 
+      ? this.lyric_status.split("_")
+      : [];
     }
   },
 

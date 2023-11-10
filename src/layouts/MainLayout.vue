@@ -94,6 +94,26 @@
             </q-item-section>
           </q-item>
 
+          <!--
+          <q-item
+            clickable
+            v-ripple
+            exact
+            active-class="text-deep-purple text-weight-medium"
+            @click="showAILyricCenter = true"
+          >
+            <q-item-section avatar>
+              <q-icon name="subtitles" />
+            </q-item-section>
+
+            <q-item-section>
+              <q-item-label class="text-subtitle1">
+                AI歌词中心
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+          -->
+
           <q-item
             clickable
             v-ripple
@@ -152,6 +172,7 @@
     </q-dialog>
 
     <SleepMode v-model="showTimer" />
+    <!--<AILyricCenter v-model="showAILyricCenter" />-->
 
     <q-page-container :class="{'page-container-style': isFullScreenPage, 'padding-bottom-play-bar': !isFullScreenPage}">
       <!-- <q-page padding> -->
@@ -182,6 +203,7 @@ import AudioPlayer from 'components/AudioPlayer'
 import LyricsBar from 'components/LyricsBar'
 import PIPLyrics from 'src/components/PIPLyrics'
 import SleepMode from 'components/SleepMode'
+// import AILyricCenter from 'components/AILyricCenter'
 import NotifyMixin from '../mixins/Notification.js'
 import { mapMutations, mapState, mapGetters } from 'vuex'
 import { Dark } from 'quasar'
@@ -198,7 +220,8 @@ export default {
     LyricsBar,
     SleepMode,
     PIPLyrics,
-  },
+    // AILyricCenter,
+},
 
   data () {
     return {
@@ -209,6 +232,7 @@ export default {
       randId: null,
       showTimer: false,
       showScroller: false,
+      // showAILyricCenter: false,
       links: [
         {
           title: '媒体库',
@@ -261,6 +285,7 @@ export default {
     sharedConfig (config) {
       this.SET_REWIND_SEEK_TIME(config.rewindSeekTime);
       this.SET_FORWARD_SEEK_TIME(config.forwardSeekTime);
+      this.SET_AI_SERVER_URL(config.aiServerUrl);
     },
   },
 
@@ -299,7 +324,8 @@ export default {
   methods: {
     ...mapMutations('AudioPlayer', [
       'SET_REWIND_SEEK_TIME',
-      'SET_FORWARD_SEEK_TIME'
+      'SET_FORWARD_SEEK_TIME',
+      'SET_AI_SERVER_URL',
     ]),
     initUser () {
       this.$axios.get('/api/auth/me')

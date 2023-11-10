@@ -4,6 +4,7 @@ export const SWAP_SEEK_BUTTON_KEY = 'swap_seek_button'
 export const ENABLE_VISUALIZER_KEY = 'enable_visualizer'
 export const ENABLE_PIP_LYRICS = 'enable_pip_lyrics'
 export const ENABLE_VIDEO_SOURCE_KEY = 'enable_video_source'
+export const AI_SERVER_URL_KEY = 'ai_server_url'
 
 export default function () {
   return {
@@ -54,5 +55,12 @@ export default function () {
     // 当从历史记录播放时，这里记录当前queue[queueIndex]应当恢复到的seconds时间，
     // -1表示无需恢复，其他大于等于0的数字需要在onCanplay时间触发并完成时间跳转之后，再次设置为-1
     resumeHistroySeconds: -1,
+
+    aiServerUrl: "",
+
+    // 当AI中心选择应用ai歌词到当前播放音频上时，
+    // 将会修改这个id为对应ai翻译任务的id，
+    // AudioElement将会监听这个属性的变化，并在成功下载ai歌词后，将这个id重置为空串
+    remoteAILyricTaskId: "",
   }
 }

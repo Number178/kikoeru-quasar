@@ -1,7 +1,7 @@
 <template>
   <q-card class="card">
     <router-link :to="`/work/${metadata.id}`">
-      <CoverSFW :workid="metadata.id" :nsfw="false" :release="metadata.release" />
+      <CoverSFW :workid="metadata.id" :nsfw="false" :release="metadata.release" :lyric_status="metadata.lyric_status" />
     </router-link>
 
     <q-separator />
@@ -99,7 +99,7 @@
           :to="`/works?vaId=${va.id}`"
           :key=index
         >
-          <q-chip square size="md" class="shadow-2" color="teal" text-color="white">
+          <q-chip square size="md" class="shadow-2" color="teal" text-color="white" icon="mic">
             {{ va.name }}
           </q-chip>
         </router-link>
