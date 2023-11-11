@@ -306,7 +306,10 @@ export default {
         return;
       }
 
-      const { id } = await AIServerApi.addNewTask(this.aiServerUrl, file.mediaDownloadUrl, workId, workTitle, file.title);
+      const token = this.$q.localStorage.getItem('jwt-token') || '';
+      // Fallback to old API for an old backend 
+      const url = file.mediaDownloadUrl ? `${file.mediaDownloadUrl}?token=${token}` : `/api/media/download/${file.hash}?token=${token}`;
+      const { id } = await AIServerApi.addNewTask(this.aiServerUrl, url, workId, workTitle, file.title);
       this.$q.notify(`已上传翻译任务${id}，请播放此作品合集，并前往 AI歌词中心面板 观察当前翻译进度`);
       await this.markWorkHasAILyric(); // 通知kikoeru服务器，当前作品有ai歌词
       this.enableIntervalCheckAITasks();
