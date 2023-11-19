@@ -89,7 +89,7 @@
                 <q-item-section>下载文件</q-item-section>
               </q-item>
 
-              <q-item clickable @click="aiTranslate(item)" v-if="item.type === 'audio'">
+              <q-item clickable @click="aiTranslateToServer(item)" v-if="item.type === 'audio'">
                 <q-item-section>进行AI翻译</q-item-section>
               </q-item>
             </q-list>
@@ -103,12 +103,14 @@
 <script>
 import AIStatus from './AIStatus.vue';
 import { mapState, mapGetters } from 'vuex'
-import { AIServerApi, audioLyricNameMatch, basename } from 'src/utils'
+import { AIServerApi, audioLyricNameMatch, basename, ServerApi } from 'src/utils'
 import { debounce } from 'quasar';
+import NotifyMixin from '../mixins/Notification.js'
 const TaskStatus = AIServerApi.TaskStatus;
 
 export default {
   name: 'WorkTree',
+  mixins: [NotifyMixin],
 
   components: {
     AIStatus,
@@ -313,6 +315,21 @@ export default {
       this.$q.notify(`已上传翻译任务${id}，请播放此作品合集，并前往 AI歌词中心面板 观察当前翻译进度`);
       await this.markWorkHasAILyric(); // 通知kikoeru服务器，当前作品有ai歌词
       this.enableIntervalCheckAITasks();
+    },
+
+    async aiTranslateToServer(file) {
+      try {
+        await ServerApi.translateAudio(file.hash);
+      } catch(error) {
+        if (error.response) {
+          // 请求已发出，但服务器响应的状态码不在 2xx 范围内
+          if (error.response.status !== 401) {
+            this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`);
+          }
+        } else {
+          this.showErrNotif(error.message || error);
+        }
+      }
     },
 
     setVisualPlayerCover (imgFile) {

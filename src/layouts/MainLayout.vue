@@ -94,25 +94,6 @@
             </q-item-section>
           </q-item>
 
-          <!--
-          <q-item
-            clickable
-            v-ripple
-            exact
-            active-class="text-deep-purple text-weight-medium"
-            @click="showAILyricCenter = true"
-          >
-            <q-item-section avatar>
-              <q-icon name="subtitles" />
-            </q-item-section>
-
-            <q-item-section>
-              <q-item-label class="text-subtitle1">
-                AI歌词中心
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-          -->
 
           <q-item
             clickable
@@ -172,7 +153,6 @@
     </q-dialog>
 
     <SleepMode v-model="showTimer" />
-    <!--<AILyricCenter v-model="showAILyricCenter" />-->
 
     <q-page-container :class="{'page-container-style': isFullScreenPage, 'padding-bottom-play-bar': !isFullScreenPage}">
       <!-- <q-page padding> -->
@@ -203,7 +183,6 @@ import AudioPlayer from 'components/AudioPlayer'
 import LyricsBar from 'components/LyricsBar'
 import PIPLyrics from 'src/components/PIPLyrics'
 import SleepMode from 'components/SleepMode'
-// import AILyricCenter from 'components/AILyricCenter'
 import NotifyMixin from '../mixins/Notification.js'
 import { mapMutations, mapState, mapGetters } from 'vuex'
 import { Dark } from 'quasar'
@@ -220,7 +199,6 @@ export default {
     LyricsBar,
     SleepMode,
     PIPLyrics,
-    // AILyricCenter,
 },
 
   data () {
@@ -232,7 +210,6 @@ export default {
       randId: null,
       showTimer: false,
       showScroller: false,
-      // showAILyricCenter: false,
       links: [
         {
           title: '媒体库',
@@ -263,6 +240,12 @@ export default {
           title: '声优',
           icon: 'mic',
           path: '/vas'
+        },
+        {
+          title: '翻译任务',
+          icon: 'subtitles',
+          path: '/ai_lyric'
+
         },
         {
           title: '设定',

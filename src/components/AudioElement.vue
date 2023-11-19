@@ -174,7 +174,6 @@ export default {
       'lyricOffsetSeconds',
 
       'aiServerUrl',
-      'remoteAILyricTaskId', 
     ]),
 
     ...mapGetters('AudioPlayer', [
@@ -246,10 +245,6 @@ export default {
       this.playLrc(true); // 强制更新一下歌词时间
       this.playLrc(this.playing); // 强制更新一下歌词时间
     },
-    remoteAILyricTaskId(id) {
-      if (id === "") return
-      this.loadRemoteAILyricTaskId(id);
-    }
   },
 
   methods: {

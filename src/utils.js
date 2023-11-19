@@ -1,3 +1,4 @@
+import axios from "axios";
 /**
  * 格式化 id，适配 8 位、6 位 id
  * @param {number} id
@@ -44,7 +45,6 @@ export function basename(string) {
 }
 
 export const AIServerApi = {
-
   polishTask(task) {
     // task {       {
     //    "status": 5,
@@ -145,6 +145,51 @@ export const AIServerApi = {
     TRASCRIPTING: 4 ,// 转录中
     SUCCESS: 5 ,// 转录成功
     ERROR: 6 ,// 转录失败
+  }
+}
+
+export const AILyricTaskStatus = {
+  NONE: 0, // 非法状态
+  PENDING: 1, // 任务待申领
+  TRASCRIPTING: 2, // 任务已被申领，并等待执行完成
+  SUCCESS: 3, // 翻译成功
+  ERROR: 4, // 翻译失败
+  COUNT: 5, // 状态总数
+}
+
+export const ServerApi = {
+  // page start from 1
+  // workId: number, a workId like string of "01101111" should convert to number 1101111
+  // fileName: string
+  // status: number[]
+  async searchTask(page, workId, fileName, status) {
+    const url = '/api/lyric/translate';
+    const params = {
+      page,
+      work_id: workId || 0,
+      file_name: fileName || '',
+      status: JSON.stringify(status || []),
+    };
+    const response = await axios.get(url, { params });
+    return response.data;
+  },
+
+  async translateAudio(fileHash) {
+    const url = `/api/lyric/translate/${fileHash}`;
+    const response = await axios.put(url);
+    return response.data;
+  },
+
+  async deleteTask(id) {
+    const url = `/api/lyric/translate/${id}`;
+    const response = await axios.delete(url);
+    return response.data;
+  }, 
+
+  async redoTask(id) {
+    const url = `/api/lyric/translate/redo/${id}`;
+    const response = await axios.post(url);
+    return response.data;
   }
 }
 
