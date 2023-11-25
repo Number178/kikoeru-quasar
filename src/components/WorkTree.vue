@@ -63,7 +63,7 @@
             <q-item-label v-if="item.children" caption lines="1">{{ `${item.children.length} 项目` }}</q-item-label>
           </q-item-section>
 
-          <q-item-section v-if="item.status > TaskStatus.NONE" avatar>
+          <q-item-section v-if="item.status > AILyricTaskStatus.NONE" avatar>
             <AIStatus :status="item.status"/>
           </q-item-section>
 
@@ -103,10 +103,9 @@
 <script>
 import AIStatus from './AIStatus.vue';
 import { mapState, mapGetters } from 'vuex'
-import { AIServerApi, audioLyricNameMatch, basename, ServerApi } from 'src/utils'
+import { audioLyricNameMatch, basenameWithoutExt, ServerApi, AILyricTaskStatus } from 'src/utils'
 import { debounce } from 'quasar';
 import NotifyMixin from '../mixins/Notification.js'
-const TaskStatus = AIServerApi.TaskStatus;
 
 export default {
   name: 'WorkTree',
@@ -124,9 +123,9 @@ export default {
       preview_img_idx: 0,
       preview_img_list: [],
       preview_img_hash: "",
-      TaskStatus,
+      AILyricTaskStatus,
 
-      sumAITaskStatus: TaskStatus.NONE,
+      sumAITaskStatus: AILyricTaskStatus.NONE,
       
       checkAITaskStatusIntervalId: 0, // 周期性检查ai翻译进度的inteval id
       checkAITaskIntervalSeconds: 10, // 检查间隔
@@ -153,17 +152,15 @@ export default {
 
     sumAITaskStatus(currentStatus) {
       switch(currentStatus) {
-        case TaskStatus.SUCCESS:
-        case TaskStatus.ERROR:
-        case TaskStatus.NONE:
+        case AILyricTaskStatus.SUCCESS:
+        case AILyricTaskStatus.ERROR:
+        case AILyricTaskStatus.NONE:
           // 本作品的翻译任务均处于静止状态，无需周期性检查
           this.disableIntervalCheckAITasks();
           break;
 
-        case TaskStatus.PENDING:
-        case TaskStatus.DOWNLOADING:
-        case TaskStatus.DOWNLOADED:
-        case TaskStatus.TRASCRIPTING:
+        case AILyricTaskStatus.PENDING:
+        case AILyricTaskStatus.TRASCRIPTING:
           // 本作品的翻译任务处于运行状态或者排队状态，需要周期性检查
           this.enableIntervalCheckAITasks();
           break;
@@ -289,37 +286,10 @@ export default {
       await this.$axios.post(`/api/mark/ai/${this.metadata.id}`);
     },
 
-    async aiTranslate (file) {
-      // 首先查找一下，看服务器上是否已经正在翻译中了
-      const workId = this.metadata.id;
-      const workTitle = this.metadata.title;
-      const tasks = await AIServerApi.searchTask(this.aiServerUrl, file.title, workId, workTitle);
-
-      // 检查一下kikoeru服务器上是否有标记这个作品有ai翻译，没有的话则加上一个标记
-      if (!this.metadata.lyric_status.includes("ai")) {
-        await this.markWorkHasAILyric();
-      }
-
-      // 过滤掉所有失败的任务
-      const validTasks = tasks.filter((t) => t.status != TaskStatus.ERROR)
-      if (validTasks.length > 0) {
-        // 已有正在执行的翻译任务，当前任务取消
-        this.$q.notify("服务器已经有该文件的翻译任务，无法重复添加，请在左侧的AI歌词中心查看翻译进度")
-        return;
-      }
-
-      const token = this.$q.localStorage.getItem('jwt-token') || '';
-      // Fallback to old API for an old backend 
-      const url = file.mediaDownloadUrl ? `${file.mediaDownloadUrl}?token=${token}` : `/api/media/download/${file.hash}?token=${token}`;
-      const { id } = await AIServerApi.addNewTask(this.aiServerUrl, url, workId, workTitle, file.title);
-      this.$q.notify(`已上传翻译任务${id}，请播放此作品合集，并前往 AI歌词中心面板 观察当前翻译进度`);
-      await this.markWorkHasAILyric(); // 通知kikoeru服务器，当前作品有ai歌词
-      this.enableIntervalCheckAITasks();
-    },
-
     async aiTranslateToServer(file) {
       try {
         await ServerApi.translateAudio(file.hash);
+        await this.enableIntervalCheckAITasks();
       } catch(error) {
         if (error.response) {
           // 请求已发出，但服务器响应的状态码不在 2xx 范围内
@@ -395,7 +365,9 @@ export default {
     async updateTreeAITaskStatus() {
       if (this.aiServerUrl) {
         console.log("检查翻译进度")
-        const tasks = await AIServerApi.searchWorkRelatedTask(this.aiServerUrl, this.metadata.id);
+
+        const tasks = await ServerApi.searchWorkTask(this.metadata.id);
+
         // console.log("tasks = ", tasks)
         const [tree, status] = this.updateAiTranslateStatusToTracks(tasks, this.internalTree);
         this.internalTree = tree;
@@ -427,34 +399,31 @@ export default {
       
 
       function mergeStatus(statusList, isSuccessMoreImportant) {
-        if (statusList.length == 0) return TaskStatus.NONE;
-        const includeTranscripting = statusList.includes(TaskStatus.TRASCRIPTING);
-        const includeDownloading = statusList.includes(TaskStatus.DOWNLOADING);
-        const includeDownloaded = statusList.includes(TaskStatus.DOWNLOADED);
-        const includeSuccess = statusList.includes(TaskStatus.SUCCESS);
-        const includeError = statusList.includes(TaskStatus.ERROR);
-        const includePending = statusList.includes(TaskStatus.PENDING);
+        if (statusList.length == 0) return AILyricTaskStatus.NONE;
+        const includeTranscripting = statusList.includes(AILyricTaskStatus.TRASCRIPTING);
+        const includeSuccess = statusList.includes(AILyricTaskStatus.SUCCESS);
+        const includeError = statusList.includes(AILyricTaskStatus.ERROR);
+        const includePending = statusList.includes(AILyricTaskStatus.PENDING);
 
-        if (includeTranscripting) return TaskStatus.TRASCRIPTING;
-        else if (includeDownloading) return TaskStatus.DOWNLOADING;
-        else if (includeDownloaded) return TaskStatus.DOWNLOADED;
-        else if (includePending) return TaskStatus.PENDING;
+        if (includeTranscripting) return AILyricTaskStatus.TRASCRIPTING;
+        else if (includePending) return AILyricTaskStatus.PENDING;
         else if (isSuccessMoreImportant) {
           // 对于单个音频文件的多个翻译任务，我们更在意是否有成功的任务
-          if (includeSuccess) return TaskStatus.SUCCESS;
-          else if (includeError) return TaskStatus.ERROR;
+          if (includeSuccess) return AILyricTaskStatus.SUCCESS;
+          else if (includeError) return AILyricTaskStatus.ERROR;
         } else {
           // 对于文件夹内多个音频的翻译状态，我们更在意是否有错误
-          if (includeError) return TaskStatus.ERROR;
-          else if (includeSuccess) return TaskStatus.SUCCESS;
+          if (includeError) return AILyricTaskStatus.ERROR;
+          else if (includeSuccess) return AILyricTaskStatus.SUCCESS;
         }
 
         // 兜底
-        return TaskStatus.NONE;
+        return AILyricTaskStatus.NONE;
       }
 
       const sumStatus = [];
       const treeUpdated = tree.map((node, index) => {
+        const nodeTitle = basenameWithoutExt(node.title);
         switch(node.type) {
           case "folder": {
             const newNode = Object.assign({}, node);
@@ -466,7 +435,7 @@ export default {
           }
 
           case "audio": {
-            const matchedTasks = tasks.filter((t) => audioLyricNameMatch(basename(node.title), t.fileBasename))
+            const matchedTasks = tasks.filter((t) => audioLyricNameMatch(nodeTitle, t.fileName))
             const status = mergeStatus(matchedTasks.map(t => t.status), true);
 
             // hack status for debug
@@ -480,7 +449,7 @@ export default {
           }
           
           default:
-            return Object.assign({ status: TaskStatus.NONE, tasks: [] }, node);
+            return Object.assign({ status: AILyricTaskStatus.NONE, tasks: [] }, node);
         }
       })
 
@@ -488,7 +457,7 @@ export default {
     },
 
     async checkAITaskStatus() {
-      const tasks = await AIServerApi.searchWorkRelatedTask(this.aiServerUrl, this.workid);
+      const tasks = await ServerApi.searchWorkTask(this.workid);
       const [tree, status] = this.updateAiTranslateStatusToTracks(tasks, this.internalTree);
       this.internalTree = tree;
       this.sumAITaskStatus = status;

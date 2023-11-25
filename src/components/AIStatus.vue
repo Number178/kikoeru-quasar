@@ -13,8 +13,7 @@
 </template>
 
 <script>
-import { AIServerApi } from "../utils"
-const TaskStatus = AIServerApi.TaskStatus;
+import { AILyricTaskStatus } from "../utils"
 
 export default {
   name: 'AIStatus',
@@ -28,33 +27,29 @@ export default {
 
   computed: {
     color() {
-      if (this.status == TaskStatus.ERROR) return "red-8";
+      if (this.status == AILyricTaskStatus.ERROR) return "red-8";
       else return "lime"
     },
     isIndeterminate() {
-      return this.status == TaskStatus.DOWNLOADING || this.status == TaskStatus.TRASCRIPTING;
+      return this.status == AILyricTaskStatus.TRASCRIPTING;
     },
     // return a value from 0 to 100
     value() {
       switch(this.status) {
-        case TaskStatus.PENDING: return 10;
-        case TaskStatus.DOWNLOADING: return 20;
-        case TaskStatus.DOWNLOADED: return 40;
-        case TaskStatus.TRASCRIPTING: return 50;
-        case TaskStatus.SUCCESS: return 100;
-        case TaskStatus.ERROR: return 100;
+        case AILyricTaskStatus.PENDING: return 10;
+        case AILyricTaskStatus.TRASCRIPTING: return 50;
+        case AILyricTaskStatus.SUCCESS: return 100;
+        case AILyricTaskStatus.ERROR: return 100;
         default: return 0;
       }
     },
 
     showMsg() {
       switch(this.status) {
-        case TaskStatus.PENDING: return "准备";
-        case TaskStatus.DOWNLOADING: return "传输";
-        case TaskStatus.DOWNLOADED: return "排队";
-        case TaskStatus.TRASCRIPTING: return "翻译";
-        case TaskStatus.SUCCESS: return "AI";
-        case TaskStatus.ERROR: return "错误";
+        case AILyricTaskStatus.PENDING: return "排队";
+        case AILyricTaskStatus.TRASCRIPTING: return "翻译";
+        case AILyricTaskStatus.SUCCESS: return "AI";
+        case AILyricTaskStatus.ERROR: return "错误";
         default: return "无效状态";
       }
     }
@@ -63,7 +58,7 @@ export default {
 
   data() {
     return {
-      TaskStatus,
+      AILyricTaskStatus,
     }
   },
 }

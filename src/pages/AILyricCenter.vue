@@ -29,13 +29,13 @@
     </div>
 
     <!-- 刷新 -->
-    <q-btn @click="resetLoadedData">刷新</q-btn>
-    <q-toggle v-model="autoRefresh" :label="autoRefresh ? '自动刷新' : '关闭自动刷新'" />
+    <q-btn @click="resetLoadedData" class="full-width" color="primary">刷新</q-btn>
+    <!--<q-toggle v-model="autoRefresh" :label="autoRefresh ? '自动刷新' : '关闭自动刷新'" />-->
 
     <!--任务列表-->
     <div>
       <q-infinite-scroll :disable="stopLoadingPage" :offset="500" @load="onLoad">
-        <q-list bordered separator>
+        <q-list bordered separator class="q-ma-sm">
             <q-item v-for="task in tasks" clickable v-ripple :key="task.id">
               <q-item-section>
                 <q-item-label>{{ readableStatus(task.status) }}</q-item-label>
@@ -43,6 +43,9 @@
                 <q-item-label>RJ{{ formatID(task.work_id)  }}</q-item-label>
                 <q-item-label>{{ task.worker_name }}</q-item-label>
                 <q-item-label>{{ task.worker_status }}</q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-btn @click="openWorkDetail(task.work_id)" dense class="full-height">打开作品详情</q-btn>
               </q-item-section>
               <q-item-section side>
                 <q-btn @click="deleteTask(task.id)" class="text-negative" dense>删除</q-btn>
@@ -57,7 +60,7 @@
 
 <script>
 import { mapState } from 'vuex'
-import { AIServerApi, ServerApi, AILyricTaskStatus } from "../utils.js"
+import { ServerApi, AILyricTaskStatus } from "../utils.js"
 import { formatID } from '../utils.js';
 import NotifyMixin from '../mixins/Notification.js'
 
@@ -203,6 +206,10 @@ export default {
     async redoTask(taskId) {
       await ServerApi.redoTask(taskId);
       this.resetLoadedData();
+    },
+
+    openWorkDetail(work_id) {
+      this.$router.push(`/work/${work_id}`)
     }
   }
 }
