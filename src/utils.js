@@ -215,12 +215,28 @@ export function bidirectionSimilarity(s1, s2) {
 export function audioLyricNameMatch(aname, lname) {
   const oname = basenameWithoutExt(aname);
   const dname = lname;
-
   
   if (oname === dname) return true; // 完全相等
   else if (oname.includes(dname)) return true;
 
   // 相似性判断，要排除一种情况就是作品文件名称之间极其相似，只有数字序号不同，这个时候相似度极高，需要特殊处理
+  
+  // 针对SEなし SEなし 这类文件名进行处理
+  if (oname.includes("あり") && oname.replace(/あり/g, "なし") === dname) {
+    return true;
+  }
+  if (oname.includes("なし") && oname.replace(/なし/g, "あり") === dname) {
+    return true;
+  }
+
+  // 去掉文件名中所有的数字后，检查字符串是否一致，
+  // 如果一致，说明两个文件名只有数字不同，不进行任何相似度判断
+  // 直接判定为不同的两个文件
+  const digitDetector = /\d/g;
+  if (digitDetector.test(oname) && digitDetector.test(dname) && oname.replace(digitDetector, "") === dname.replace(digitDetector, "")) {
+    return false;
+  }
+
   const [sim, ed] = similarity(oname, dname);
   if (oname.length == dname.length && ed <= 2) {
     // 如果两个字符串长度一样，编辑距离相差小于2，则认为两者是仅序号不同的文件，将其判定为不匹配的音频和字幕
@@ -228,7 +244,7 @@ export function audioLyricNameMatch(aname, lname) {
   }
 
   if (sim > 0.8) return true;
-  else if (bidirectionSimilarity(oname, dname) > 0.8) return true;
+  else if (bidirectionSimilarity(oname, dname) > 0.9) return true;
 
   return false;
 }
