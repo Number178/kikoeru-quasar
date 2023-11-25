@@ -587,6 +587,7 @@ export default {
     this.SET_VOLUME(this.player.volume);
 
     const initAudio = () => {
+      document.removeEventListener('click', initAudio);
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       const analyser = {
         left: audioCtx.createAnalyser(),
@@ -600,7 +601,6 @@ export default {
       splitter.connect(analyser.right, 1);
       audioSrc.connect(audioCtx.destination)
       this.SET_AUDIO_ANALYSER(analyser)
-      document.removeEventListener('click', initAudio);
     }
 
     if (this.enableVisualizer) {
