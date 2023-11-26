@@ -61,6 +61,16 @@
           <q-item-section>
             <q-item-label>{{ item.title }}</q-item-label>
             <q-item-label v-if="item.children" caption lines="1">{{ `${item.children.length} 项目` }}</q-item-label>
+
+            <!--音频文件时长-->
+            <q-item-label
+              v-if="item.type === 'audio' && typeof(item.duration) === 'number'"
+              caption
+              lines="1"
+            >
+              <q-icon size="0.8rem" name="schedule" class="q-mr-xs"></q-icon>
+              {{ formatSeconds(item.duration) }}
+            </q-item-label>
           </q-item-section>
 
           <q-item-section v-if="item.status > AILyricTaskStatus.NONE" avatar>
@@ -105,6 +115,7 @@ import AIStatus from './AIStatus.vue';
 import { mapState, mapGetters } from 'vuex'
 import { audioLyricNameMatch, basenameWithoutExt, ServerApi, AILyricTaskStatus } from 'src/utils'
 import { debounce } from 'quasar';
+import { formatSeconds } from '../utils'
 import NotifyMixin from '../mixins/Notification.js'
 
 export default {
@@ -211,6 +222,8 @@ export default {
   },
 
   methods: {
+    formatSeconds,
+
     playIcon (hash) {
       return this.playing && this.currentPlayingFile.hash === hash ? "pause" : "play_arrow"            
     },
