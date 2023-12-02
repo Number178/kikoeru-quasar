@@ -217,10 +217,6 @@ const mutations = {
   SET_AI_SERVER_URL: (state, value) => {
     state.aiServerUrl = value;
   },
-
-  SET_REMOTE_AI_LYRIC_TASK_ID: (state, id) => {
-    state.remoteAILyricTaskId = id;
-  }
 }
 
 export default mutations

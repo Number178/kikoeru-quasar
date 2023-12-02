@@ -7,13 +7,15 @@
         <div class="fontSizeBar" :class="showSizeBar ? 'showSizeBarStyle' : 'hideSizeBarStyle'">
           <q-slider v-model="fontSize" :min="0.2" :max="10" :step="0" thumb-size="35px" @change="onFontSizeChange"/>
         </div>
-        <div id="lyricsBar" class="text-center text-bold ellipsis-2-lines absolute-bottom non-selectable"
+        <div
+          id="lyricsBar"
+          class="text-center text-bold ellipsis-2-lines absolute-bottom non-selectable"
+          @mousedown="onCursorDown"
+          @touchstart="onCursorDown"
           :class="$q.dark.isActive ? 'text-purple-7' : 'text-purple-11'">
           <div class="lyricBackground" :class="$q.dark.isActive ? 'lyricBackgroundDarkMode' : 'lyricBackgroundLightMode'">
             <span id="lyric"
-              :style="{'font-size': `${fontSize}rem`}"
-              @mousedown="onCursorDown"
-              @touchstart="onCursorDown">
+              :style="{'font-size': `${fontSize}rem`}">
               {{currentLyric}}
             </span>
           </div>

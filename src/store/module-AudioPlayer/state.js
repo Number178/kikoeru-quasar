@@ -57,10 +57,5 @@ export default function () {
     resumeHistroySeconds: -1,
 
     aiServerUrl: "",
-
-    // 当AI中心选择应用ai歌词到当前播放音频上时，
-    // 将会修改这个id为对应ai翻译任务的id，
-    // AudioElement将会监听这个属性的变化，并在成功下载ai歌词后，将这个id重置为空串
-    remoteAILyricTaskId: "",
   }
 }

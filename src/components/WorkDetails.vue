@@ -162,6 +162,8 @@
 
       <q-btn v-if="metadata.state && playWorkId !== metadata.id" dense @click="resumeThisHistroy" color="cyan q-mt-sm shadow-4 q-mx-xs q-px-sm" label="播放此作品的历史记录" />
 
+      <q-btn dense @click="scanWorkFile" color="cyan q-mt-sm shadow-4 q-mx-xs q-px-sm" label="扫描本地文件" />
+
       <WriteReview v-if="showReviewDialog" @closed="processReview" :workid="metadata.id" :metadata="metadata"></WriteReview>
     </div>
   </div>
@@ -303,6 +305,18 @@ export default {
 
     resumeThisHistroy() {
       this.$emit("resumeHistroy")
+    },
+
+    async scanWorkFile() {
+      try {
+        const response = await this.$axios.post(`/api/work/scan/${this.metadata.id}`);
+        if (response.data.memo) {
+          this.$router.go(0);
+        }
+      } catch(err) {
+        console.error(err);
+        this.showErrNotif(err.message || err);
+      }
     }
   }
 }

@@ -42,7 +42,7 @@
 import Lyric from 'lrc-file-parser'
 import { mapState, mapGetters, mapMutations } from 'vuex'
 import NotifyMixin from '../mixins/Notification.js'
-import { AIServerApi, formatSeconds, basename, audioLyricNameMatch } from '../utils'
+import { formatSeconds, basenameWithoutExt, audioLyricNameMatch, ServerApi, AILyricTaskStatus } from '../utils'
 
 function convert_srt_vtt_to_lrc(text) {
   let lines = text.split("\n").map(l => l.trim())
@@ -174,7 +174,6 @@ export default {
       'lyricOffsetSeconds',
 
       'aiServerUrl',
-      'remoteAILyricTaskId', 
     ]),
 
     ...mapGetters('AudioPlayer', [
@@ -246,10 +245,6 @@ export default {
       this.playLrc(true); // 强制更新一下歌词时间
       this.playLrc(this.playing); // 强制更新一下歌词时间
     },
-    remoteAILyricTaskId(id) {
-      if (id === "") return
-      this.loadRemoteAILyricTaskId(id);
-    }
   },
 
   methods: {
@@ -296,7 +291,6 @@ export default {
       'RESUME_HISTROY_SECONDS_DONE',
       'SET_HAS_LYRIC',
       'SET_NEW_CURRENT_TIME',
-      'SET_REMOTE_AI_LYRIC_TASK_ID',
     ]),
 
     onCanplay () {
@@ -441,9 +435,11 @@ export default {
         if (error.response) {
           // 请求已发出，但服务器响应的状态码不在 2xx 范围内
           if (error.response.status !== 401) {
+            console.error(error);
             this.showErrNotif(error.response.data.error || `${error.response.status} ${error.response.statusText}`);
           }
         } else {
+          console.error(error)
           this.showErrNotif(error.message || error);
         }
         this.SET_HAS_LYRIC(false);
@@ -460,8 +456,7 @@ export default {
     },
 
     async loadRemoteAILyricTaskId(aiTaskId) {
-      this.SET_REMOTE_AI_LYRIC_TASK_ID(""); // 将全局ai歌词加载flag清空
-      const lrcContent = await AIServerApi.downloadTask(this.aiServerUrl, aiTaskId)
+      const lrcContent = await ServerApi.downloadLrc(aiTaskId)
       this.lrcAvailable = true;
       this.lrcObj.setLyric(lrcContent);
       this.lrcContent = lrcContent;
@@ -472,19 +467,22 @@ export default {
 
     async tryLoadRemoteAILyric() {
       const workId = parseInt(this.currentPlayingFile.hash.replace(/\/.*/, "")); // 通过hash获取该文件对应的workId，返回number类型
-      const audioFileBasename = basename(this.currentPlayingFile.title);
+      const audioFileName = basenameWithoutExt(this.currentPlayingFile.title);
 
       let tasks = [];
+      let useLooseLyric = false; // 宽松的歌词匹配策略
       try {
         do {
           console.log("搜索ai歌词，第一阶段，严格匹配workId和文件title")
-          tasks = await AIServerApi.searchTask(this.aiServerUrl, audioFileBasename, workId);
-          tasks = tasks.filter(t => t.status == AIServerApi.TaskStatus.SUCCESS)
+          tasks = await ServerApi.searchWorkTask(workId, audioFileName);
+          tasks = tasks.filter(t => t.status == AILyricTaskStatus.SUCCESS)
+          useLooseLyric = false;
           if (tasks.length >= 1) break;
 
           console.log("搜索ai歌词，第二阶段，查找workId作品内所有歌词")
-          tasks = await AIServerApi.searchWorkRelatedTask(this.aiServerUrl, workId);
-          tasks = tasks.filter((t) => t.status == AIServerApi.TaskStatus.SUCCESS && audioLyricNameMatch(audioFileBasename, t.fileBasename))
+          tasks = await ServerApi.searchWorkTask(workId);
+          tasks = tasks.filter((t) => t.status == AILyricTaskStatus.SUCCESS && audioLyricNameMatch(audioFileName, t.fileName))
+          useLooseLyric = true;
           break;
 
         /*eslint-disable no-constant-condition*/
@@ -499,6 +497,9 @@ export default {
         
         console.log(`  加载第一个歌词记录，id = ${tasks[0].id}`)
         await this.loadRemoteAILyricTaskId(tasks[0].id)
+        if (useLooseLyric) {
+          this.$q.notify({message: "使用宽松的歌词匹配策略", timeout: 2000})
+        }
       } else {
         console.warn("没有找到ai歌词")
         this.resetToNoLyricStatus(); // 没有找到ai歌词的话，则必然先没有本地歌词，清空歌词状态
@@ -586,6 +587,7 @@ export default {
     this.SET_VOLUME(this.player.volume);
 
     const initAudio = () => {
+      document.removeEventListener('click', initAudio);
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       const analyser = {
         left: audioCtx.createAnalyser(),
@@ -599,7 +601,6 @@ export default {
       splitter.connect(analyser.right, 1);
       audioSrc.connect(audioCtx.destination)
       this.SET_AUDIO_ANALYSER(analyser)
-      document.removeEventListener('click', initAudio);
     }
 
     if (this.enableVisualizer) {
