@@ -161,6 +161,9 @@
       <q-btn dense @click="showReviewDialog = true" color="cyan q-mt-sm shadow-4 q-mx-xs q-px-sm" label="写评论" />
 
       <q-btn v-if="metadata.state && playWorkId !== metadata.id" dense @click="resumeThisHistroy" color="cyan q-mt-sm shadow-4 q-mx-xs q-px-sm" label="播放此作品的历史记录" />
+      <q-btn v-if="metadata.state" dense @click="clearThisHistroy" color="cyan q-mt-sm shadow-4 q-mx-xs q-px-sm" label="删除播放记录">
+        <q-tooltip>当历史记录中有已被删除的音频文件，可能会无法正确播放文件，可通过此按钮解决</q-tooltip>
+      </q-btn>
 
       <q-btn dense @click="scanWorkFile" color="cyan q-mt-sm shadow-4 q-mx-xs q-px-sm" label="扫描本地文件" />
 
@@ -305,6 +308,24 @@ export default {
 
     resumeThisHistroy() {
       this.$emit("resumeHistroy")
+    },
+
+    clearThisHistroy() {
+      this.$q.dialog({
+        title: '注意',
+        message: '确定要删除这个作品的播放历史吗？',
+        cancel: "取消",
+        ok: "确定"
+      }).onOk(async () => {
+        this.$axios.delete('/api/histroy', { data: { work_id: this.metadata.id } })
+          .then((_) => {
+            this.$q.notify("删除历史成功")
+          })
+          .catch((err) => {
+            this.$q.notify("删除历史失败：", err.message)
+            console.error(err)
+          })
+      })
     },
 
     async scanWorkFile() {
