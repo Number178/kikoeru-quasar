@@ -35,9 +35,9 @@
         <q-btn
           class="col"
           color="secondary"
-          label="扫描歌词"
+          label="扫描作品内文件变化"
           :disable="state === 'running' || !(loggedIn || $socket.connected)"
-          @click="performLyricScan()"
+          @click="performWorkFileScan()"
         />
       </div>
     </div>
@@ -238,7 +238,7 @@ export default {
       this.$socket.emit('PERFORM_SCAN')
     },
 
-    performLyricScan () {
+    performWorkFileScan () {
       this.cleanRerun()
       this.$socket.emit('PERFORM_LYRIC_SCAN')
     },
