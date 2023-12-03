@@ -59,7 +59,7 @@
         
         <q-scroll-area style="height: 256px;" class="bg-dark text-white q-pa-md">
           <div v-for="(log, index) in allLogs" :key="index" >
-            <span :class="log.level === 'error' ? 'text-red' : ''">➜ {{log.message}}</span>
+            <span :class="textColorOnLevel(log.level)">➜ {{log.message}}</span>
           </div>
         </q-scroll-area>
       </q-expansion-item>
@@ -111,7 +111,7 @@
                 <q-card>
                   <q-card-section class="bg-dark text-white">
                     <div v-for="(log, index) in item.logs" :key="index">
-                      <span :class="log.level === 'error' ? 'text-red' : ''">➜ {{log.message}}</span>
+                      <span :class="textColorOnLevel(log.level)">➜ {{log.message}}</span>
                     </div>
                   </q-card-section>
                 </q-card>
@@ -153,7 +153,7 @@
                 <q-card>
                   <q-card-section class="bg-dark text-white">
                     <div v-for="(log, index) in item.logs" :key="index">
-                      <span :class="log.level === 'error' ? 'text-red' : ''">➜ {{log.message}}</span>
+                      <span :class="textColorOnLevel(log.level)">➜ {{log.message}}</span>
                     </div>
                   </q-card-section>
                 </q-card>
@@ -251,6 +251,14 @@ export default {
     killScanProceess () {
       this.$socket.emit('KILL_SCAN_PROCESS')
     },
+
+    textColorOnLevel(level) {
+      switch(level) {
+        case 'error': return 'text-red';
+        case 'warn': return 'text-yellow';
+        default: return '';
+      }
+    }
   },
 
   computed: {
