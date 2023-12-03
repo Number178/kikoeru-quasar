@@ -165,6 +165,10 @@
         <q-tooltip>当历史记录中有已被删除的音频文件，可能会无法正确播放文件，可通过此按钮解决</q-tooltip>
       </q-btn>
 
+      <q-btn dense @click="$emit('translateCwd')" color="cyan q-mt-sm shadow-4 q-mx-xs q-px-sm" label="翻译当前目录音频">
+        <q-tooltip>不包括递归的子目录音频</q-tooltip>
+      </q-btn>
+
       <q-btn dense @click="scanWorkFile" color="cyan q-mt-sm shadow-4 q-mx-xs q-px-sm" label="扫描本地文件" />
 
       <WriteReview v-if="showReviewDialog" @closed="processReview" :workid="metadata.id" :metadata="metadata"></WriteReview>

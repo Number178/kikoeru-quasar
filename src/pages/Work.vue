@@ -1,8 +1,8 @@
 <template>
   <div>
-    <WorkDetails :metadata="metadata" @reset="requestData()" @resumeHistroy="resumeMetadataPlayHistroy" />
+    <WorkDetails :metadata="metadata" @reset="requestData()" @resumeHistroy="resumeMetadataPlayHistroy" @translateCwd="translateCwd" />
     <!-- <WorkQueue :queue="tracks" :editable="false" /> -->
-    <WorkTree :tree="tree" :metadata="metadata" :editable="false" />
+    <WorkTree ref="workTree" :tree="tree" :metadata="metadata" :editable="false" />
   </div>
 </template>
 
@@ -106,6 +106,11 @@ export default {
       })
       console.log(`resume seconds = ${this.metadata.state.seconds}`)
     },
+
+    // 翻译当前浏览目录的所有音频文件
+    translateCwd() {
+      this.$refs.workTree.translateCwd();
+    }
   }
 }
 </script>

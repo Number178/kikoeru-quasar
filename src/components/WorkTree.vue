@@ -294,8 +294,14 @@ export default {
       link.click();
     },
 
-    async markWorkHasAILyric() {
-      await this.$axios.post(`/api/mark/ai/${this.metadata.id}`);
+    // 翻译当前所在目录的所有音频文件，注意不是当前作品的所有音频文件
+    async translateCwd() {
+      // console.log('cwd = ', this.fatherFolder);
+      for (const item of this.fatherFolder) {
+        if (item.type === 'audio') {
+          await this.aiTranslateToServer(item);
+        }
+      }
     },
 
     async aiTranslateToServer(file) {
@@ -375,14 +381,14 @@ export default {
     },
 
     async updateTreeAITaskStatus() {
-        console.log("检查翻译进度")
+      console.log("检查翻译进度")
 
-        const tasks = await ServerApi.searchWorkTask(this.metadata.id);
+      const tasks = await ServerApi.searchWorkTask(this.metadata.id);
 
-        // console.log("tasks = ", tasks)
-        const [tree, status] = this.updateAiTranslateStatusToTracks(tasks, this.internalTree);
-        this.internalTree = tree;
-        this.sumAITaskStatus = status;
+      // console.log("tasks = ", tasks)
+      const [tree, status] = this.updateAiTranslateStatusToTracks(tasks, this.internalTree);
+      this.internalTree = tree;
+      this.sumAITaskStatus = status;
     },
 
     // return updated tree
