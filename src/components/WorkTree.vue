@@ -213,7 +213,6 @@ export default {
     ...mapState('AudioPlayer', [
       'playing',
       'playWorkId',
-      'aiServerUrl',
     ]),
 
     ...mapGetters('AudioPlayer', [
@@ -376,7 +375,6 @@ export default {
     },
 
     async updateTreeAITaskStatus() {
-      if (this.aiServerUrl) {
         console.log("检查翻译进度")
 
         const tasks = await ServerApi.searchWorkTask(this.metadata.id);
@@ -385,7 +383,6 @@ export default {
         const [tree, status] = this.updateAiTranslateStatusToTracks(tasks, this.internalTree);
         this.internalTree = tree;
         this.sumAITaskStatus = status;
-      }
     },
 
     // return updated tree

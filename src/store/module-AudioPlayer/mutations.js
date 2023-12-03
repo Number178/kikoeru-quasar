@@ -213,10 +213,6 @@ const mutations = {
   SET_ENABLE_VIDEO_SOURCE_PIP: (state, value) => {
     state.enableVideoSourcePIP = value
   },
-
-  SET_AI_SERVER_URL: (state, value) => {
-    state.aiServerUrl = value;
-  },
 }
 
 export default mutations

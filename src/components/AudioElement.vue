@@ -172,8 +172,6 @@ export default {
       'newCurrentTime',
       'enableVideoSource',
       'lyricOffsetSeconds',
-
-      'aiServerUrl',
     ]),
 
     ...mapGetters('AudioPlayer', [
@@ -405,11 +403,8 @@ export default {
         // 首先向服务器查询是否有歌词
         const check_response = await this.$axios.get(url)
         if (!check_response.data.result) {
-          // 服务器没有查到歌词文件
-
-          // 则尝试去ai服务器上查询
-          if (this.aiServerUrl) await this.tryLoadRemoteAILyric()
-          else this.resetToNoLyricStatus()
+          // 无lrc歌词，尝试去查询ai歌词
+          await this.tryLoadRemoteAILyric()
           return;
         }
 

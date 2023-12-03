@@ -117,12 +117,6 @@ export default {
     },
   },
 
-  computed: {
-    ...mapState('AudioPlayer', [
-      'aiServerUrl',
-    ])
-  },
-
   mounted() {
     this.resetLoadedData()
   },

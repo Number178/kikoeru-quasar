@@ -2,31 +2,6 @@
   <q-form @submit="onSubmit">
     <q-card class="q-ma-md">
       <q-toolbar>
-        <q-toolbar-title>AI字幕翻译设置</q-toolbar-title>
-      </q-toolbar>
-
-      <q-list>
-        <q-item style="height: 70px;">
-          <q-item-section>
-            <q-item-label>AI翻译服务器url</q-item-label>
-            <q-item-label caption>指定AI翻译服务器的地址，kikoeru将会向这个服务器发送翻译请求</q-item-label>
-          </q-item-section>
-
-          <q-item-section avatar>
-            <div class="q-gutter-lg">
-              <q-input
-                v-model="aiServerUrl"
-                type="url"
-                input-class="text-right"
-                style="max-width: 100px;"
-              />
-            </div>
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </q-card>
-    <q-card class="q-ma-md">
-      <q-toolbar>
         <q-toolbar-title>播放器设置</q-toolbar-title>
       </q-toolbar>
 
@@ -412,7 +387,6 @@ export default {
       loading: false,
       rewindSeekTime: '5',
       forwardSeekTime: '30',
-      aiServerUrl: '',
     }
   },
 
@@ -424,8 +398,6 @@ export default {
           // Integer => String
           this.rewindSeekTime = this.config.rewindSeekTime.toString()
           this.forwardSeekTime = this.config.forwardSeekTime.toString()
-
-          this.aiServerUrl = this.config.aiServerUrl;
         })
         .catch((error) => {
           if (error.response) {
@@ -443,7 +415,6 @@ export default {
       // String => Integer
       this.config.rewindSeekTime = parseInt(this.rewindSeekTime)
       this.config.forwardSeekTime = parseInt(this.forwardSeekTime)
-      this.config.aiServerUrl = this.aiServerUrl
 
       this.loading = true
       this.$axios.put('/api/config/admin', {

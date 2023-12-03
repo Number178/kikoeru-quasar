@@ -55,7 +55,5 @@ export default function () {
     // 当从历史记录播放时，这里记录当前queue[queueIndex]应当恢复到的seconds时间，
     // -1表示无需恢复，其他大于等于0的数字需要在onCanplay时间触发并完成时间跳转之后，再次设置为-1
     resumeHistroySeconds: -1,
-
-    aiServerUrl: "",
   }
 }
