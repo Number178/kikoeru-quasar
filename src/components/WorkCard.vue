@@ -1,7 +1,7 @@
 <template>
-  <q-card class="card">
+  <q-card class="card hover-show">
     <router-link :to="`/work/${metadata.id}`">
-      <CoverSFW :workid="metadata.id" :nsfw="false" :release="metadata.release" :lyric_status="metadata.lyric_status" />
+      <CoverSFW :workid="metadata.id" :nsfw="false" :release="metadata.release" :lyric_status="metadata.lyric_status" :tags="metadata.tags" />
     </router-link>
 
     <q-separator />
@@ -73,23 +73,12 @@
       </div>
 
       <!-- 价格&售出数 -->
-      <div v-show="metadata.title">
-        <span class="q-mx-sm text-weight-medium text-h6 text-red">{{ metadata.price }} 日元</span>
-        <span>售出数: {{ metadata.dl_count }}</span>
+      <div v-show="metadata.title" class="row items-center">
+        <span class="q-mx-sm text-weight-medium text-h6 text-red">
+          {{ metadata.price }}¥
+        </span>
+        <q-chip size="sm" icon="sell">{{ metadata.dl_count }}</q-chip>
         <span v-if="!metadata.nsfw" class="q-mx-sm" style="background: #e6f7d6; color: #56842a">全年龄</span>
-      </div>
-
-      <!-- 标签 -->
-      <div class="q-ma-xs" v-if="showTags">
-        <router-link
-          v-for="(tag, index) in metadata.tags"
-          :to="`/works?tagId=${tag.id}`"
-          :key=index
-        >
-          <q-chip size="md" class="shadow-2">
-            {{ tag.name }}
-          </q-chip>
-        </router-link>
       </div>
 
       <!-- 声优 -->
@@ -99,7 +88,7 @@
           :to="`/works?vaId=${va.id}`"
           :key=index
         >
-          <q-chip square size="md" class="shadow-2" color="teal" text-color="white" icon="mic">
+          <q-chip square size="sm" class="shadow-2" color="teal" text-color="white">
             {{ va.name }}
           </q-chip>
         </router-link>
@@ -212,5 +201,13 @@ export default {
   overflow: hidden;
   border-radius: 8px;
   box-shadow: 0 0px 8px rgba(0, 0, 0, 0.4);
+}
+
+.hover-show {
+  --hover-work-card: 0;
+}
+
+.hover-show:hover {
+  --hover-work-card: 1;
 }
 </style>

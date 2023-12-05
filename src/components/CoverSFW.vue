@@ -25,6 +25,19 @@
         {{ {ai: "AI歌词", local: "本地歌词"}[lyric] }}
       </q-chip>
     </div>
+
+    <!-- 标签 -->
+    <div class="q-pa-none q-ma-sm absolute-bottom-left tags-panel">
+      <router-link
+        v-for="tag in tags"
+        :key='tag.id'
+        :to="`/works?tagId=${tag.id}`"
+        >
+        <q-chip dense square class="shadow-3">
+          {{ tag.name }}
+        </q-chip>
+      </router-link>
+    </div>
   </q-img>
 </template>
 
@@ -53,7 +66,13 @@ export default {
     lyric_status: { // "", "ai", "local", "ai_local"
       type: String,
       require: true,
-    }
+    },
+
+    tags: {
+      type: Array,
+      require: false,
+      default() {return [];}
+    },
   },
 
   data () {
@@ -104,10 +123,20 @@ export default {
 }
 </script>
 
-<style lang="scss">
-  .blur-image {
-    filter: blur(10px);
-  }
+<style scoped lang="scss">
+.blur-image {
+  filter: blur(10px);
+}
 
+.tags-panel {
+  opacity: var(--hover-work-card);
+  transition: opacity 0.2s;
+  padding: 0;
+  max-width: 70%;
+  background: rgba(0,0,0,0.5);
+  border-radius: 5px;
+  // background: radial-gradient(closest-side at center, rgba(0, 0, 0, 0.8) 0, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0) 100%);
+  // background: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0,0,0,0.4) 30%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.4) 70%, rgba(0,0,0,0));
+}
 
 </style>
