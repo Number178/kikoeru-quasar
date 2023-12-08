@@ -36,13 +36,34 @@
     <div>
       <q-infinite-scroll :disable="stopLoadingPage" :offset="500" @load="onLoad">
         <q-list bordered separator class="q-ma-sm">
-            <q-item v-for="task in tasks" clickable v-ripple :key="task.id">
-              <q-item-section>
+            <q-item v-for="task in tasks" :key="task.id">
+              <q-chip square size="sm" class="absolute-top-left">
+                <q-avatar color="primary">id</q-avatar>
+                {{ task.id }}
+              </q-chip>
+              <q-item-section avatar @click.prevent.stop="copyToClipboard(task.id, `任务id '${task.id}'`)">
+                <q-img transition="fade" :src="samCoverUrl(task.work_id)" style="height: 38px; width: 38px" class="rounded-borders" />
+                <q-tooltip>点击复制任务id</q-tooltip>
+              </q-item-section>
+              <q-item-section side>
                 <q-item-label>{{ readableStatus(task.status) }}</q-item-label>
+                <q-icon v-if="task.status == AILyricTaskStatus.NONE" name="warning" color="warning" size="2em" />
+                <q-icon v-else-if="task.status == AILyricTaskStatus.PENDING" name="pending_actions" color="primary" size="2em" />
+                <q-spinner-bars v-else-if="task.status == AILyricTaskStatus.TRASCRIPTING" color="primary" size="2em" />
+                <q-icon v-else-if="task.status == AILyricTaskStatus.SUCCESS" name="check_circle" color="positive" size="2em" />
+                <q-icon v-else-if="task.status == AILyricTaskStatus.ERROR" name="error" color="negative" size="2em" />
+              </q-item-section>
+              <q-item-section>
                 <q-item-label>{{ task.audio_path }}</q-item-label>
-                <q-item-label>RJ{{ formatID(task.work_id)  }}</q-item-label>
-                <q-item-label>{{ task.worker_name }}</q-item-label>
-                <q-item-label>{{ task.worker_status }}</q-item-label>
+                <div class="row">
+                  <q-chip square text-color="primary" icon="library_music">
+                    RJ{{ formatID(task.work_id)  }}
+                  </q-chip>
+                  <q-chip square color="brown-13" icon="engineering">
+                    {{ task.worker_name }}
+                  </q-chip>
+                </div>
+                <q-item-label caption>{{ task.worker_status }}</q-item-label>
               </q-item-section>
               <q-item-section side>
                 <q-btn @click="openWorkDetail(task.work_id)" dense class="full-height">打开作品详情</q-btn>
@@ -60,6 +81,7 @@
 
 <script>
 import { mapState } from 'vuex'
+import { copyToClipboard } from 'quasar';
 import { ServerApi, AILyricTaskStatus } from "../utils.js"
 import { formatID } from '../utils.js';
 import NotifyMixin from '../mixins/Notification.js'
@@ -204,6 +226,18 @@ export default {
 
     openWorkDetail(work_id) {
       this.$router.push(`/work/${work_id}`)
+    },
+
+    samCoverUrl (work_id) {
+      // 从 LocalStorage 中读取 token
+      const token = this.$q.localStorage.getItem('jwt-token') || '';
+      return `/api/cover/${work_id}?type=sam&token=${token}`;
+    },
+
+    copyToClipboard(content, hint) {
+      copyToClipboard(`${content}`).then(() => {
+        this.$q.notify({message: `已复制${hint}到剪切板`, timeout: 200});
+      })
     }
   }
 }
