@@ -121,11 +121,25 @@
           <WorkListItem v-for="work in works" :key="work.id" :metadata="work" :showLabel="showLabel && $q.screen.width > 700" />
         </q-list>
 
-        <div v-else class="row q-col-gutter-x-md q-col-gutter-y-lg">
-          <div class="col-xs-12 col-sm-6 col-md-4" :class="detailMode ? 'col-lg-3 col-xl-2': 'col-lg-2 col-xl-2'" v-for="work in works" :key="work.id">
+        <!--解决android平台hover事件不像safari那样及时响应的问题，需要手动添加触摸响应时间-->
+        <div v-else-if="$q.platform.is.android && $q.platform.has.touch" class="row q-col-gutter-x-md q-col-gutter-y-lg">
+          <div class="col-xs-12 col-sm-6 col-md-4" v-for="work in works" :key="work.id"
+            @touchstart="()=>onWorkCardTouch(work.id)"
+            :class="detailMode ? 'col-lg-3 col-xl-2': 'col-lg-2 col-xl-2'"
+            :style="{ '--sim-hover-work-card': work.id === touchedWorkId ? '1' : '0'}"
+          >
             <WorkCard :metadata="work" :thumbnailMode="!detailMode" class="fit"/>
           </div>
         </div>
+        <div v-else class="row q-col-gutter-x-md q-col-gutter-y-lg">
+          <div class="col-xs-12 col-sm-6 col-md-4" v-for="work in works" :key="work.id"
+            :class="detailMode ? 'col-lg-3 col-xl-2': 'col-lg-2 col-xl-2'"
+            style="--sim-hover-work-card: 0"
+          >
+            <WorkCard :metadata="work" :thumbnailMode="!detailMode" class="fit"/>
+          </div>
+        </div>
+
 
         <div v-show="stopLoad" class="q-mt-lg q-mb-xl text-h6 text-bold text-center">无更多作品</div>
 
@@ -143,6 +157,7 @@
 import WorkCard from 'components/WorkCard'
 import WorkListItem from 'components/WorkListItem'
 import NotifyMixin from '../mixins/Notification.js'
+import { debounce } from 'quasar'
 
 export default {
   name: 'Works',
@@ -179,6 +194,8 @@ export default {
 
       // 排序顺序，true表示降序，false表示升序
       sortInDesc: true,
+
+      touchedWorkId: 0, // 用来解决android移动端设备没有hover事件导致workCard不能跟随手指显示标签的问题
     }
   },
 
@@ -402,7 +419,12 @@ export default {
         default: return label;
       }
     },
-  }
+
+    onWorkCardTouch(id) {
+      this.touchedWorkId = id;
+      console.log('touch on work id = ', id);
+    }
+  },
 }
 </script>
 

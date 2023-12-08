@@ -129,7 +129,7 @@ export default {
 }
 
 .tags-panel {
-  opacity: var(--hover-work-card);
+  opacity: calc(var(--hover-work-card) + var(--active-work-card) + var(--sim-hover-work-card));
   transition: opacity 0.2s;
   padding: 0;
   max-width: 70%;

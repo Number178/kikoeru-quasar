@@ -74,21 +74,24 @@
 
       <!-- 价格&售出数 -->
       <div v-show="metadata.title" class="row items-center">
-        <span class="q-mx-sm text-weight-medium text-h6 text-red">
+        <span class="q-ml-sm text-weight-medium text-h6 text-red">
           {{ metadata.price }}¥
         </span>
         <q-chip size="sm" icon="sell">{{ metadata.dl_count }}</q-chip>
-        <span v-if="!metadata.nsfw" class="q-mx-sm" style="background: #e6f7d6; color: #56842a">全年龄</span>
+        <q-chip v-if="!metadata.nsfw" class="q-mx-sm" dense style="background: #e6f7d6; color: #56842a">全年龄</q-chip>
       </div>
 
       <!-- 声优 -->
-      <div class="q-mx-xs q-my-sm">
+      <div
+        class="q-mx-xs q-my-sm"
+        :class="{ 'horize-scroll-va-list': $q.platform.has.touch }"
+      >
         <router-link
           v-for="(va, index) in metadata.vas"
           :to="`/works?vaId=${va.id}`"
           :key=index
         >
-          <q-chip square size="sm" class="shadow-2" color="teal" text-color="white">
+          <q-chip square size="md" class="shadow-2" color="teal" text-color="white">
             {{ va.name }}
           </q-chip>
         </router-link>
@@ -203,11 +206,22 @@ export default {
   box-shadow: 0 0px 8px rgba(0, 0, 0, 0.4);
 }
 
+.horize-scroll-va-list {
+  display: flex;
+  overflow-y: scroll;
+}
+
 .hover-show {
-  --hover-work-card: 0;
+  --hover-work-card: 0; /* 桌面平台上，鼠标的hover状态 */
+  --active-work-card: 0; /* 桌面平台上，组建被选中状态 */
 }
 
 .hover-show:hover {
   --hover-work-card: 1;
 }
+
+.hover-show:active {
+  --active-work-card: 1;
+}
+
 </style>
