@@ -25,15 +25,15 @@
               'flip-on-front': !isFlipCover,
               'flip-on-back': isFlipCover,
             }"
-            img-class="cover-img"
             :img-style="{
-              transition: 'all 1s',
-              opacity: isFlipCover ? 0 : 1,
+              transition: 'opacity 1s, filter 1s',
+              filter: isFlipCover ? 'brightness(0.1) grayscale(80%)' : 'brightness(1) grayscale(0%)',
+              'backface-visibility': 'hidden',
             }"
             transition="fade"
             :src="coverUrl"
             :ratio="4/3"
-            @dblclick.prevent="isFlipCover || openWorkDetail()"
+            @dblclick.prevent="openWorkDetail()"
           >
           <AudioEqualizer class="equalizer rounded-borders box-shadow flip-on-back"
             :disable="!isFlipCover"
@@ -131,7 +131,7 @@
               size="md" 
               padding="none sm" 
               icon="equalizer" 
-              @click="isFlipCover = !isFlipCover"
+              @click="flipCover"
             >
               <q-tooltip anchor="top middle" self="bottom middle">
                 音效均衡器
@@ -852,6 +852,7 @@ export default {
     },
 
     flipCover() {
+      if (!this.enableVisualizer) return; // 尚未开启音频可视化选项，无法使用音效均衡器
       console.warn("flip cover");
       this.isFlipCover = !this.isFlipCover;
     }
