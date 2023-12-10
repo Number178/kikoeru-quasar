@@ -2,6 +2,7 @@
   <div class="container">
     <div class="text-h5">均衡器</div>
     <q-toggle
+      :disable="disable"
       v-model="isFlipLeftRightChannel"
       color="primary"
       :icon="isFlipLeftRightChannel ? 'sync_alt' : 'headphones'"
@@ -16,6 +17,13 @@ import { mapState } from 'vuex'
 
 export default {
   name: 'AudioEqualizer',
+
+  props: {
+    disable: {
+      type: Boolean,
+      required: true
+    },
+  },
 
   data () {
     return {

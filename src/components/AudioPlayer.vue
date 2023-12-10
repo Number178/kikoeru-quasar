@@ -36,6 +36,7 @@
             @dblclick.prevent="isFlipCover || openWorkDetail()"
           >
           <AudioEqualizer class="equalizer rounded-borders box-shadow flip-on-back"
+            :disable="!isFlipCover"
             :style="{
               transition: 'all 1s',
               opacity: isFlipCover ? 1 : 0,
@@ -104,7 +105,7 @@
               @click="changePlayMode()" 
             >
               <q-tooltip anchor="top middle" self="bottom middle">
-                播放顺序
+                {{ playModeString }}
               </q-tooltip>
             </q-btn>
 
@@ -119,6 +120,21 @@
             >
               <q-tooltip anchor="top middle" self="bottom middle">
                 网页全屏
+              </q-tooltip>
+            </q-btn>
+
+            <!--equalizer-->
+            <q-btn 
+              v-if="enableVisualizer"
+              flat 
+              dense 
+              size="md" 
+              padding="none sm" 
+              icon="equalizer" 
+              @click="isFlipCover = !isFlipCover"
+            >
+              <q-tooltip anchor="top middle" self="bottom middle">
+                音效均衡器
               </q-tooltip>
             </q-btn>
 
@@ -516,6 +532,19 @@ export default {
           return "shuffle"
         default:
           return "playlist_play"
+      }
+    },
+
+    playModeString () {
+      switch (this.playMode.name) {
+        case "all repeat":
+          return "全部"
+        case "repeat once":
+          return "单曲循环"
+        case "shuffle":
+          return "随机"
+        default:
+          return "列表播放"
       }
     },
 
