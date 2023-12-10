@@ -15,25 +15,34 @@
         <div class="pull-handler" @click="toggleHide" v-touch-swipe.mouse.down="toggleHide"></div>
 
         <!-- 音声封面 -->
-        <div class="row items-center albumart q-mt-lg q-pa-sm relative-position"
-          v-touch-swipe.mouse.down="toggleHide"
-          
+        <div class="row items-center albumart q-mt-lg q-pa-sm relative-position flippable-cover-container non-selectable"
+          v-touch-swipe.mouse="onCoverSwipe"
         >
           <q-img
             contain
-            class="rounded-borders box-shadow"
+            class="rounded-borders box-shadow flippable-cover cover-img"
+            :class="{
+              'flip-on-front': !isFlipCover,
+              'flip-on-back': isFlipCover,
+            }"
+            img-class="cover-img"
+            :img-style="{
+              transition: 'all 1s',
+              opacity: isFlipCover ? 0 : 1,
+            }"
             transition="fade"
             :src="coverUrl"
             :ratio="4/3"
-            @dblclick.prevent="openWorkDetail"
-          />
+            @dblclick.prevent="isFlipCover || openWorkDetail()"
+          >
+          <AudioEqualizer class="equalizer rounded-borders box-shadow flip-on-back"
+            :style="{
+              transition: 'all 1s',
+              opacity: isFlipCover ? 1 : 0,
+            }"
+             />
+          </q-img>
 
-          <!--
-          <div class="row absolute q-pl-md q-pr-md col-12 justify-between" style="margin: -10px;/*来补偿外部封面的10px padding */">
-            <q-btn v-if="!hideSeekButton" round size="lg" color="white" text-color="dark" style="opacity: 0.8" @click.prevent="swapSeekButton ? previousTrack() : rewind(true)" :icon="swapSeekButton ? 'skip_previous': rewindIcon" />
-            <q-btn v-if="!hideSeekButton" round size="lg" color="white" text-color="dark" style="opacity: 0.8" @click.prevent="swapSeekButton ? nextTrack() : forward(true)" :icon="swapSeekButton ? 'skip_next' : forwardIcon" />
-          </div>
-          -->
         </div>
 
         <!-- 设置菜单 -->
@@ -339,6 +348,7 @@
 import draggable from 'vuedraggable'
 import AudioElement from 'components/AudioElement'
 import Scrollable from 'components/Scrollable'
+import AudioEqualizer from 'components/AudioEqualizer'
 import { mapState, mapGetters, mapMutations } from 'vuex'
 import { formatSeconds } from '../utils'
 import { debounce } from 'quasar'
@@ -350,6 +360,7 @@ export default {
     draggable,
     AudioElement,
     Scrollable,
+    AudioEqualizer,
   },
 
   data () {
@@ -361,6 +372,8 @@ export default {
       isAndroid: navigator.userAgent.toLowerCase().indexOf('android') > -1,
       histroyCheckIntervalId: -1,
       latestUpdatedHistory: null, // 记录最近一次更新的历史记录，防止反复对同一个播放历史进行远程数据更新
+
+      isFlipCover: false, // 是否反转封面显示其他内容
 
       // 歌词偏移量修复工具
       lyricSyncDialog: false,
@@ -660,6 +673,17 @@ export default {
       this.EMPTY_QUEUE()
     },
 
+    onCoverSwipe(evt) {
+      switch(evt.direction) {
+        case 'left':
+        case 'right':
+          this.flipCover();
+          break;
+        case 'down':
+          this.toggleHide();
+      }
+    },
+
     openWorkDetail () {
       if (this.workDetailUrl && this.$route.path !== this.workDetailUrl) {
         this.$router.push(this.workDetailUrl)
@@ -797,6 +821,11 @@ export default {
       console.log("lyric offset change to ", seconds, typeof seconds)
       this.setLyricOffsetSeconds(seconds)
     },
+
+    flipCover() {
+      console.warn("flip cover");
+      this.isFlipCover = !this.isFlipCover;
+    }
   },
 
   created() {
@@ -808,100 +837,140 @@ export default {
 
 
 <style lang="scss" scoped>
-  .box-shadow {
-    box-shadow: black 0px 4px 8px;
+.box-shadow {
+  box-shadow: black 0px 4px 8px;
+}
+
+.audio-player {
+
+  // 宽度 > $breakpoint-sm-min
+  @media (min-width: $breakpoint-sm-min) {
+    width: 330px;
+    margin: 0px 10px 10px 0px;
+    border-radius: 8px;
   }
 
-  .audio-player {
-    // 宽度 > $breakpoint-sm-min
-    @media (min-width: $breakpoint-sm-min) {
-      width: 330px;
-      margin: 0px 10px 10px 0px;
-      border-radius: 8px;
-    }
-    // 宽度 < $breakpoint-xs-max (599px)
-    @media (max-width: $breakpoint-xs-max) {
-      width: 100%;
-      height: 100%;
-      border-radius: 0;
-    }
-
-    transition: 0.6s;
-    overflow: hidden;
-
-    /* flex布局，让封面占据主要空间，其余空间留给其他控件 */
-    display: flex;
-    flex-direction: column;
+  // 宽度 < $breakpoint-xs-max (599px)
+  @media (max-width: $breakpoint-xs-max) {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
   }
 
-  .audio-player::before {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    content: "";
-    background-image: var(--cover-url);
-    background-position: 50% 50%;
-    background-size: contain;
-    background-repeat: repeat;
-    filter: blur(30px) brightness(0.7); // blur bigger than 80 will cause safari wrong render result
+  transition: 0.6s;
+  overflow: hidden;
+
+  /* flex布局，让封面占据主要空间，其余空间留给其他控件 */
+  display: flex;
+  flex-direction: column;
+}
+
+.audio-player::before {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  content: "";
+  background-image: var(--cover-url);
+  background-position: 50% 50%;
+  background-size: contain;
+  background-repeat: repeat;
+  filter: blur(30px) brightness(0.7); // blur bigger than 80 will cause safari wrong render result
+}
+
+.hideStyle {
+  transform: translateY(200%);
+}
+
+.showStyle {
+  transform: translateY(0);
+}
+
+.albumart {
+
+  // 宽度 < $breakpoint-xs-max (599px)
+  @media (max-width: $breakpoint-xs-max) {
+    width: 100%;
   }
 
-  .hideStyle {
-    transform: translateY(200%);
+  /* 播放控件中，封面占据几乎所有剩余空间，将其他控件挤到底部去 */
+  flex-grow: 1;
+}
+
+.current-play-list {
+  max-height: 500px;
+
+  // 宽度 > $breakpoint-xs-max
+  @media (min-width: $breakpoint-xs-max) {
+    width: 450px;
   }
 
-  .showStyle {
-    transform: translateY(0);
+  // 宽度 < $breakpoint-xs-max (599px)
+  @media (max-width: $breakpoint-xs-max) {
+    min-width: 280px;
   }
+}
 
-  .albumart {
-    // 宽度 < $breakpoint-xs-max (599px)
-    @media (max-width: $breakpoint-xs-max) {
-      width: 100%;
-    }
+.pull-handler {
+  height: 6px;
+  width: 100px;
+  background: rgba(255, 255, 255, 0.3);
+  position: absolute;
+  border-radius: 4px !important;
+  overflow: hidden;
+  left: 50%;
+  top: 12px;
+  transform: translateX(-50%);
+}
 
-    /* 播放控件中，封面占据几乎所有剩余空间，将其他控件挤到底部去 */
-    flex-grow: 1;
-  }
+.pull-handler:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
 
-  .current-play-list {
-    max-height: 500px;
+.audio-name {
+  font-weight: bold;
+  white-space: nowrap;
+}
 
-    // 宽度 > $breakpoint-xs-max
-    @media (min-width: $breakpoint-xs-max) {
-      width: 450px;
-    }
-    // 宽度 < $breakpoint-xs-max (599px)
-    @media (max-width: $breakpoint-xs-max) {
-      min-width: 280px;
-    }
-  }
+.work-name {
+  opacity: 0.7;
+  white-space: nowrap;
+}
 
-  .pull-handler {
-    height: 6px;
-    width: 100px;
-    background: rgba(255, 255, 255, 0.3);
-    position: absolute;
-    border-radius: 4px !important;
-    overflow: hidden;
-    left: 50%;
-    top: 12px;
-    transform: translateX(-50%);
-  }
+.equalizer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: transparent;
+  transform: rotateY(180deg);
+}
 
-  .pull-handler:hover {
-    background: rgba(255, 255, 255, 0.5);
-  }
+.flippable-cover-container {
+  perspective: 60rem;
+  transition: opacity 1s;
+}
 
-  .audio-name {
-    font-weight: bold;
-    white-space: nowrap;
-  }
+.cover-img {
+  transition: transform 1s;
+}
 
-  .work-name {
-    opacity: 0.7;
-    white-space: nowrap;
-   }
+.hide-cover-img {
+  opacity: 0;
+}
+
+.show-cover-img {
+  opacity: 1;
+}
+
+.flip-on-front {
+  transform: rotateY(0);
+}
+
+.flip-on-back {
+  transform: rotateY(180deg);
+}
+
 </style>

@@ -587,14 +587,19 @@ export default {
       const analyser = {
         left: audioCtx.createAnalyser(),
         right: audioCtx.createAnalyser(),
+        audioCtx,
+        splitter: null,
+        merger: null,
+        audioSrc: null,
       };
 
-      const audioSrc = audioCtx.createMediaElementSource(this.player.media);
-      const splitter = audioCtx.createChannelSplitter(2);
-      audioSrc.connect(splitter);
-      splitter.connect(analyser.left, 0);
-      splitter.connect(analyser.right, 1);
-      audioSrc.connect(audioCtx.destination)
+      analyser.audioSrc = audioCtx.createMediaElementSource(this.player.media);
+      analyser.splitter = audioCtx.createChannelSplitter(2);
+      analyser.merger = audioCtx.createChannelMerger(2);
+      analyser.audioSrc.connect(analyser.splitter);
+      analyser.splitter.connect(analyser.left, 0);
+      analyser.splitter.connect(analyser.right, 1);
+      analyser.audioSrc.connect(audioCtx.destination)
       this.SET_AUDIO_ANALYSER(analyser)
     }
 
