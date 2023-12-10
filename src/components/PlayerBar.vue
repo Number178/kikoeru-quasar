@@ -191,7 +191,7 @@ export default {
       OpState,
       state: OpState.idle, // state == OpState.horize 表示进入进度调整模式
       vertTriggerPixels: 15, // 向上触发像素距离
-      horizeTriggerPixels: 5, // 左右触发像素距离
+      horizeTriggerPixels: 10, // 左右触发像素距离
 
       startClientX: 0,
       startClientY: 0,
