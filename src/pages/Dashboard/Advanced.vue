@@ -2,6 +2,46 @@
   <q-form @submit="onSubmit">
     <q-card class="q-ma-md">
       <q-toolbar>
+        <q-toolbar-title>网页偏好设置（每个浏览器之间，此部分配置相互独立）</q-toolbar-title>
+      </q-toolbar>
+
+      <q-list>
+        <q-item style="height: 70px;">
+          <q-item-section>
+            <q-item-label>高级音频模式</q-item-label>
+            <q-item-label caption>支持显示音频特效、左右声道反转等音频功能，建议在桌面浏览器中开启，移动端iOS设备会有声音播放bug</q-item-label>
+          </q-item-section>
+
+          <q-item-section avatar>
+            <q-toggle :value="enableVisualizer" @input="changeEnableVisualizer" dense/>
+          </q-item-section>
+        </q-item>
+
+        <q-item style="height: 70px;">
+          <q-item-section>
+            <q-item-label>启用视频源作为播放格式</q-item-label>
+            <q-item-label caption>开启此选项后，视频格式(mp4)用于播放音频的同时，也可以看到视频画面(大图模式下)</q-item-label>
+          </q-item-section>
+
+          <q-item-section avatar>
+            <q-toggle :value="enableVideoSource" @input="changeEnableVideoSource" dense/>
+          </q-item-section>
+        </q-item>
+
+        <q-item style="height: 70px;">
+          <q-item-section>
+            <q-item-label>切换回旧式作品卡片UI</q-item-label>
+            <q-item-label caption>搜索页面展示作品使用旧的卡片样式，旧式卡片可以直接显示所有标签</q-item-label>
+          </q-item-section>
+
+          <q-item-section avatar>
+            <q-toggle :value="oldWorkCardUIStyle" @input="changeOldWorkCardUIStyle" dense/>
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </q-card>
+    <q-card class="q-ma-md">
+      <q-toolbar>
         <q-toolbar-title>播放器设置</q-toolbar-title>
       </q-toolbar>
 
@@ -375,6 +415,7 @@
 
 <script>
 import NotifyMixin from '../../mixins/Notification.js'
+import { mapState } from 'vuex'
 
 export default {
   name: 'Advanced',
@@ -387,7 +428,16 @@ export default {
       loading: false,
       rewindSeekTime: '5',
       forwardSeekTime: '30',
+      
     }
+  },
+
+  computed: {
+    ...mapState('AudioPlayer', [
+      'oldWorkCardUIStyle',
+      'enableVideoSource',
+      'enableVisualizer',
+    ]),
   },
 
   methods: {
@@ -434,10 +484,24 @@ export default {
           }
         })
     },
+
+    changeOldWorkCardUIStyle(value) {
+      console.log("change old work card ui to: ", value, typeof(value));
+      this.$store.commit('AudioPlayer/SET_OLD_WORK_CARD_UI_STYLE', value);
+    },
+
+    changeEnableVideoSource(value) {
+      this.$store.commit('AudioPlayer/SET_ENABLE_VIDEO_SOURCE', value);
+    },
+
+    changeEnableVisualizer(value) {
+      this.$store.commit('AudioPlayer/SET_ENABLE_VISUALIZER', value);
+    }
   },
 
   created () {
     this.requestConfig()
+
   }
 }
 </script>

@@ -1,6 +1,6 @@
 import { LocalStorage } from 'quasar'
 import getters from './getters'
-import state, { SWAP_SEEK_BUTTON_KEY, ENABLE_VISUALIZER_KEY, ENABLE_PIP_LYRICS, ENABLE_VIDEO_SOURCE_KEY, AI_SERVER_URL_KEY } from './state'
+import state, { SWAP_SEEK_BUTTON_KEY, ENABLE_VISUALIZER_KEY, ENABLE_PIP_LYRICS, ENABLE_VIDEO_SOURCE_KEY, AI_SERVER_URL_KEY, OLD_WORK_CARD_UI_STYLE_KEY } from './state'
 
 const mutations = {
   TOGGLE_HIDE (state) {
@@ -188,6 +188,11 @@ const mutations = {
     LocalStorage.set(ENABLE_VISUALIZER_KEY, state.enableVisualizer)
   },
 
+  SET_ENABLE_VISUALIZER: (state, value) => {
+    state.enableVisualizer = value
+    LocalStorage.set(ENABLE_VISUALIZER_KEY, value)
+  },
+
   SET_AUDIO_ANALYSER: (state, value) => {
     state.audioAnalyser = value;
   },
@@ -210,8 +215,18 @@ const mutations = {
     LocalStorage.set(ENABLE_VIDEO_SOURCE_KEY, state.enableVideoSource)
   },
 
+  SET_ENABLE_VIDEO_SOURCE: (state, value) => {
+    state.enableVideoSource = value
+    LocalStorage.set(ENABLE_VIDEO_SOURCE_KEY, value)
+  },
+
   SET_ENABLE_VIDEO_SOURCE_PIP: (state, value) => {
     state.enableVideoSourcePIP = value
+  },
+
+  SET_OLD_WORK_CARD_UI_STYLE: (state, value) => {
+    state.oldWorkCardUIStyle = value
+    LocalStorage.set(OLD_WORK_CARD_UI_STYLE_KEY, value)
   },
 }
 

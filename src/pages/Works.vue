@@ -121,6 +121,15 @@
           <WorkListItem v-for="work in works" :key="work.id" :metadata="work" :showLabel="showLabel && $q.screen.width > 700" />
         </q-list>
 
+        <!--旧式的workCard展示-->
+        <div v-if="oldWorkCardUIStyle" class="row q-col-gutter-x-md q-col-gutter-y-lg">
+          <div class="col-xs-12 col-sm-6 col-md-4" v-for="work in works" :key="work.id"
+            :class="detailMode ? 'col-lg-3 col-xl-2': 'col-lg-2 col-xl-2'"
+          >
+            <OldWorkCard :metadata="work" :thumbnailMode="!detailMode" class="fit"/>
+          </div>
+        </div>
+
         <!--解决android平台hover事件不像safari那样及时响应的问题，需要手动添加触摸响应时间-->
         <div v-else-if="$q.platform.is.android && $q.platform.has.touch" class="row q-col-gutter-x-md q-col-gutter-y-lg">
           <div class="col-xs-12 col-sm-6 col-md-4" v-for="work in works" :key="work.id"
@@ -131,6 +140,8 @@
             <WorkCard :metadata="work" :thumbnailMode="!detailMode" class="fit"/>
           </div>
         </div>
+
+        <!--正常的workCard展示-->
         <div v-else class="row q-col-gutter-x-md q-col-gutter-y-lg">
           <div class="col-xs-12 col-sm-6 col-md-4" v-for="work in works" :key="work.id"
             :class="detailMode ? 'col-lg-3 col-xl-2': 'col-lg-2 col-xl-2'"
@@ -139,7 +150,6 @@
             <WorkCard :metadata="work" :thumbnailMode="!detailMode" class="fit"/>
           </div>
         </div>
-
 
         <div v-show="stopLoad" class="q-mt-lg q-mb-xl text-h6 text-bold text-center">无更多作品</div>
 
@@ -157,7 +167,8 @@
 import WorkCard from 'components/WorkCard'
 import WorkListItem from 'components/WorkListItem'
 import NotifyMixin from '../mixins/Notification.js'
-import { debounce } from 'quasar'
+import { mapState } from 'vuex'
+import OldWorkCard from 'src/components/OldWorkCard'
 
 export default {
   name: 'Works',
@@ -166,6 +177,7 @@ export default {
 
   components: {
     WorkCard,
+    OldWorkCard,
     WorkListItem
   },
 
@@ -242,7 +254,11 @@ export default {
       } else {
         return '/api/works'
       }
-    }
+    },
+
+    ...mapState('AudioPlayer', [
+      'oldWorkCardUIStyle',
+    ]),
   },
 
   // keep-alive hooks
