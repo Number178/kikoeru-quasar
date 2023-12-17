@@ -1,6 +1,9 @@
 <template>
   <div>
-    <div class="text-h5 text-weight-regular q-ma-md">
+    <!--没有搜索的情况下，显示最近播放作品-->
+    <RecentWorks v-if="searchMetas.length == 0" />
+    
+    <div class="text-h5 text-weight-regular q-mt-lg q-ml-md">
       {{pageTitle}}
       <q-chip>
         <q-avatar color="secondary">{{pagination.totalCount}}</q-avatar>
@@ -167,6 +170,7 @@
 import WorkCard from 'components/WorkCard'
 import WorkListItem from 'components/WorkListItem'
 import NotifyMixin from '../mixins/Notification.js'
+import RecentWorks from 'src/components/RecentWorks'
 import { mapState } from 'vuex'
 import OldWorkCard from 'src/components/OldWorkCard'
 
@@ -178,7 +182,8 @@ export default {
   components: {
     WorkCard,
     OldWorkCard,
-    WorkListItem
+    WorkListItem,
+    RecentWorks,
   },
 
   data () {

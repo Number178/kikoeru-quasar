@@ -860,7 +860,7 @@ export default {
 
   created() {
     // 历史更新函数防抖动
-    this.onUpdatePlayingStatus = debounce(this.onUpdatePlayingStatus, 1000 * 5);
+    this.onUpdatePlayingStatus = debounce(this.onUpdatePlayingStatus, 500);
   }
 }
 </script>

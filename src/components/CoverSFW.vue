@@ -14,13 +14,13 @@
       </q-chip>
     </div>
 
-    <div :v-if="release" class="absolute-bottom-right transparent" style="padding: 0px;">
+    <div v-if="release !== ''" class="absolute-bottom-right transparent" style="padding: 0px;">
       <q-chip dense square color="blue-grey" text-color="white" class="q-ma-sm shadow-3">
         {{release}}
       </q-chip>
     </div>
 
-    <div :v-if="lyricList.length > 0" class="absolute-top-right transparent" style="padding: 0px;">
+    <div v-if="lyricList.length > 0" class="absolute-top-right transparent" style="padding: 0px;">
       <q-chip v-for="lyric in lyricList" :key="lyric" dense square color="green-7" text-color="white" class="q-ma-sm shadow-3">
         {{ {ai: "AI歌词", local: "本地歌词"}[lyric] }}
       </q-chip>
@@ -38,6 +38,9 @@
         </q-chip>
       </router-link>
     </div>
+
+    <!--其他自定义组件-->
+    <slot name="cover"></slot>
   </q-img>
 </template>
 
