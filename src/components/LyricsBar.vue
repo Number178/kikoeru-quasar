@@ -166,6 +166,7 @@ export default {
     border-radius: 10px;
     padding: 2px 4px;
     transition: 0.5s;
+    backdrop-filter: blur(4px);
   }
   .lyricBackgroundDarkMode {
     background-color: rgba($grey-7, $alpha: 0.8);
