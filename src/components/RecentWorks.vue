@@ -5,10 +5,13 @@
       <q-btn flat icon="navigate_next" @click="$router.push('/favourites/histroy')"></q-btn>
     </div>
     <q-virtual-scroll
-      class="q-pa-sm"
+      class="q-px-sm"
+      :class="{'scroll-style-change': !$q.platform.has.touch}"
       :items="works"
+      ref="scroll"
       virtual-scroll-horizontal
       @virtual-scroll="onVirtualScroll"
+      @wheel.stop.prevent="onMouseWheel"
     >
       <template v-slot="{ item }">
         <div
@@ -77,7 +80,8 @@ export default {
         const response = await this.$axios.get('/api/histroy', { params });
         this.works = this.works.concat(response.data.works);
         this.pagination = response.data.pagination;
-        // console.log("recent works = ", response.data.works);
+        this.$refs.scroll.refresh();
+        // console.log("vscroll = ", this.$refs.scroll);
       } catch(err) {
         console.warn('load recent work failed: ', err);
       }
@@ -95,6 +99,11 @@ export default {
       if (loadMoreThres > (this.works.length - alreadyScrolledCount)) {
         this.getHistory();
       }
+    },
+
+    onMouseWheel(e) {
+      // console.log('vmouse wheel = ', e);
+      this.$refs.scroll.$el.scrollLeft += (e.deltaX || e.deltaY);
     },
 
     // 返回单个作品播放历史的简单信息
@@ -146,6 +155,21 @@ export default {
   font-size: small;
   color: lightgrey;
 
+}
+
+.scroll-style-change {
+  scrollbar-color: gray transparent;
+}
+
+.scroll-style-change::-webkit-scrollbar {
+  background: transparent;
+  height: 0.5rem;
+}
+
+.scroll-style-change::-webkit-scrollbar-thumb {
+  background: gray;
+  min-width: 3rem;
+  border-radius: 10px;
 }
 
 </style>
