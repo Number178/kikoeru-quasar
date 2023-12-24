@@ -3,12 +3,12 @@
     <!--没有搜索的情况下，显示最近播放作品-->
     <RecentWorks v-if="searchMetas.length == 0" />
     
-    <div class="text-h5 text-weight-regular q-mt-lg q-ml-md">
-      {{pageTitle}}
-      <q-chip>
-        <q-avatar color="secondary">{{pagination.totalCount}}</q-avatar>
-        <span v-for="meta, index in searchMetas" :key="meta" class="text-primary">{{ index == 0 ? "":"," }} {{ meta }}</span>
-      </q-chip>
+    <div class="q-mt-lg q-ml-md row items-center">
+      <span class="text-h5 text-weight-regular q-pa-xs relative-position">
+        {{pageTitle}}
+        <q-badge color="secondary" floating>{{pagination.totalCount}}</q-badge>
+      </span>
+      <q-badge v-for="meta, index in searchMetas" :key="meta">{{ index == 0 ? "":"," }} {{ meta }}</q-badge>
     </div>
 
     <div class="row justify-between q-mb-md q-mx-sm">
@@ -402,7 +402,7 @@ export default {
         this.pageTitle = '搜索关键字：';
         this.searchMetas = [this.$route.query.keyword];
       } else {
-        this.pageTitle = '所有作品：'
+        this.pageTitle = '所有作品'
         this.searchMetas = [];
       }
     },
