@@ -1,19 +1,45 @@
 name: Gitea Actions Demo
-run-name: ${{ gitea.actor }} is testing out Gitea Actions 🚀
+run-name: ${{ github.actor }} is testing out Gitea Actions 🚀
 on: [push]
 
+  
 jobs:
   Explore-Gitea-Actions:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ gitea.event_name }} event."
+      - run: echo "🎉 The job was automatically triggered by a ${{github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by Gitea!"
-      - run: echo "🔎 The name of your branch is ${{ gitea.ref }} and your repository is ${{ gitea.repository }}."
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
       - name: Check out repository code
         uses: actions/checkout@v3
-      - run: echo "💡 The ${{ gitea.repository }} repository has been cloned to the runner."
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
       - run: echo "🖥️ The workflow is now ready to test your code on the runner."
       - name: List files in the repository
         run: |
-          ls ${{ gitea.workspace }}
+          ls ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
+
+  build-artifacts:
+    name: Build and upload pwa artifacts
+    runs-on: ubuntu-latest
+    needs: Explore-Gitea-Actions
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Use Node.js 12
+        uses: actions/setup-node@v4
+        with:
+          node-version: '12.22.12'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build PWA
+        run: npx quasar build -m pwa
+
+      - name: Upload artifact PWA
+        uses: actions/upload-artifact@v3
+        with:
+          path: dist/pwa/
+          name: PWA-${{ github.ref_name }}
