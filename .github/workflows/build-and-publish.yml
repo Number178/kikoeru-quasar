@@ -1,11 +1,11 @@
 name: Build and push
 
-on:
-  push:
-    branches-ignore:
-      - "dependabot/**"
-    tags:
-      - v*
+on: [] # disable this for now
+#   push:
+#     branches-ignore:
+#       - "dependabot/**"
+#     tags:
+#       - v*
 
 jobs:
   build-artifacts:

@@ -1,0 +1,28 @@
+name: Build PWA artifact
+run-name: ${{ github.actor }} is running
+on: [] # disable this for now
+
+jobs:
+  build-artifacts:
+    name: Build and upload pwa artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Use Node.js 12
+        uses: actions/setup-node@v4
+        with:
+          node-version: '12.22.12'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build PWA
+        run: npx quasar build -m pwa
+
+      - name: Upload artifact PWA
+        uses: actions/upload-artifact@v3
+        with:
+          path: dist/pwa/
+          name: PWA-${{ github.ref_name }}
