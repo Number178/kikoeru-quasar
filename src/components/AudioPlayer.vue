@@ -244,6 +244,7 @@
         <!-- Place holder for iOS -->
         <div style="height: 5px" v-if="$q.platform.is.ios" />
 
+        <!-- 标题 -->
         <div class="column text-center non-selectable ">
           <Scrollable class="full-width" :stop="hide" name="audioTitle">
             <span class="audio-name relative-position q-px-md">{{ currentPlayingFile.title }}</span>
@@ -407,9 +408,16 @@ export default {
     this.histroyCheckIntervalId = setInterval(() => {
       this.onUpdatePlayingStatus()
     }, 60 * 1000) // 每隔一段时间更新一次播放记录
+
+    if (this.$q.platform.is.desktop) {
+      window.addEventListener('keydown', this.onKeyDown);
+    }
   },
 
   beforeDestroy() {
+    if (this.$q.platform.is.desktop) {
+      window.removeEventListener('keydown', this.onKeyDown);
+    }
     clearInterval(this.histroyCheckIntervalId)
 
     // 原本是想要在关闭窗口时，更新最后一次播放历史
@@ -855,7 +863,32 @@ export default {
       if (!this.enableVisualizer) return; // 尚未开启音频可视化选项，无法使用音效均衡器
       console.warn("flip cover");
       this.isFlipCover = !this.isFlipCover;
-    }
+    },
+
+    onKeyDown(event) {
+      // console.warn("key down code = ", event.code, ", activeElement is ", document.activeElement); 
+      if (document.activeElement.tagName === "INPUT") return; // 禁止文本编辑的按键响应
+      if (this.playWorkId === 0) return; // 尚未播放任何作品时，禁止快捷键操作
+      const volumeStep = 0.04; // volume is between [0.0, 1.0]
+
+      switch(event.code) {
+        case "Space": this.togglePlaying(); break;
+        case "ArrowLeft": this.rewind(true); break;
+        case "ArrowRight": this.forward(true); break;
+
+        case "PageDown": this.nextTrack(); break;
+        case "PageUp": this.previousTrack(); break;
+
+        case "ArrowUp": 
+          this.volume = Math.min(1.0, this.volume + volumeStep); break;
+        case "ArrowDown": 
+          this.volume = Math.max(0.0, this.volume - volumeStep); break;
+        default: return; // return now
+      }
+
+      event.preventDefault()
+      event.stopPropagation()
+    },
   },
 
   created() {

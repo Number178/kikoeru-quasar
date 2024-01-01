@@ -14,7 +14,10 @@
       color="primary"
       :class="{}"
     >
+      <!--默认进度条-->
       <div class="simple-progress" :class="$q.dark.isActive ? 'simple-progress-dark' : 'simple-progress-light'" :style="progressBarStyle"></div>
+
+      <!--拖拽时的进度条-->
       <div
         class="new-progress row justify-end"
         :class="{hideNewProgress: !isPanning}"
@@ -29,6 +32,12 @@
           </div>
         </span>
       </div>
+
+      <!--音量指示器-->
+      <div class="volumeIndicator" :style="{
+        height: `${volume*100}%`,
+        width: showVolumeIndicator ? `${volumeIndicatorWidth}px` : 0,
+      }"></div>
       <q-item 
         style="padding: 0px 5px;"
         class="col non-selectable"
@@ -149,6 +158,7 @@ export default {
       'playing',
       'currentTime',
       'duration',
+      'volume',
       'swapSeekButton',
       'rewindSeekTime',
       'forwardSeekTime'
@@ -186,12 +196,27 @@ export default {
     }
   },
 
+  watch: {
+    volume() {
+      if (this.volumeDelayHideTimeoutId > 0) clearTimeout(this.volumeDelayHideTimeoutId);
+      this.showVolumeIndicator = true;
+      this.volumeDelayHideTimeoutId = setTimeout(() => {
+        this.showVolumeIndicator = false;
+      }, this.volumeDelayMills);
+    }
+  },
+
   data() {
     return {
       OpState,
       state: OpState.idle, // state == OpState.horize 表示进入进度调整模式
       vertTriggerPixels: 15, // 向上触发像素距离
       horizeTriggerPixels: 10, // 左右触发像素距离
+
+      showVolumeIndicator: false,
+      volumeIndicatorWidth: 8, // 音量指示器宽度 pixel
+      volumeDelayMills: 1000, // 音量指示器显示时间
+      volumeDelayHideTimeoutId: 0, // timeout id
 
       startClientX: 0,
       startClientY: 0,
@@ -355,6 +380,17 @@ export default {
   height: 100%;
   /* width: 100%; */
   opacity: 1;
+  transition: 0.5s;
+}
+
+.volumeIndicator {
+  position: absolute;
+  background: rgba($warning, $alpha: 0.8);
+  height: 100%;
+  right: 0;
+  bottom: 0;
+  border-radius: 3px 3px 0 0;
+  transition: 0.5s;
 }
 
 .simple-progress-dark {
@@ -438,5 +474,6 @@ export default {
   opacity: 0.7;
   white-space: nowrap;
 }
+
 
 </style>
