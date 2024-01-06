@@ -248,3 +248,12 @@ export function audioLyricNameMatch(aname, lname) {
 
   return false;
 }
+
+// 多关键字搜索子条件类型
+export const AdvanceSearchCondType = {
+  UNKNOWN: 0,
+  FUZZY: 1, // 全文模糊搜索，包括标题，
+  VA: 2,
+  TAG: 3,
+  CIRCLE: 4,
+}

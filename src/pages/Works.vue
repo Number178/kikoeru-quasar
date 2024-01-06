@@ -1,14 +1,51 @@
 <template>
   <div>
     <!--没有搜索的情况下，显示最近播放作品-->
-    <RecentWorks v-if="searchMetas.length == 0" />
+    <RecentWorks v-if="!isAdvanceSearch && searchMetas.length == 0" />
+
+    <!--
+      TODO: 当前版本的quasar的input在iOSsafari中输入中文时有bug，
+      拼音也会被更新到data中，看了一下quasar官网的demo是没有这个问题的（版本不明），
+      用原生的input组件也没有问题，应该是这个项目里quasar版本太老，有些bug，
+      以后升级quasar版本试试能不能解决这个问题
+    -->
+    <div v-if="isAdvanceSearch" class="q-pa-md q-full-width">
+      <q-input
+        outlined
+        autofocus
+        label="关键字搜索"
+        :hint="advanceSearchBarHint"
+        v-model="editKeyword"
+        @keyup.enter="onAddAdvanceSearchKeyword"
+      >
+        <template v-slot:append>
+          <q-btn round dense flat icon="add" @click="onAddAdvanceSearchKeyword"/>
+        </template>
+      </q-input>
+    </div>
     
     <div class="q-mt-lg q-ml-md row items-center">
       <span class="text-h5 text-weight-regular q-pa-xs relative-position">
         {{pageTitle}}
         <q-badge color="secondary" floating>{{pagination.totalCount}}</q-badge>
       </span>
-      <q-badge v-for="meta, index in searchMetas" :key="meta">{{ index == 0 ? "":"," }} {{ meta }}</q-badge>
+      <div v-if="isAdvanceSearch"><!--高级搜索模式的多关键字展示-->
+        <q-badge class="q-ma-xs" v-for="meta,index in advanceSearchKeywords" :key="meta.t+meta.d">
+          {{ meta.d }}
+          <q-btn
+            class="q-ml-sm search-tag-close-btn"
+            padding="xs"
+            round
+            flat 
+            size="xs"
+            icon="close"
+            @click="removeAdvanceSearchKeyword(index)"
+          />
+        </q-badge>
+      </div>
+      <div v-else> <!--普通搜索模式的信息展示-->
+        <q-badge class="q-ma-xs" v-for="meta, index in searchMetas" :key="meta">{{ index == 0 ? "":"," }} {{ meta }}</q-badge>
+      </div>
     </div>
 
     <div class="row justify-between q-mb-md q-mx-sm">
@@ -173,6 +210,7 @@ import NotifyMixin from '../mixins/Notification.js'
 import RecentWorks from 'src/components/RecentWorks'
 import { mapState } from 'vuex'
 import OldWorkCard from 'src/components/OldWorkCard'
+import { AdvanceSearchCondType } from '../utils.js'
 
 export default {
   name: 'Works',
@@ -213,6 +251,20 @@ export default {
       sortInDesc: true,
 
       touchedWorkId: 0, // 用来解决android移动端设备没有hover事件导致workCard不能跟随手指显示标签的问题
+
+      /*
+        advanceSearchKeywords
+        [
+          {t: 1, d: "異世界"}, // 模糊匹配，目前只实现这一个
+          {t: 2, d: "恋鈴桃歌"}, // 声优匹配，实际搜索字段在前端就要变成id
+          {t: 3, d: "环绕音"}, // 标签匹配，实际搜索字段在前端就要变成id
+          {t: 3, d: "治愈"}, // 标签匹配，实际搜索字段在前端就要变成id
+          {t: 4, d: "Delivery Voice"}, // 社团匹配，实际搜索字段在前端就要变成id
+        ]
+      */
+      editKeyword: "",
+      advanceSearchKeywords: [],
+      isAdvanceSearch: false,
     }
   },
 
@@ -243,6 +295,11 @@ export default {
     if (localStorage.detailMode) {
       this.detailMode = (localStorage.detailMode === 'true');
     }
+    if (localStorage.advanceSearchKeywords) {
+      this.advanceSearchKeywords = JSON.parse(localStorage.advanceSearchKeywords || "[]");
+    }
+
+    this.checkAdvanceSearchMode()
   },
 
   computed: {
@@ -254,11 +311,17 @@ export default {
         return `/api/tags/${this.$route.query.tagId}/works`
       } else if (query.vaId) {
         return `/api/vas/${this.$route.query.vaId}/works`
-      } else if (query.keyword) {
-        return `/api/search/${query.keyword}`
+      } else if (query.keyword || this.isAdvanceSearch) {
+        // keyword should pass in as a query param later
+        return `/api/search`
       } else {
         return '/api/works'
       }
+    },
+
+    advanceSearchBarHint() {
+      if (this.editKeyword === "") return "模糊关键字，可搜索作品名、声优名、标签名、社团名"
+      else return "按回车或者右侧加号添加"
     },
 
     ...mapState('AudioPlayer', [
@@ -313,6 +376,22 @@ export default {
     detailMode(newModeSetting) {
       localStorage.detailMode = newModeSetting;
     },
+
+    advanceSearchKeywords(newValue) {
+      localStorage.advanceSearchKeywords = JSON.stringify(newValue, null, 0)
+      this.reset()
+    },
+
+    '$route.name': {
+      handler: function() {
+        // 高级搜索模式通过route.name进行判断，因此当这个属性变化的时候，需要及时更新状态，
+        // 否则会出现url跳转到聚合搜索页面后，页面没有更新的问题，
+        // 因为被vue复用组件了，需要重新检查一遍
+        this.checkAdvanceSearchMode()
+      },
+      deep: true,
+      immediate: true
+    }
   },
 
   methods: {
@@ -328,7 +407,14 @@ export default {
         order: this.sortCategoryOption,
         nsfw: parseInt(this.nsfwOption.replace("nsfw_", "")), // 'nsfw_0' => 0, 'nsfw_1' => 1, 'nsfw_2' => 2
         lyric: this.lyricOption === null ? "" : this.lyricOption.map(o => o.replace("lyric_", "")).sort().join("_"), // ["lyric_local", "lyric_ai"] => "ai_local"
-        seed: this.seed
+        seed: this.seed,
+        isAdvance: this.isAdvanceSearch ? 1 : 0
+      }
+
+      if (this.isAdvanceSearch) {
+        params.keyword = JSON.stringify(this.advanceSearchKeywords, null, 0)
+      } else if (this.$route.query.keyword) {
+        params.keyword = this.$route.query.keyword
       }
 
       return this.$axios.get(this.url, { params })
@@ -401,6 +487,9 @@ export default {
       } else if (this.$route.query.keyword) {
         this.pageTitle = '搜索关键字：';
         this.searchMetas = [this.$route.query.keyword];
+      } else if (this.isAdvanceSearch) {
+        this.pageTitle = '聚合搜索：'
+
       } else {
         this.pageTitle = '所有作品'
         this.searchMetas = [];
@@ -444,7 +533,39 @@ export default {
     onWorkCardTouch(id) {
       this.touchedWorkId = id;
       console.log('touch on work id = ', id);
+    },
+
+    checkAdvanceSearchMode() {
+      this.isAdvanceSearch = this.$route.name == "advance search";
+    },
+
+    onAddAdvanceSearchKeyword() {
+      const keyword = this.editKeyword.trim()
+      if (keyword === "") {
+        this.showErrNotif("无法添加空白的关键字");
+        return;
+      }
+
+      for (let kw of this.advanceSearchKeywords) {
+        if (kw.t == AdvanceSearchCondType.FUZZY && kw.d == keyword) {
+          this.showErrNotif("关键字重复，添加失败");
+          return;
+        }
+      }
+
+
+      this.advanceSearchKeywords.push({
+        t: AdvanceSearchCondType.FUZZY,
+        d: keyword,
+      });
+      this.editKeyword = "";
+      this.reset();
+    },
+
+    removeAdvanceSearchKeyword(index) {
+      this.advanceSearchKeywords.splice(index, 1);
     }
+
   },
 }
 </script>
@@ -463,4 +584,8 @@ export default {
       width: 560px;
     }
   }
+.search-tag-close-btn {
+  background: rgba(144, 144, 144, 0.4);
+  color: white
+}
 </style>

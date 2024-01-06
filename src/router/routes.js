@@ -64,6 +64,11 @@ const routes = [
         component: Work
       },
       {
+        path: 'search',
+        name: 'advance search', // 必要，Works页面根据这个name判断是否开启高级搜索功能
+        component: Works,
+      },
+      {
         path: 'circles',
         props: { restrict: "circles" },
         component: List

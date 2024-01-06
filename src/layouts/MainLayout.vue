@@ -12,7 +12,12 @@
           </router-link>
         </q-toolbar-title>
 
-        <q-input dark dense rounded standout v-model="keyword" debounce="500" input-class="text-right" class="q-mr-sm">
+        <q-input v-if="$route.name !== 'advance search'" dark dense rounded standout v-model="keyword" debounce="500" input-class="text-right" class="q-mr-sm">
+          <template v-slot:before>
+            <q-btn round dense flat icon="manage_search" to="/search">
+              <q-tooltip>点此进入聚合搜索，支持多关键字搜索</q-tooltip>
+            </q-btn>
+          </template>
           <template v-slot:append>
             <q-icon v-if="keyword === ''" name="search" />
             <q-icon v-else name="clear" class="cursor-pointer" @click="keyword = ''" />
@@ -215,6 +220,11 @@ export default {
           title: '媒体库',
           icon: 'widgets',
           path: '/'
+        },
+        {
+          title: '聚合搜索',
+          icon: 'manage_search',
+          path: '/search'
         },
         {
           title: '大图模式',
@@ -439,11 +449,13 @@ export default {
 
     getLinks() {
       return this.links.filter(link => {
+        // 尚未播放时，不要显示fullScreenPlayer这个页面
         if (link.path === '/fullScreenPlayer' && this.playWorkId == 0)
           return false;
         return true;
       }).map(link => {
         if (link.path === '/fullScreenPlayer') {
+          // fullScreenPlayer这个时候肯定有在播放作品，将playerWorkId添加到url中，方便刷新后依然能够找到对应的作品
           link = {...link}; // copy
           link.path += `/${this.playWorkId}`;
         }
