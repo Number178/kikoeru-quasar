@@ -43,6 +43,7 @@ import Lyric from 'lrc-file-parser'
 import { mapState, mapGetters, mapMutations } from 'vuex'
 import NotifyMixin from '../mixins/Notification.js'
 import { formatSeconds, basenameWithoutExt, audioLyricNameMatch, ServerApi, AILyricTaskStatus } from '../utils'
+import { debounce } from 'quasar';
 
 function convert_srt_vtt_to_lrc(text) {
   let lines = text.split("\n").map(l => l.trim())
@@ -172,6 +173,7 @@ export default {
       'newCurrentTime',
       'enableVideoSource',
       'lyricOffsetSeconds',
+      'enablePIPLyrics',
     ]),
 
     ...mapGetters('AudioPlayer', [
@@ -243,6 +245,17 @@ export default {
       this.playLrc(true); // 强制更新一下歌词时间
       this.playLrc(this.playing); // 强制更新一下歌词时间
     },
+    enablePIPLyrics(enablePIP) {
+      if (enablePIP) {
+        this.playLrc(false)
+      } else {
+        this.playLrc(this.playing)
+      }
+    }
+  },
+
+  created() {
+    this.playLrc = debounce(this.playLrc, 100, true /* 首次更改应当立即生效，对后续更改防抖动 */); // 防抖动
   },
 
   methods: {
@@ -313,6 +326,7 @@ export default {
     onTimeupdate () {
       // 当目前的播放位置已更改时触发
       this.SET_CURRENT_TIME(this.player.currentTime)
+      if (this.enablePIPLyrics) this.playLrc(false) // 开启桌面歌词后，用视频的time更新事件驱动歌词更新，false表示禁用掉LrcObject本身的事件更新
       if (this.sleepMode && this.sleepTime) {
         const currentTime = new Date()
         const currentHourStr = currentTime.getHours().toString().padStart(2, '0')
@@ -381,6 +395,7 @@ export default {
         if (playStatus) {
           this.lrcObj.play((this.player.currentTime + this.lyricOffsetSeconds) * 1000);
         } else {
+          this.lrcObj.play((this.player.currentTime + this.lyricOffsetSeconds) * 1000); // update and pause lyric
           this.lrcObj.pause();
         }
       }

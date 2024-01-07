@@ -1,7 +1,7 @@
 <template>
   <div :class="visibility" class="topClass">
     <canvas ref="canvas" width="500" height="60" class="sized"></canvas>
-    <video ref="video" class="sized" muted playsinline preload="metadata" controls="controls" style="display: inline;"></video>
+    <video ref="video" class="sized" muted="muted" playsinline preload="metadata" controls="controls" style="display: inline;"></video>
   </div>
 </template>
 
@@ -15,6 +15,10 @@ export default {
   computed: {
     video() {
       return this.$refs.video;
+    },
+
+    canvas() {
+      return this.$refs.canvas
     },
 
     ...mapState('AudioPlayer', [
@@ -37,6 +41,14 @@ export default {
       isFireFox: navigator.userAgent.toLowerCase().indexOf('firefox') > -1,
       isVideoCanPlay: false, // 用以记录video能否播放并进入画中画模式，如果用户操作太快，此时video还没有准备好，需要延迟到video canplay事件发生后才能进入画中画状态
       pixelRatio: window.devicePixelRatio,
+
+
+      lastProcessedWindowSize: {
+        height: 0,
+        width: 0
+      },
+      pipWindow: null,
+      resizePatchTimeoutID: 0,
     }
   },
 
@@ -47,6 +59,7 @@ export default {
       // const pixelRatio = 1;
       canvas.width = this.pixelRatio * window.innerWidth
       canvas.height = canvas.width / 500 * 60
+      console.warn(`pip canvas init size: ${this.canvas.width} x ${this.canvas.height}`)
 
       // const ctx = this.ctx
       // let color = 0
@@ -71,11 +84,14 @@ export default {
     },
 
     drawLyric(str) {
+      console.log('draw lyric: ', str)
       // str += " 强制增加歌词长度测试，强制增加歌词长度测试，强制增加歌词长度测试，"
-      const fontScale = 1.5
+      const fontScale = 0.7 
+      const expectCharCount = 30
       const cvs = this.$refs.canvas
       const ctx = this.ctx
-      const fontsize = fontScale * cvs.width / 30
+
+      const fontSize = fontScale * Math.round(Math.sqrt((cvs.width * cvs.height) / expectCharCount))
 
       const isDarkMode = this.$q.dark.isActive;
 
@@ -84,22 +100,21 @@ export default {
       ctx.fillStyle = isDarkMode ? 'rgba(50, 50, 50, 1.0)' : "rgba(255, 255, 255, 1.0)"
       ctx.fillRect(0, 0, cvs.width, cvs.height)
 
-      ctx.font = `bold ${fontsize * 0.9
-        }px "-apple-system", "BlinkMacSystemFont", "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", "Helvetica", "Arial", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"`
+      ctx.font = `bold ${fontSize}px "-apple-system", "BlinkMacSystemFont", "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", "Helvetica", "Arial", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"`
       ctx.fillStyle = '#9c27b0'
 
       // 可绘制参数
       const padWidth = 5
       const padHeight = 0
 
-      const allowedLines = Math.floor((cvs.height - padHeight * 2) / fontsize)
+      const allowedLines = Math.floor((cvs.height - padHeight * 2) / fontSize)
       const allowedWidth = cvs.width - padWidth * 2
 
       // 首次测量全部字符串
       const allTxt = ctx.measureText(str)
       const neededLines = Math.ceil(allTxt.width / allowedWidth)
       const drawLines = Math.min(neededLines, allowedLines)
-      const restLineHeight = cvs.height - drawLines * fontsize
+      const restLineHeight = cvs.height - drawLines * fontSize
       let readCharIdx = 0 // 将要添加到绘制行的字符序号
 
       const chars = str.split("")
@@ -132,33 +147,53 @@ export default {
         // 绘制lineStr
         const drawX = padWidth + (cvs.width - lineStrMetric.width) / 2
 
-        const drawY = restLineHeight / 2 + line * fontsize + lineStrMetric.actualBoundingBoxAscent
+        const drawY = restLineHeight / 2 + line * fontSize + lineStrMetric.actualBoundingBoxAscent
         ctx.fillText(lineStr, drawX, drawY)
 
         // ctx.fillRect(0, drawY, canvas.width, 2) // draw base line for reference
       }
+
+      this.video.srcObject.getTracks().forEach((t => t.requestFrame && t.requestFrame()));
     },
 
     initVideos() {
       const stream = this.$refs.canvas.captureStream()
       this.video.srcObject = stream
-      this.video.onleavepictureinpicture = () => {
+      
+      this.isVideoCanPlay = true;
+      this.video.addEventListener("loadedmetadata", () => {
+        console.log("pip video ready")
+        this.isVideoCanPlay = true;
+      })
+      this.video.addEventListener("enterpictureinpicture", (event) => {
+        this.pipWindow = event.pictureInPictureWindow
+        this.pipWindow.onresize = () => {
+          this.onPipWindowResize()
+        }
+        setTimeout(() => this.onPipWindowResize(), 500)
+        console.warn("enter pip")
+      })
+      this.video.addEventListener("leavepictureinpicture", () => {
         if (!this.stopPIPLyric) return // 组件已经被销毁
         this.stopPIPLyric()
         this.setEnablePIPLyrics(false)
-        // video.onleavepictureinpicture = ()=> {}
-      }
-      this.video.onloadedmetadata = () => {
-        console.log("pip video ready")
-        this.isVideoCanPlay = true;
-      }
+        this.pipWindow = null
+      })
       this.video.play()
       this.forceVideoStartLoadMetadata()
     },
 
+    onPipWindowResize() {
+      // console.warn("pip window resize: ", this.pipWindow.width, this.pipWindow.height)
+      if (!this.pipWindow) return
+      this.canvas.width = Math.round(this.pixelRatio * this.pipWindow.width);
+      this.canvas.height = Math.round(this.pixelRatio * this.pipWindow.height);
+      this.drawLyric(this.currentLyric)
+    },
+
     forceVideoStartLoadMetadata() {
       // 首先绘制一次，初始化video状态，保证dataloaded，是的后续画中画状态能够立即进入
-      let forceDrawCount = 10;
+      let forceDrawCount = 5;
       const draw = () => {
         if (forceDrawCount < 0) {
           if (!this.enablePIPLyrics || !this.playing)this.video.pause() // 停止强制渲染后，根据播放器状态决定video是否暂停
@@ -166,13 +201,13 @@ export default {
         }
         forceDrawCount--;
         requestAnimationFrame(draw)
-        this.drawLyric("  ") 
+        this.drawLyric(this.currentLyric) 
       }
       requestAnimationFrame(draw)
     },
 
     openPIPVideoMode() {
-      this.drawLyric(this.currentLyric) // 首先绘制一次
+      // this.drawLyric(this.currentLyric) // 首先绘制一次
       this.video.play()
       console.log("打开桌面歌词")
 
@@ -306,6 +341,7 @@ export default {
     },
     playing() {
       this.syncPlayingStateFromAudioToPIPVideo()
+      this.drawLyric(this.currentLyric);
     },
     "$q.dark.isActive"() {
       // 监听黑夜模式，立即重新绘制
@@ -321,6 +357,7 @@ export default {
     //                            -------------play/pause-----`
     this.syncPlayingStateFromAudioToPIPVideo = debounce(this.syncPlayingStateFromAudioToPIPVideo, 500) // ms
     this.syncPlayingStateFromPIPVideoToAudio = debounce(this.syncPlayingStateFromPIPVideoToAudio, 500) // ms
+    this.onPipWindowResize = debounce(this.onPipWindowResize, 100, true /*immediate*/)
   },
 
   mounted() {
