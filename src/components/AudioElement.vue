@@ -241,8 +241,7 @@ export default {
       this.player.currentTime = v;
       this.SET_NEW_CURRENT_TIME(-1); // 标记时间已经更新到media上了
     },
-    lyricOffsetSeconds(v) {
-      this.playLrc(true); // 强制更新一下歌词时间
+    lyricOffsetSeconds() {
       this.playLrc(this.playing); // 强制更新一下歌词时间
     },
     enablePIPLyrics(enablePIP) {
@@ -255,7 +254,7 @@ export default {
   },
 
   created() {
-    this.playLrc = debounce(this.playLrc, 100, true /* 首次更改应当立即生效，对后续更改防抖动 */); // 防抖动
+    this.debouncedPlayLrc = debounce(this.playLrc, 100, true /* 首次更改应当立即生效，对后续更改防抖动 */); // 防抖动
   },
 
   methods: {
@@ -326,7 +325,7 @@ export default {
     onTimeupdate () {
       // 当目前的播放位置已更改时触发
       this.SET_CURRENT_TIME(this.player.currentTime)
-      if (this.enablePIPLyrics) this.playLrc(false) // 开启桌面歌词后，用视频的time更新事件驱动歌词更新，false表示禁用掉LrcObject本身的事件更新
+      if (this.enablePIPLyrics) this.debouncedPlayLrc(false) // 开启桌面歌词后，用视频的time更新事件驱动歌词更新，false表示禁用掉LrcObject本身的事件更新
       if (this.sleepMode && this.sleepTime) {
         const currentTime = new Date()
         const currentHourStr = currentTime.getHours().toString().padStart(2, '0')
