@@ -145,7 +145,7 @@
                     </q-item-label>
 
                     <q-item-label caption class="text-white">
-                      {{`RJ${item.rjcode}`}}
+                      {{`${item.rjcode}`}}
                     </q-item-label>
                   </q-item-section>
                 </template>
@@ -265,11 +265,11 @@ export default {
     allLogs () {
       const resultLogs = this.results.map(res => {
         if (res.result === 'added') {
-          return { level: 'info', message: `[RJ${res.rjcode}] 添加成功! Added: ${res.count}` }
+          return { level: 'info', message: `[${res.rjcode}] 添加成功! Added: ${res.count}` }
         } else if (res.result === 'updated') {
-          return { level: 'info', message: `[RJ${res.rjcode}] 更新成功! Updated: ${res.count}` }
+          return { level: 'info', message: `[${res.rjcode}] 更新成功! Updated: ${res.count}` }
         } else {
-          return { level: 'error', message: `[RJ${res.rjcode}] 处理失败! Failed: ${res.count}` }
+          return { level: 'error', message: `[${res.rjcode}] 处理失败! Failed: ${res.count}` }
         }
       })
       return this.mainLogs.concat(resultLogs)

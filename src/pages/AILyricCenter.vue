@@ -6,7 +6,7 @@
     <div class="row">
       <q-input class="col col-sm-12 q-pa-sm" dense outlined v-model="filterWorkId" label="搜索作品id" type="number">
         <template v-slot:prepend>
-          RJ
+          番号
         </template>
       </q-input>
       <q-input class="col col-sm-12 q-pa-sm" dense outlined v-model="filterFileName" label="搜索文件名">
@@ -57,7 +57,7 @@
                 <q-item-label>{{ task.audio_path }}</q-item-label>
                 <div class="row">
                   <q-chip square text-color="primary" icon="library_music">
-                    RJ{{ formatID(task.work_id)  }}
+                    {{ idNumberToCode(task.work_id)  }}
                   </q-chip>
                   <q-chip square color="brown-13" icon="engineering">
                     {{ task.worker_name }}
@@ -83,7 +83,7 @@
 import { mapState } from 'vuex'
 import { copyToClipboard } from 'quasar';
 import { ServerApi, AILyricTaskStatus } from "../utils.js"
-import { formatID } from '../utils.js';
+import { idNumberToCode } from '../utils.js';
 import NotifyMixin from '../mixins/Notification.js'
 
 export default {
@@ -107,7 +107,7 @@ export default {
       // },
       tasks: [],
       AILyricTaskStatus,
-      formatID,
+      idNumberToCode,
 
       filterWorkId: "",
       filterFileName: "",

@@ -71,7 +71,7 @@
 
           <!-- DLsite链接 -->
           <div class="col-auto">
-            <q-icon name="launch" size="xs" /><a class="text-blue" :href="`https://www.dlsite.com/home/work/=/product_id/RJ${dlsiteCode}.html`" rel="noreferrer noopener" target="_blank">DLsite</a>
+            <q-icon name="launch" size="xs" /><a class="text-blue" :href="`https://www.dlsite.com/home/work/=/product_id/${dlsiteCode}.html`" rel="noreferrer noopener" target="_blank">DLsite</a>
           </div>
         </div>
       </div>
@@ -181,6 +181,7 @@ import CoverSFW from 'components/CoverSFW'
 import WriteReview from './WriteReview'
 import NotifyMixin from '../mixins/Notification.js'
 import { mapState } from 'vuex'
+import { idNumberToCode } from 'src/utils'
 
 export default {
   name: 'WorkDetails',
@@ -218,11 +219,7 @@ export default {
     },
     
     dlsiteCode() {
-      let c = String(this.metadata.id);
-      c = this.metadata.id > 1000000 
-        ? c.padStart(8,'0')  // 8位RJ番号
-        : c.padStart(6,'0'); // 6位RJ番号
-      return c;
+      return idNumberToCode(this.metadata.id);
     },
 
     ...mapState('AudioPlayer', [

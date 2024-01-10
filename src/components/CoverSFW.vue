@@ -10,7 +10,7 @@
   >
     <div class="absolute-top-left transparent" style="padding: 0;">
       <q-chip dense square color="brown" text-color="white" class="q-ma-sm shadow-3">
-        {{`RJ${rjcode}`}}
+        {{`${rjcode}`}}
       </q-chip>
     </div>
 
@@ -46,7 +46,7 @@
 
 <script>
 
-import { formatID } from 'src/utils'
+import { idNumberToCode } from 'src/utils'
 
 export default {
   name: 'CoverSFW',
@@ -92,8 +92,7 @@ export default {
     },
 
     rjcode () {
-      // return (`000000${this.workid}`).slice(-6)
-      return formatID(this.workid)
+      return idNumberToCode(this.workid)
     },
 
     imgClass () {

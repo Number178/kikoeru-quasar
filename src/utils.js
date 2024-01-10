@@ -1,19 +1,54 @@
 import axios from "axios";
 /**
- * 格式化 id，适配 8 位、6 位 id
+ * 格式化 id，适配 8 位、6 位 id，转换成带有RJ前缀的番号
+ * 为了兼容BJ等其他形式的作品番号，规定：
+ * 1. 保留整数末尾的12位十进制用于番号的数字部分，比如RJ01234567中的1234567，称为id数字
+ * 2. 高于12位十进制的部分，存储番号类型，用来指代RJ、BJ或者其他，称为id类型
+ * 3. RJ的id类型为0，向前兼容
+ * 4. BJ的id类型为1
  * @param {number} id
  * @return {string}
  */
-export function formatID(id) {
-  if (id >= 1000000) {
+const idSplitter = 1e12
+export function getIdType(id) {
+  const t = typeof(id);
+  switch (t) {
+    case "string": return id.substring(0, 2);
+    case "number": return Math.floor(id / idSplitter);
+    default: throw Error(`get id type failed, ${id} is unsupported type ${t}`)
+  }
+}
+export function getIdDigit(id) {
+  const t = typeof(id);
+  switch (t) {
+    case "string": return id.substring(2);
+    case "number": return Math.floor(id % idSplitter);
+    default: throw Error(`get id digit failed, ${id} is unsupported type ${t}`)
+  }
+}
+export function formatID(idDigit) {
+  if (idDigit >= 1000000) {
     // 大于 7 位数，则补全为 8 位
-    id = `0${id}`.slice(-8);
+    return `0${idDigit}`.slice(-8);
   } else {
     // 否则补全为 6 位
-    id = `000000${id}`.slice(-6);
+    return `000000${idDigit}`.slice(-6);
   }
-
-  return id;
+}
+export function idNumberToCode(id) {
+  const idDigit = getIdDigit(id);
+  const idType = getIdType(id);
+  const idPrefix = ["RJ", "BJ"][idType];
+  return `${idPrefix}${formatID(idDigit)}`;
+}
+export function codeToIdNumber(code) {
+  if (code.startsWith("RJ")) {
+    return parseInt(code.substr(2))
+  } else if (code.startsWith("BJ")) {
+    return 1 * idSplitter + parseInt(code.substr(2))
+  } else {
+    throw Error(`unkown code format: ${code}`)
+  }
 }
 
 export function formatSeconds(seconds) {

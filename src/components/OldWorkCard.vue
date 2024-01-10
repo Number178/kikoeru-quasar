@@ -111,6 +111,7 @@
 <script>
 import CoverSFW from 'components/CoverSFW'
 import NotifyMixin from '../mixins/Notification.js'
+import { idNumberToCode } from 'src/utils.js'
 
 export default {
   name: 'WorkCard',
@@ -149,11 +150,7 @@ export default {
       return this.metadata.rate_count_detail.slice().sort(compare);
     },
     dlsiteCode() {
-      let c = String(this.metadata.id);
-      c = this.metadata.id > 1000000 
-        ? c.padStart(8,'0')  // 8位RJ番号
-        : c.padStart(6,'0'); // 6位RJ番号
-      return c;
+      return idNumberToCode(this.metadata.id);
     }
   },
 
