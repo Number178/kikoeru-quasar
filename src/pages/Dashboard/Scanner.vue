@@ -104,7 +104,7 @@
 
                   <q-item-section>
                     <q-item-label v-if="item.logs.length > 0" class="ellipsis">{{item.logs[item.logs.length - 1].message}}</q-item-label>
-                    <q-item-label caption>{{`RJ${item.rjcode}`}}</q-item-label>
+                    <q-item-label caption>{{`${item.rjcode}`}}</q-item-label>
                   </q-item-section>
                 </template>
                 
