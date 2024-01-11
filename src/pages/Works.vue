@@ -391,7 +391,11 @@ export default {
       },
       deep: true,
       immediate: true
-    }
+    },
+
+    '$route.query.keyword'() {
+      this.reset()
+    },
   },
 
   methods: {
